@@ -106,7 +106,7 @@ export function UnregisteredProductSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:max-w-[400px]">
+      <SheetContent side="right" className="w-full sm:w-[400px] sm:max-w-[400px]">
         <SheetHeader>
           <SheetTitle className="text-foreground">Producto no registrado</SheetTitle>
           <SheetDescription>
