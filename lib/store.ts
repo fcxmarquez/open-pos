@@ -1,7 +1,6 @@
 "use client"
 
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
 
 // Types
 export type Category = "General" | "Papelería" | "Útiles escolares" | "Arte" | "Oficina" | "Otro"
@@ -152,6 +151,50 @@ function createSeedReconciliations(): Reconciliation[] {
   ]
 }
 
+// Helper to load persisted state from localStorage
+const STORAGE_KEY = "papeleria-pos-storage"
+
+interface PersistedState {
+  products: Product[]
+  sales: Sale[]
+  reconciliations: Reconciliation[]
+}
+
+function loadPersistedState(): PersistedState | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      return JSON.parse(raw) as PersistedState
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return null
+}
+
+function saveState(state: PersistedState) {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function getInitialData(): PersistedState & { _initialized: boolean } {
+  const persisted = loadPersistedState()
+  if (persisted && persisted.products.length > 0) {
+    return { ...persisted, _initialized: true }
+  }
+  const products = createSeedProducts()
+  const sales = createSeedSales(products)
+  const reconciliations = createSeedReconciliations()
+  const data = { products, sales, reconciliations }
+  saveState(data)
+  return { ...data, _initialized: true }
+}
+
 // Store interface
 interface PosStore {
   // Products
@@ -184,184 +227,168 @@ interface PosStore {
   _initialized: boolean
 }
 
-export const useStore = create<PosStore>()(
-  persist(
-    (set, get) => ({
-      _initialized: false,
-      products: [],
-      cart: [],
-      sales: [],
-      reconciliations: [],
+const initial = typeof window !== "undefined" ? getInitialData() : { products: [], sales: [], reconciliations: [], _initialized: false }
 
-      addProduct: (productData) => {
-        const newProduct: Product = {
-          ...productData,
-          id: generateId(),
-          createdAt: new Date().toISOString(),
-        }
-        set((state) => ({
-          products: [...state.products, newProduct],
-        }))
-        return newProduct
-      },
+export const useStore = create<PosStore>()((set, get) => ({
+  _initialized: initial._initialized,
+  products: initial.products,
+  cart: [],
+  sales: initial.sales,
+  reconciliations: initial.reconciliations,
 
-      updateProduct: (id, updates) => {
-        set((state) => ({
-          products: state.products.map((p) =>
-            p.id === id ? { ...p, ...updates } : p
-          ),
-        }))
-      },
-
-      deleteProduct: (id) => {
-        set((state) => ({
-          products: state.products.filter((p) => p.id !== id),
-        }))
-      },
-
-      findProductByBarcode: (barcode) => {
-        return get().products.find((p) => p.barcode === barcode)
-      },
-
-      searchProducts: (query) => {
-        const q = query.toLowerCase()
-        return get().products.filter(
-          (p) =>
-            p.name.toLowerCase().includes(q) ||
-            p.barcode.includes(q)
-        )
-      },
-
-      addToCart: (product, quantity = 1) => {
-        set((state) => {
-          const existing = state.cart.find(
-            (item) => item.product.id === product.id
-          )
-          if (existing) {
-            return {
-              cart: state.cart.map((item) =>
-                item.product.id === product.id
-                  ? { ...item, quantity: item.quantity + quantity }
-                  : item
-              ),
-            }
-          }
-          return {
-            cart: [...state.cart, { product, quantity }],
-          }
-        })
-      },
-
-      removeFromCart: (productId) => {
-        set((state) => ({
-          cart: state.cart.filter((item) => item.product.id !== productId),
-        }))
-      },
-
-      updateCartQuantity: (productId, quantity) => {
-        if (quantity <= 0) {
-          get().removeFromCart(productId)
-          return
-        }
-        set((state) => ({
-          cart: state.cart.map((item) =>
-            item.product.id === productId ? { ...item, quantity } : item
-          ),
-        }))
-      },
-
-      clearCart: () => set({ cart: [] }),
-
-      getCartTotal: () => {
-        return get().cart.reduce(
-          (sum, item) => sum + item.product.price * item.quantity,
-          0
-        )
-      },
-
-      completeSale: (payment) => {
-        const state = get()
-        const total = state.getCartTotal()
-        const now = new Date()
-
-        // Update lastSoldAt for sold products
-        const soldProductIds = state.cart.map((item) => item.product.id)
-
-        const sale: Sale = {
-          id: generateId(),
-          items: [...state.cart],
-          total,
-          payment,
-          change: payment - total,
-          timestamp: now.toISOString(),
-          date: getTodayDate(),
-        }
-
-        set((state) => ({
-          sales: [...state.sales, sale],
-          cart: [],
-          products: state.products.map((p) =>
-            soldProductIds.includes(p.id)
-              ? { ...p, lastSoldAt: now.toISOString() }
-              : p
-          ),
-        }))
-
-        return sale
-      },
-
-      getTodaySales: () => {
-        const today = getTodayDate()
-        return get().sales.filter((s) => s.date === today)
-      },
-
-      getTodayTotal: () => {
-        const today = getTodayDate()
-        return get()
-          .sales.filter((s) => s.date === today)
-          .reduce((sum, s) => sum + s.total, 0)
-      },
-
-      addReconciliation: (countedTotal) => {
-        const state = get()
-        const todaySales = state.getTodaySales()
-        const systemTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
-        const itemsSold = todaySales.reduce(
-          (sum, s) => sum + s.items.reduce((is, i) => is + i.quantity, 0),
-          0
-        )
-
-        const reconciliation: Reconciliation = {
-          id: generateId(),
-          date: getTodayDate(),
-          systemTotal,
-          countedTotal,
-          difference: countedTotal - systemTotal,
-          salesCount: todaySales.length,
-          itemsSold,
-          closedAt: new Date().toISOString(),
-        }
-
-        set((state) => ({
-          reconciliations: [...state.reconciliations, reconciliation],
-        }))
-      },
-    }),
-    {
-      name: "papeleria-pos-storage",
-      onRehydrateStorage: () => (state) => {
-        if (state && state.products.length === 0) {
-          const products = createSeedProducts()
-          const sales = createSeedSales(products)
-          const reconciliations = createSeedReconciliations()
-          state.products = products
-          state.sales = sales
-          state.reconciliations = reconciliations
-        }
-        if (state) {
-          state._initialized = true
-        }
-      },
+  addProduct: (productData) => {
+    const newProduct: Product = {
+      ...productData,
+      id: generateId(),
+      createdAt: new Date().toISOString(),
     }
-  )
-)
+    set((state) => {
+      const next = { products: [...state.products, newProduct] }
+      saveState({ products: next.products, sales: state.sales, reconciliations: state.reconciliations })
+      return next
+    })
+    return newProduct
+  },
+
+  updateProduct: (id, updates) => {
+    set((state) => {
+      const products = state.products.map((p) => (p.id === id ? { ...p, ...updates } : p))
+      saveState({ products, sales: state.sales, reconciliations: state.reconciliations })
+      return { products }
+    })
+  },
+
+  deleteProduct: (id) => {
+    set((state) => {
+      const products = state.products.filter((p) => p.id !== id)
+      saveState({ products, sales: state.sales, reconciliations: state.reconciliations })
+      return { products }
+    })
+  },
+
+  findProductByBarcode: (barcode) => {
+    return get().products.find((p) => p.barcode === barcode)
+  },
+
+  searchProducts: (query) => {
+    const q = query.toLowerCase()
+    return get().products.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.barcode.includes(q)
+    )
+  },
+
+  addToCart: (product, quantity = 1) => {
+    set((state) => {
+      const existing = state.cart.find((item) => item.product.id === product.id)
+      if (existing) {
+        return {
+          cart: state.cart.map((item) =>
+            item.product.id === product.id
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          ),
+        }
+      }
+      return {
+        cart: [...state.cart, { product, quantity }],
+      }
+    })
+  },
+
+  removeFromCart: (productId) => {
+    set((state) => ({
+      cart: state.cart.filter((item) => item.product.id !== productId),
+    }))
+  },
+
+  updateCartQuantity: (productId, quantity) => {
+    if (quantity <= 0) {
+      get().removeFromCart(productId)
+      return
+    }
+    set((state) => ({
+      cart: state.cart.map((item) =>
+        item.product.id === productId ? { ...item, quantity } : item
+      ),
+    }))
+  },
+
+  clearCart: () => set({ cart: [] }),
+
+  getCartTotal: () => {
+    return get().cart.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0
+    )
+  },
+
+  completeSale: (payment) => {
+    const state = get()
+    const total = state.getCartTotal()
+    const now = new Date()
+
+    const soldProductIds = state.cart.map((item) => item.product.id)
+
+    const sale: Sale = {
+      id: generateId(),
+      items: [...state.cart],
+      total,
+      payment,
+      change: payment - total,
+      timestamp: now.toISOString(),
+      date: getTodayDate(),
+    }
+
+    set((prev) => {
+      const sales = [...prev.sales, sale]
+      const products = prev.products.map((p) =>
+        soldProductIds.includes(p.id)
+          ? { ...p, lastSoldAt: now.toISOString() }
+          : p
+      )
+      saveState({ products, sales, reconciliations: prev.reconciliations })
+      return { sales, cart: [], products }
+    })
+
+    return sale
+  },
+
+  getTodaySales: () => {
+    const today = getTodayDate()
+    return get().sales.filter((s) => s.date === today)
+  },
+
+  getTodayTotal: () => {
+    const today = getTodayDate()
+    return get()
+      .sales.filter((s) => s.date === today)
+      .reduce((sum, s) => sum + s.total, 0)
+  },
+
+  addReconciliation: (countedTotal) => {
+    const state = get()
+    const todaySales = state.getTodaySales()
+    const systemTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
+    const itemsSold = todaySales.reduce(
+      (sum, s) => sum + s.items.reduce((is, i) => is + i.quantity, 0),
+      0
+    )
+
+    const reconciliation: Reconciliation = {
+      id: generateId(),
+      date: getTodayDate(),
+      systemTotal,
+      countedTotal,
+      difference: countedTotal - systemTotal,
+      salesCount: todaySales.length,
+      itemsSold,
+      closedAt: new Date().toISOString(),
+    }
+
+    set((prev) => {
+      const reconciliations = [...prev.reconciliations, reconciliation]
+      saveState({ products: prev.products, sales: prev.sales, reconciliations })
+      return { reconciliations }
+    })
+  },
+}))
