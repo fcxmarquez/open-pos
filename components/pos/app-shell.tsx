@@ -8,19 +8,17 @@ import {
   Store,
   Menu,
   X,
+  LogOut,
+  Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { useStore } from "@/lib/store"
 import { VentasScreen } from "./ventas-screen"
 import { ProductosScreen } from "./productos-screen"
 import { CorteScreen } from "./corte-screen"
+import { PinDialog } from "./pin-dialog"
 
 type Screen = "ventas" | "productos" | "corte"
-
-function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`
-}
 
 function formatDate(): string {
   return new Date().toLocaleDateString("es-MX", {
@@ -35,23 +33,43 @@ export function AppShell() {
   const [activeScreen, setActiveScreen] = useState<Screen>("ventas")
   const [mounted, setMounted] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const getTodayTotal = useStore((s) => s.getTodayTotal)
-  const initialized = useStore((s) => s._initialized)
+  const [adminUnlocked, setAdminUnlocked] = useState(false)
+  const [pinDialogOpen, setPinDialogOpen] = useState(false)
+  const [pendingScreen, setPendingScreen] = useState<Screen | null>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const todayTotal = mounted && initialized ? getTodayTotal() : 0
-
   const navItems = [
-    { id: "ventas" as const, label: "Ventas", icon: ShoppingCart },
-    { id: "productos" as const, label: "Productos", icon: Package },
-    { id: "corte" as const, label: "Corte de Caja", icon: Calculator },
+    { id: "ventas" as const, label: "Ventas", icon: ShoppingCart, locked: false },
+    { id: "productos" as const, label: "Productos", icon: Package, locked: true },
+    { id: "corte" as const, label: "Corte de Caja", icon: Calculator, locked: true },
   ]
 
   const handleNavClick = (id: Screen) => {
+    const item = navItems.find((n) => n.id === id)
+    if (item?.locked && !adminUnlocked) {
+      setPendingScreen(id)
+      setPinDialogOpen(true)
+      return
+    }
     setActiveScreen(id)
+    setMobileNavOpen(false)
+  }
+
+  const handlePinSuccess = () => {
+    setAdminUnlocked(true)
+    if (pendingScreen) {
+      setActiveScreen(pendingScreen)
+      setPendingScreen(null)
+    }
+    setMobileNavOpen(false)
+  }
+
+  const handleLogout = () => {
+    setAdminUnlocked(false)
+    setActiveScreen("ventas")
     setMobileNavOpen(false)
   }
 
@@ -79,7 +97,7 @@ export function AppShell() {
         />
       )}
 
-      {/* Sidebar - hidden on mobile, slide-in when open */}
+      {/* Sidebar */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex w-56 flex-col bg-sidebar text-sidebar-foreground transition-transform duration-200 md:static md:translate-x-0",
@@ -109,6 +127,7 @@ export function AppShell() {
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = activeScreen === item.id
+            const showLock = item.locked && !adminUnlocked
             return (
               <button
                 key={item.id}
@@ -121,17 +140,25 @@ export function AppShell() {
                 )}
               >
                 <Icon className="h-5 w-5" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {showLock && <Lock className="h-3.5 w-3.5 text-sidebar-foreground/40" />}
               </button>
             )
           })}
         </nav>
-        <div className="border-t border-sidebar-border px-4 py-3">
-          <p className="text-xs text-sidebar-foreground/50">Ventas del dia</p>
-          <p className="text-lg font-bold text-sidebar-primary">
-            {formatCurrency(todayTotal)}
-          </p>
-        </div>
+
+        {/* Logout button */}
+        {adminUnlocked && (
+          <div className="border-t border-sidebar-border px-2 py-3">
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            >
+              <LogOut className="h-5 w-5" />
+              Cerrar sesion
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* Main content */}
@@ -152,8 +179,22 @@ export function AppShell() {
               {navItems.find((n) => n.id === activeScreen)?.label}
             </h2>
           </div>
-          <div className="hidden text-sm capitalize text-muted-foreground sm:block">
-            {formatDate()}
+          <div className="flex items-center gap-3">
+            <div className="hidden text-sm capitalize text-muted-foreground sm:block">
+              {formatDate()}
+            </div>
+            {adminUnlocked && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                onClick={handleLogout}
+                title="Cerrar sesion"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="sr-only">Cerrar sesion</span>
+              </Button>
+            )}
           </div>
         </header>
 
@@ -164,6 +205,16 @@ export function AppShell() {
           {activeScreen === "corte" && <CorteScreen />}
         </main>
       </div>
+
+      {/* PIN Dialog */}
+      <PinDialog
+        open={pinDialogOpen}
+        onOpenChange={(open) => {
+          setPinDialogOpen(open)
+          if (!open) setPendingScreen(null)
+        }}
+        onSuccess={handlePinSuccess}
+      />
     </div>
   )
 }
