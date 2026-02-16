@@ -342,14 +342,13 @@ export function VentasScreen() {
 
       {/* Mobile cart overlay */}
       {mobileCartOpen && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 z-30 bg-foreground/40 lg:hidden"
           onClick={() => setMobileCartOpen(false)}
           onKeyDown={(e) => {
             if (e.key === "Escape") setMobileCartOpen(false);
           }}
-          role="button"
-          tabIndex={0}
           aria-label="Cerrar carrito"
         />
       )}
