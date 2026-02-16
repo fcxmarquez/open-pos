@@ -1,141 +1,130 @@
-"use client"
+"use client";
 
-import React from "react"
-
-import { useState, useRef, useEffect, useCallback } from "react"
-import {
-  Search,
-  Trash2,
-  Plus,
-  Minus,
-  Zap,
-  ShoppingBag,
-  ChevronUp,
-  X,
-} from "lucide-react"
-import { toast } from "sonner"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useStore, type Product, type Category } from "@/lib/store"
-import { UnregisteredProductSheet } from "./unregistered-product-sheet"
-import { CheckoutDialog } from "./checkout-dialog"
-import { QuickSaleDialog } from "./quick-sale-dialog"
+import { Minus, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { type Product, useStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import { CheckoutDialog } from "./checkout-dialog";
+import { QuickSaleDialog } from "./quick-sale-dialog";
+import { UnregisteredProductSheet } from "./unregistered-product-sheet";
 
 function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`
+  return `$${amount.toFixed(2)}`;
 }
 
 export function VentasScreen() {
-  const [searchValue, setSearchValue] = useState("")
-  const [showUnregistered, setShowUnregistered] = useState(false)
-  const [unregisteredBarcode, setUnregisteredBarcode] = useState("")
-  const [showCheckout, setShowCheckout] = useState(false)
-  const [showQuickSale, setShowQuickSale] = useState(false)
-  const [mobileCartOpen, setMobileCartOpen] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [searchValue, setSearchValue] = useState("");
+  const [showUnregistered, setShowUnregistered] = useState(false);
+  const [unregisteredBarcode, setUnregisteredBarcode] = useState("");
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [showQuickSale, setShowQuickSale] = useState(false);
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const products = useStore((s) => s.products)
-  const cart = useStore((s) => s.cart)
-  const addToCart = useStore((s) => s.addToCart)
-  const removeFromCart = useStore((s) => s.removeFromCart)
-  const updateCartQuantity = useStore((s) => s.updateCartQuantity)
-  const clearCart = useStore((s) => s.clearCart)
-  const getCartTotal = useStore((s) => s.getCartTotal)
-  const findProductByBarcode = useStore((s) => s.findProductByBarcode)
-  const searchProducts = useStore((s) => s.searchProducts)
+  const products = useStore((s) => s.products);
+  const cart = useStore((s) => s.cart);
+  const addToCart = useStore((s) => s.addToCart);
+  const removeFromCart = useStore((s) => s.removeFromCart);
+  const updateCartQuantity = useStore((s) => s.updateCartQuantity);
+  const clearCart = useStore((s) => s.clearCart);
+  const getCartTotal = useStore((s) => s.getCartTotal);
+  const findProductByBarcode = useStore((s) => s.findProductByBarcode);
+  const searchProducts = useStore((s) => s.searchProducts);
 
-  const cartTotal = getCartTotal()
-  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
+  const cartTotal = getCartTotal();
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Frequent products (first 12)
-  const frequentProducts = products.slice(0, 12)
+  const frequentProducts = products.slice(0, 12);
 
   // Search results
-  const searchResults =
-    searchValue.length >= 2 ? searchProducts(searchValue) : []
+  const searchResults = searchValue.length >= 2 ? searchProducts(searchValue) : [];
 
   const focusInput = useCallback(() => {
-    setTimeout(() => inputRef.current?.focus(), 50)
-  }, [])
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
 
   // Auto focus on mount
   useEffect(() => {
-    focusInput()
-  }, [focusInput])
+    focusInput();
+  }, [focusInput]);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "F2" || (e.ctrlKey && e.key === "Enter")) {
-        e.preventDefault()
-        if (cart.length > 0) setShowCheckout(true)
+        e.preventDefault();
+        if (cart.length > 0) setShowCheckout(true);
       }
       if (e.key === "F4") {
-        e.preventDefault()
-        setShowQuickSale(true)
+        e.preventDefault();
+        setShowQuickSale(true);
       }
-    }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [cart.length])
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [cart.length]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const value = searchValue.trim()
-    if (!value) return
+    e.preventDefault();
+    const value = searchValue.trim();
+    if (!value) return;
 
     // First try exact barcode match
-    const product = findProductByBarcode(value)
+    const product = findProductByBarcode(value);
     if (product) {
-      addToCart(product)
-      toast.success(`${product.name} agregado`)
-      setSearchValue("")
-      focusInput()
-      return
+      addToCart(product);
+      toast.success(`${product.name} agregado`);
+      setSearchValue("");
+      focusInput();
+      return;
     }
 
     // Try name search
-    const results = searchProducts(value)
+    const results = searchProducts(value);
     if (results.length === 1) {
-      addToCart(results[0])
-      toast.success(`${results[0].name} agregado`)
-      setSearchValue("")
-      focusInput()
-      return
+      addToCart(results[0]);
+      toast.success(`${results[0].name} agregado`);
+      setSearchValue("");
+      focusInput();
+      return;
     }
 
     if (results.length > 1) {
       // Show results, don't open unregistered
-      return
+      return;
     }
 
     // No match - open unregistered product sheet
-    setUnregisteredBarcode(value)
-    setShowUnregistered(true)
-    setSearchValue("")
-  }
+    setUnregisteredBarcode(value);
+    setShowUnregistered(true);
+    setSearchValue("");
+  };
 
   const handleProductClick = (product: Product) => {
-    addToCart(product)
-    toast.success(`${product.name} agregado`)
-    focusInput()
-  }
+    addToCart(product);
+    toast.success(`${product.name} agregado`);
+    focusInput();
+  };
 
   const handleCancelSale = () => {
-    if (cart.length === 0) return
+    if (cart.length === 0) return;
     if (
       window.confirm(
         "Cancelar la venta actual? Se perderan todos los productos del carrito."
       )
     ) {
-      clearCart()
-      toast.info("Venta cancelada")
-      focusInput()
+      clearCart();
+      toast.info("Venta cancelada");
+      focusInput();
     }
-  }
+  };
 
   // Shared cart content component
   const cartContent = (
@@ -167,10 +156,7 @@ export function VentasScreen() {
                       size="icon"
                       className="h-7 w-7 bg-transparent"
                       onClick={() =>
-                        updateCartQuantity(
-                          item.product.id,
-                          item.quantity - 1
-                        )
+                        updateCartQuantity(item.product.id, item.quantity - 1)
                       }
                     >
                       <Minus className="h-3 w-3" />
@@ -181,7 +167,7 @@ export function VentasScreen() {
                       onChange={(e) =>
                         updateCartQuantity(
                           item.product.id,
-                          parseInt(e.target.value) || 0
+                          parseInt(e.target.value, 10) || 0
                         )
                       }
                       className="h-7 w-12 text-center text-sm"
@@ -192,10 +178,7 @@ export function VentasScreen() {
                       size="icon"
                       className="h-7 w-7 bg-transparent"
                       onClick={() =>
-                        updateCartQuantity(
-                          item.product.id,
-                          item.quantity + 1
-                        )
+                        updateCartQuantity(item.product.id, item.quantity + 1)
                       }
                     >
                       <Plus className="h-3 w-3" />
@@ -234,8 +217,8 @@ export function VentasScreen() {
           className="mb-2 w-full bg-accent text-accent-foreground text-base font-semibold hover:bg-accent/90"
           disabled={cart.length === 0}
           onClick={() => {
-            setShowCheckout(true)
-            setMobileCartOpen(false)
+            setShowCheckout(true);
+            setMobileCartOpen(false);
           }}
         >
           Cobrar (F2)
@@ -251,7 +234,7 @@ export function VentasScreen() {
         </Button>
       </div>
     </>
-  )
+  );
 
   return (
     <div className="flex h-full flex-col lg:flex-row">
@@ -277,20 +260,19 @@ export function VentasScreen() {
           <div className="mb-4 max-h-48 overflow-auto rounded-md border bg-card shadow-md">
             {searchResults.map((p) => (
               <button
+                type="button"
                 key={p.id}
                 onClick={() => {
-                  addToCart(p)
-                  toast.success(`${p.name} agregado`)
-                  setSearchValue("")
-                  focusInput()
+                  addToCart(p);
+                  toast.success(`${p.name} agregado`);
+                  setSearchValue("");
+                  focusInput();
                 }}
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
               >
                 <div>
                   <span className="font-medium text-foreground">{p.name}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    {p.barcode}
-                  </span>
+                  <span className="ml-2 text-xs text-muted-foreground">{p.barcode}</span>
                 </div>
                 <span className="font-semibold text-foreground">
                   {formatCurrency(p.price)}
@@ -321,6 +303,7 @@ export function VentasScreen() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
             {frequentProducts.map((product) => (
               <button
+                type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
                 className="flex flex-col items-start rounded-lg border bg-card p-2.5 text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98] sm:p-3"
@@ -346,13 +329,14 @@ export function VentasScreen() {
           <ShoppingBag className="mr-2 h-4 w-4" />
           Ver carrito
           {cartItemCount > 0 && (
-            <Badge variant="secondary" className="ml-2 bg-primary-foreground/20 text-primary-foreground">
+            <Badge
+              variant="secondary"
+              className="ml-2 bg-primary-foreground/20 text-primary-foreground"
+            >
               {cartItemCount}
             </Badge>
           )}
-          <span className="ml-auto font-bold">
-            {formatCurrency(cartTotal)}
-          </span>
+          <span className="ml-auto font-bold">{formatCurrency(cartTotal)}</span>
         </Button>
       </div>
 
@@ -362,7 +346,7 @@ export function VentasScreen() {
           className="fixed inset-0 z-30 bg-foreground/40 lg:hidden"
           onClick={() => setMobileCartOpen(false)}
           onKeyDown={(e) => {
-            if (e.key === "Escape") setMobileCartOpen(false)
+            if (e.key === "Escape") setMobileCartOpen(false);
           }}
           role="button"
           tabIndex={0}
@@ -381,9 +365,7 @@ export function VentasScreen() {
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-foreground" />
-            <h3 className="text-base font-semibold text-foreground">
-              Venta actual
-            </h3>
+            <h3 className="text-base font-semibold text-foreground">Venta actual</h3>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs">
@@ -408,9 +390,7 @@ export function VentasScreen() {
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-foreground" />
-            <h3 className="text-base font-semibold text-foreground">
-              Venta actual
-            </h3>
+            <h3 className="text-base font-semibold text-foreground">Venta actual</h3>
           </div>
           <Badge variant="secondary" className="text-xs">
             {cartItemCount} {cartItemCount === 1 ? "articulo" : "articulos"}
@@ -423,8 +403,8 @@ export function VentasScreen() {
       <UnregisteredProductSheet
         open={showUnregistered}
         onOpenChange={(open) => {
-          setShowUnregistered(open)
-          if (!open) focusInput()
+          setShowUnregistered(open);
+          if (!open) focusInput();
         }}
         barcode={unregisteredBarcode}
         onComplete={focusInput}
@@ -434,8 +414,8 @@ export function VentasScreen() {
       <CheckoutDialog
         open={showCheckout}
         onOpenChange={(open) => {
-          setShowCheckout(open)
-          if (!open) focusInput()
+          setShowCheckout(open);
+          if (!open) focusInput();
         }}
         onComplete={focusInput}
       />
@@ -444,11 +424,11 @@ export function VentasScreen() {
       <QuickSaleDialog
         open={showQuickSale}
         onOpenChange={(open) => {
-          setShowQuickSale(open)
-          if (!open) focusInput()
+          setShowQuickSale(open);
+          if (!open) focusInput();
         }}
         onComplete={focusInput}
       />
     </div>
-  )
+  );
 }

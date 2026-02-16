@@ -1,27 +1,26 @@
-"use client"
+"use client";
 
-import React from "react"
-
-import { useState, useRef, useEffect } from "react"
-import { toast } from "sonner"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useStore, type Category } from "@/lib/store"
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { type Category, useStore } from "@/lib/store";
 
 const CATEGORIES: Category[] = [
   "General",
@@ -30,13 +29,13 @@ const CATEGORIES: Category[] = [
   "Arte",
   "Oficina",
   "Otro",
-]
+];
 
 interface UnregisteredProductSheetProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  barcode: string
-  onComplete: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  barcode: string;
+  onComplete: () => void;
 }
 
 export function UnregisteredProductSheet({
@@ -45,29 +44,29 @@ export function UnregisteredProductSheet({
   barcode,
   onComplete,
 }: UnregisteredProductSheetProps) {
-  const [price, setPrice] = useState("")
-  const [name, setName] = useState("")
-  const [category, setCategory] = useState<Category>("General")
-  const priceRef = useRef<HTMLInputElement>(null)
+  const [price, setPrice] = useState("");
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState<Category>("General");
+  const priceRef = useRef<HTMLInputElement>(null);
 
-  const addProduct = useStore((s) => s.addProduct)
-  const addToCart = useStore((s) => s.addToCart)
+  const addProduct = useStore((s) => s.addProduct);
+  const addToCart = useStore((s) => s.addToCart);
 
   useEffect(() => {
     if (open) {
-      setPrice("")
-      setName("")
-      setCategory("General")
-      setTimeout(() => priceRef.current?.focus(), 100)
+      setPrice("");
+      setName("");
+      setCategory("General");
+      setTimeout(() => priceRef.current?.focus(), 100);
     }
-  }, [open])
+  }, [open]);
 
   const handleRegisterAndAdd = (e: React.FormEvent) => {
-    e.preventDefault()
-    const priceNum = parseFloat(price)
-    if (isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido")
-      return
+    e.preventDefault();
+    const priceNum = parseFloat(price);
+    if (Number.isNaN(priceNum) || priceNum <= 0) {
+      toast.error("Ingresa un precio valido");
+      return;
     }
 
     const product = addProduct({
@@ -75,18 +74,18 @@ export function UnregisteredProductSheet({
       name: name || `Producto - ${barcode}`,
       price: priceNum,
       category,
-    })
-    addToCart(product)
-    toast.success(`Producto registrado y agregado - $${priceNum.toFixed(2)}`)
-    onOpenChange(false)
-    onComplete()
-  }
+    });
+    addToCart(product);
+    toast.success(`Producto registrado y agregado - $${priceNum.toFixed(2)}`);
+    onOpenChange(false);
+    onComplete();
+  };
 
   const handleAddOnlyToSale = () => {
-    const priceNum = parseFloat(price)
-    if (isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido")
-      return
+    const priceNum = parseFloat(price);
+    if (Number.isNaN(priceNum) || priceNum <= 0) {
+      toast.error("Ingresa un precio valido");
+      return;
     }
 
     // Create a temporary product (not saved to catalog)
@@ -97,12 +96,12 @@ export function UnregisteredProductSheet({
       price: priceNum,
       category: "General" as Category,
       createdAt: new Date().toISOString(),
-    }
-    addToCart(tempProduct)
-    toast.success(`Producto agregado a la venta - $${priceNum.toFixed(2)}`)
-    onOpenChange(false)
-    onComplete()
-  }
+    };
+    addToCart(tempProduct);
+    toast.success(`Producto agregado a la venta - $${priceNum.toFixed(2)}`);
+    onOpenChange(false);
+    onComplete();
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -144,7 +143,9 @@ export function UnregisteredProductSheet({
           </div>
 
           <div>
-            <Label htmlFor="name" className="text-foreground">Nombre del producto (opcional)</Label>
+            <Label htmlFor="name" className="text-foreground">
+              Nombre del producto (opcional)
+            </Label>
             <Input
               id="name"
               value={name}
@@ -156,10 +157,7 @@ export function UnregisteredProductSheet({
 
           <div>
             <Label className="text-foreground">Categoria</Label>
-            <Select
-              value={category}
-              onValueChange={(v) => setCategory(v as Category)}
-            >
+            <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
               <SelectTrigger className="mt-1">
                 <SelectValue />
               </SelectTrigger>
@@ -174,10 +172,7 @@ export function UnregisteredProductSheet({
           </div>
 
           <div className="mt-2 flex flex-col gap-2">
-            <Button
-              type="submit"
-              className="w-full bg-primary text-primary-foreground"
-            >
+            <Button type="submit" className="w-full bg-primary text-primary-foreground">
               Registrar y agregar
             </Button>
             <Button
@@ -192,5 +187,5 @@ export function UnregisteredProductSheet({
         </form>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

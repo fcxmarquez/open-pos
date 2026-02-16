@@ -1,27 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
 import {
-  CheckCircle2,
   AlertTriangle,
-  Info,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Receipt,
   DollarSign,
+  Info,
   Package,
-} from "lucide-react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+  Receipt,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -29,76 +30,72 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useStore } from "@/lib/store"
+} from "@/components/ui/table";
+import { useStore } from "@/lib/store";
 
 function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`
+  return `$${amount.toFixed(2)}`;
 }
 
 function formatTime(timestamp: string): string {
   return new Date(timestamp).toLocaleTimeString("es-MX", {
     hour: "2-digit",
     minute: "2-digit",
-  })
+  });
 }
 
 function formatDateShort(dateStr: string): string {
-  return new Date(dateStr + "T12:00:00").toLocaleDateString("es-MX", {
+  return new Date(`${dateStr}T12:00:00`).toLocaleDateString("es-MX", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  })
+  });
 }
 
 export function CorteScreen() {
-  const [countedCash, setCountedCash] = useState("")
-  const [showDetail, setShowDetail] = useState(false)
+  const [countedCash, setCountedCash] = useState("");
+  const [showDetail, setShowDetail] = useState(false);
 
-  const getTodaySales = useStore((s) => s.getTodaySales)
-  const addReconciliation = useStore((s) => s.addReconciliation)
-  const reconciliations = useStore((s) => s.reconciliations)
+  const getTodaySales = useStore((s) => s.getTodaySales);
+  const addReconciliation = useStore((s) => s.addReconciliation);
+  const reconciliations = useStore((s) => s.reconciliations);
 
-  const todaySales = getTodaySales()
-  const systemTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
+  const todaySales = getTodaySales();
+  const systemTotal = todaySales.reduce((sum, s) => sum + s.total, 0);
   const itemsSold = todaySales.reduce(
     (sum, s) => sum + s.items.reduce((is, i) => is + i.quantity, 0),
     0
-  )
+  );
 
-  const countedNum = parseFloat(countedCash) || 0
-  const difference = countedNum - systemTotal
-  const hasCount = countedCash !== ""
+  const countedNum = parseFloat(countedCash) || 0;
+  const difference = countedNum - systemTotal;
+  const hasCount = countedCash !== "";
 
   const todayDate = new Date().toLocaleDateString("es-MX", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
-  })
+  });
 
   const handleCloseRegister = () => {
     if (!hasCount) {
-      toast.error("Ingresa el efectivo contado")
-      return
+      toast.error("Ingresa el efectivo contado");
+      return;
     }
     if (
-      window.confirm(
-        "Cerrar el corte de caja del dia? Esta accion no se puede deshacer."
-      )
+      window.confirm("Cerrar el corte de caja del dia? Esta accion no se puede deshacer.")
     ) {
-      addReconciliation(countedNum)
-      toast.success("Corte de caja registrado")
-      setCountedCash("")
+      addReconciliation(countedNum);
+      toast.success("Corte de caja registrado");
+      setCountedCash("");
     }
-  }
+  };
 
   // History
   const history = [...reconciliations].sort(
-    (a, b) =>
-      new Date(b.closedAt).getTime() - new Date(a.closedAt).getTime()
-  )
+    (a, b) => new Date(b.closedAt).getTime() - new Date(a.closedAt).getTime()
+  );
 
   return (
     <ScrollArea className="h-full">
@@ -118,9 +115,7 @@ export function CorteScreen() {
               <Receipt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-foreground">
-                {todaySales.length}
-              </p>
+              <p className="text-2xl font-bold text-foreground">{todaySales.length}</p>
             </CardContent>
           </Card>
           <Card>
@@ -152,9 +147,7 @@ export function CorteScreen() {
         {/* Cash count section */}
         <Card className="mb-4 md:mb-6">
           <CardHeader>
-            <CardTitle className="text-foreground">
-              Conteo de efectivo
-            </CardTitle>
+            <CardTitle className="text-foreground">Conteo de efectivo</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
@@ -228,9 +221,7 @@ export function CorteScreen() {
               variant="outline"
               className="mb-3 w-full justify-between bg-transparent"
             >
-              <span>
-                Detalle de ventas del dia ({todaySales.length})
-              </span>
+              <span>Detalle de ventas del dia ({todaySales.length})</span>
               {showDetail ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (
@@ -260,10 +251,7 @@ export function CorteScreen() {
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {sale.items
-                            .map(
-                              (i) =>
-                                `${i.product.name} x${i.quantity}`
-                            )
+                            .map((i) => `${i.product.name} x${i.quantity}`)
                             .join(", ")}
                         </p>
                       </div>
@@ -298,10 +286,7 @@ export function CorteScreen() {
                             </TableCell>
                             <TableCell className="text-sm text-muted-foreground">
                               {sale.items
-                                .map(
-                                  (i) =>
-                                    `${i.product.name} x${i.quantity}`
-                                )
+                                .map((i) => `${i.product.name} x${i.quantity}`)
                                 .join(", ")}
                             </TableCell>
                             <TableCell className="text-right font-semibold text-foreground">
@@ -322,9 +307,7 @@ export function CorteScreen() {
         {history.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-foreground">
-                Historial de cortes
-              </CardTitle>
+              <CardTitle className="text-foreground">Historial de cortes</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {/* Mobile: stacked cards */}
@@ -336,24 +319,15 @@ export function CorteScreen() {
                         {formatDateShort(rec.date)}
                       </span>
                       {rec.difference === 0 ? (
-                        <Badge
-                          variant="secondary"
-                          className="bg-accent/10 text-accent"
-                        >
+                        <Badge variant="secondary" className="bg-accent/10 text-accent">
                           Cuadra
                         </Badge>
                       ) : rec.difference > 0 ? (
-                        <Badge
-                          variant="secondary"
-                          className="bg-blue-50 text-blue-600"
-                        >
+                        <Badge variant="secondary" className="bg-blue-50 text-blue-600">
                           +{formatCurrency(rec.difference)}
                         </Badge>
                       ) : (
-                        <Badge
-                          variant="secondary"
-                          className="bg-amber-50 text-amber-600"
-                        >
+                        <Badge variant="secondary" className="bg-amber-50 text-amber-600">
                           {formatCurrency(rec.difference)}
                         </Badge>
                       )}
@@ -371,12 +345,8 @@ export function CorteScreen() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Fecha</TableHead>
-                      <TableHead className="text-right">
-                        Total sistema
-                      </TableHead>
-                      <TableHead className="text-right">
-                        Total contado
-                      </TableHead>
+                      <TableHead className="text-right">Total sistema</TableHead>
+                      <TableHead className="text-right">Total contado</TableHead>
                       <TableHead className="text-right">Diferencia</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -426,5 +396,5 @@ export function CorteScreen() {
         )}
       </div>
     </ScrollArea>
-  )
+  );
 }
