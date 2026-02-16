@@ -1,25 +1,24 @@
-"use client"
+"use client";
 
-import React from "react"
-
-import { useState, useRef, useEffect } from "react"
-import { toast } from "sonner"
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useStore, type Category } from "@/lib/store"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { type Category, useStore } from "@/lib/store";
 
 interface QuickSaleDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onComplete: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onComplete: () => void;
 }
 
 export function QuickSaleDialog({
@@ -27,26 +26,26 @@ export function QuickSaleDialog({
   onOpenChange,
   onComplete,
 }: QuickSaleDialogProps) {
-  const [price, setPrice] = useState("")
-  const [name, setName] = useState("")
-  const priceRef = useRef<HTMLInputElement>(null)
+  const [price, setPrice] = useState("");
+  const [name, setName] = useState("");
+  const priceRef = useRef<HTMLInputElement>(null);
 
-  const addToCart = useStore((s) => s.addToCart)
+  const addToCart = useStore((s) => s.addToCart);
 
   useEffect(() => {
     if (open) {
-      setPrice("")
-      setName("")
-      setTimeout(() => priceRef.current?.focus(), 100)
+      setPrice("");
+      setName("");
+      setTimeout(() => priceRef.current?.focus(), 100);
     }
-  }, [open])
+  }, [open]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const priceNum = parseFloat(price)
-    if (isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido")
-      return
+    e.preventDefault();
+    const priceNum = parseFloat(price);
+    if (Number.isNaN(priceNum) || priceNum <= 0) {
+      toast.error("Ingresa un precio valido");
+      return;
     }
 
     const tempProduct = {
@@ -56,23 +55,19 @@ export function QuickSaleDialog({
       price: priceNum,
       category: "General" as Category,
       createdAt: new Date().toISOString(),
-    }
-    addToCart(tempProduct)
-    toast.success(
-      `${name || "Venta rapida"} agregado - $${priceNum.toFixed(2)}`
-    )
-    onOpenChange(false)
-    onComplete()
-  }
+    };
+    addToCart(tempProduct);
+    toast.success(`${name || "Venta rapida"} agregado - $${priceNum.toFixed(2)}`);
+    onOpenChange(false);
+    onComplete();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="text-foreground">Venta rapida</DialogTitle>
-          <DialogDescription>
-            Agrega un articulo sin codigo de barras
-          </DialogDescription>
+          <DialogDescription>Agrega un articulo sin codigo de barras</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-4">
@@ -107,14 +102,11 @@ export function QuickSaleDialog({
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full bg-primary text-primary-foreground"
-          >
+          <Button type="submit" className="w-full bg-primary text-primary-foreground">
             Agregar a venta
           </Button>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

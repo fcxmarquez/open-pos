@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
 import {
-  ShoppingCart,
-  Package,
   Calculator,
-  Store,
-  Menu,
-  X,
-  LogOut,
   Lock,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { VentasScreen } from "./ventas-screen"
-import { ProductosScreen } from "./productos-screen"
-import { CorteScreen } from "./corte-screen"
-import { PinDialog } from "./pin-dialog"
+  LogOut,
+  Menu,
+  Package,
+  ShoppingCart,
+  Store,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CorteScreen } from "./corte-screen";
+import { PinDialog } from "./pin-dialog";
+import { ProductosScreen } from "./productos-screen";
+import { VentasScreen } from "./ventas-screen";
 
-type Screen = "ventas" | "productos" | "corte"
+type Screen = "ventas" | "productos" | "corte";
 
 function formatDate(): string {
   return new Date().toLocaleDateString("es-MX", {
@@ -26,59 +26,59 @@ function formatDate(): string {
     year: "numeric",
     month: "long",
     day: "numeric",
-  })
+  });
 }
 
 export function AppShell() {
-  const [activeScreen, setActiveScreen] = useState<Screen>("ventas")
-  const [mounted, setMounted] = useState(false)
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [adminUnlocked, setAdminUnlocked] = useState(false)
-  const [pinDialogOpen, setPinDialogOpen] = useState(false)
-  const [pendingScreen, setPendingScreen] = useState<Screen | null>(null)
+  const [activeScreen, setActiveScreen] = useState<Screen>("ventas");
+  const [mounted, setMounted] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const navItems = [
     { id: "ventas" as const, label: "Ventas", icon: ShoppingCart, locked: false },
     { id: "productos" as const, label: "Productos", icon: Package, locked: true },
     { id: "corte" as const, label: "Corte de Caja", icon: Calculator, locked: true },
-  ]
+  ];
 
   const handleNavClick = (id: Screen) => {
-    const item = navItems.find((n) => n.id === id)
+    const item = navItems.find((n) => n.id === id);
     if (item?.locked && !adminUnlocked) {
-      setPendingScreen(id)
-      setPinDialogOpen(true)
-      return
+      setPendingScreen(id);
+      setPinDialogOpen(true);
+      return;
     }
-    setActiveScreen(id)
-    setMobileNavOpen(false)
-  }
+    setActiveScreen(id);
+    setMobileNavOpen(false);
+  };
 
   const handlePinSuccess = () => {
-    setAdminUnlocked(true)
+    setAdminUnlocked(true);
     if (pendingScreen) {
-      setActiveScreen(pendingScreen)
-      setPendingScreen(null)
+      setActiveScreen(pendingScreen);
+      setPendingScreen(null);
     }
-    setMobileNavOpen(false)
-  }
+    setMobileNavOpen(false);
+  };
 
   const handleLogout = () => {
-    setAdminUnlocked(false)
-    setActiveScreen("ventas")
-    setMobileNavOpen(false)
-  }
+    setAdminUnlocked(false);
+    setActiveScreen("ventas");
+    setMobileNavOpen(false);
+  };
 
   if (!mounted) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-muted-foreground">Cargando...</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -89,7 +89,7 @@ export function AppShell() {
           className="fixed inset-0 z-30 bg-foreground/40 md:hidden"
           onClick={() => setMobileNavOpen(false)}
           onKeyDown={(e) => {
-            if (e.key === "Escape") setMobileNavOpen(false)
+            if (e.key === "Escape") setMobileNavOpen(false);
           }}
           role="button"
           tabIndex={0}
@@ -125,11 +125,12 @@ export function AppShell() {
         </div>
         <nav className="flex-1 px-2 py-3">
           {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = activeScreen === item.id
-            const showLock = item.locked && !adminUnlocked
+            const Icon = item.icon;
+            const isActive = activeScreen === item.id;
+            const showLock = item.locked && !adminUnlocked;
             return (
               <button
+                type="button"
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={cn(
@@ -143,7 +144,7 @@ export function AppShell() {
                 <span className="flex-1">{item.label}</span>
                 {showLock && <Lock className="h-3.5 w-3.5 text-sidebar-foreground/40" />}
               </button>
-            )
+            );
           })}
         </nav>
 
@@ -151,6 +152,7 @@ export function AppShell() {
         {adminUnlocked && (
           <div className="border-t border-sidebar-border px-2 py-3">
             <button
+              type="button"
               onClick={handleLogout}
               className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             >
@@ -210,11 +212,11 @@ export function AppShell() {
       <PinDialog
         open={pinDialogOpen}
         onOpenChange={(open) => {
-          setPinDialogOpen(open)
-          if (!open) setPendingScreen(null)
+          setPinDialogOpen(open);
+          if (!open) setPendingScreen(null);
         }}
         onSuccess={handlePinSuccess}
       />
     </div>
-  )
+  );
 }
