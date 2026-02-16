@@ -85,14 +85,13 @@ export function AppShell() {
     <div className="flex h-screen overflow-hidden">
       {/* Mobile overlay */}
       {mobileNavOpen && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 z-30 bg-foreground/40 md:hidden"
           onClick={() => setMobileNavOpen(false)}
           onKeyDown={(e) => {
             if (e.key === "Escape") setMobileNavOpen(false);
           }}
-          role="button"
-          tabIndex={0}
           aria-label="Cerrar menu"
         />
       )}
