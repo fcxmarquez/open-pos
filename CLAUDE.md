@@ -49,6 +49,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
 ### Git Workflow
 
 - Follows @commitlint/config-conventional standards
+- The commit doesn't have to have a body. Has to be brief. Don't mention you as co-author in the commit message.
 
 ### Build Config
 
