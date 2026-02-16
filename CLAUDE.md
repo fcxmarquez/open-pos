@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI agents when working with code in this repository.
 
 ## Project Overview
 
-POS (Point of Sale) system for a stationery store ("Papelería Luna"). Built with Next.js App Router, TypeScript, and Zustand for state management. All data is persisted to localStorage (no backend/database).
+POS (Point of Sale) system for a stationery store ("Papelería Luna"). Built with Next.js App Router, TypeScript, and Zustand for state management.
 
 ## Commands
 
@@ -27,7 +27,7 @@ Single-page application using Next.js App Router (`app/` directory). The root pa
 
 ### State Management
 
-All application state lives in a single Zustand store (`lib/store.ts`) with localStorage persistence (key: `papeleria-pos-storage`). The store manages products, cart, sales history, and reconciliation records. No server-side state or API routes exist.
+All application state lives in a single Zustand store (`lib/store.ts`) with localStorage persistence (key: `papeleria-pos-storage`). The store manages products, cart, sales history, and reconciliation records.
 
 ### UI Layer
 
