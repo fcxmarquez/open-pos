@@ -46,6 +46,10 @@ Components in `components/ui/` are shadcn/ui primitives (Radix UI + Tailwind CSS
 
 GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `main` using Bun.
 
+### Git Workflow
+
+- Follows @commitlint/config-conventional standards
+
 ### Build Config
 
 `next.config.mjs` has `typescript.ignoreBuildErrors: true` and `images.unoptimized: true`.
