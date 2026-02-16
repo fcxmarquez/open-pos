@@ -1,27 +1,26 @@
-"use client"
+"use client";
 
-import React from "react"
-
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
+import type React from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useStore, type Product, type Category } from "@/lib/store"
+} from "@/components/ui/select";
+import { type Category, type Product, useStore } from "@/lib/store";
 
 const CATEGORIES: Category[] = [
   "General",
@@ -30,12 +29,12 @@ const CATEGORIES: Category[] = [
   "Arte",
   "Oficina",
   "Otro",
-]
+];
 
 interface ProductFormDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  product: Product | null // null = creating new
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  product: Product | null; // null = creating new
 }
 
 export function ProductFormDialog({
@@ -43,45 +42,45 @@ export function ProductFormDialog({
   onOpenChange,
   product,
 }: ProductFormDialogProps) {
-  const [barcode, setBarcode] = useState("")
-  const [name, setName] = useState("")
-  const [price, setPrice] = useState("")
-  const [costPrice, setCostPrice] = useState("")
-  const [category, setCategory] = useState<Category>("General")
+  const [barcode, setBarcode] = useState("");
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [costPrice, setCostPrice] = useState("");
+  const [category, setCategory] = useState<Category>("General");
 
-  const addProduct = useStore((s) => s.addProduct)
-  const updateProduct = useStore((s) => s.updateProduct)
+  const addProduct = useStore((s) => s.addProduct);
+  const updateProduct = useStore((s) => s.updateProduct);
 
   useEffect(() => {
     if (open) {
       if (product) {
-        setBarcode(product.barcode)
-        setName(product.name)
-        setPrice(product.price.toString())
-        setCostPrice(product.costPrice?.toString() || "")
-        setCategory(product.category)
+        setBarcode(product.barcode);
+        setName(product.name);
+        setPrice(product.price.toString());
+        setCostPrice(product.costPrice?.toString() || "");
+        setCategory(product.category);
       } else {
-        setBarcode("")
-        setName("")
-        setPrice("")
-        setCostPrice("")
-        setCategory("General")
+        setBarcode("");
+        setName("");
+        setPrice("");
+        setCostPrice("");
+        setCategory("General");
       }
     }
-  }, [open, product])
+  }, [open, product]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const priceNum = parseFloat(price)
+    e.preventDefault();
+    const priceNum = parseFloat(price);
     if (!name.trim()) {
-      toast.error("El nombre es requerido")
-      return
+      toast.error("El nombre es requerido");
+      return;
     }
-    if (isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido")
-      return
+    if (Number.isNaN(priceNum) || priceNum <= 0) {
+      toast.error("Ingresa un precio valido");
+      return;
     }
-    const costNum = costPrice ? parseFloat(costPrice) : undefined
+    const costNum = costPrice ? parseFloat(costPrice) : undefined;
 
     if (product) {
       updateProduct(product.id, {
@@ -90,8 +89,8 @@ export function ProductFormDialog({
         price: priceNum,
         costPrice: costNum,
         category,
-      })
-      toast.success("Producto actualizado")
+      });
+      toast.success("Producto actualizado");
     } else {
       addProduct({
         barcode,
@@ -99,11 +98,11 @@ export function ProductFormDialog({
         price: priceNum,
         costPrice: costNum,
         category,
-      })
-      toast.success("Producto agregado")
+      });
+      toast.success("Producto agregado");
     }
-    onOpenChange(false)
-  }
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -121,7 +120,9 @@ export function ProductFormDialog({
 
         <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-4">
           <div>
-            <Label htmlFor="pf-barcode" className="text-foreground">Codigo de barras</Label>
+            <Label htmlFor="pf-barcode" className="text-foreground">
+              Codigo de barras
+            </Label>
             <Input
               id="pf-barcode"
               value={barcode}
@@ -163,7 +164,9 @@ export function ProductFormDialog({
               />
             </div>
             <div>
-              <Label htmlFor="pf-cost" className="text-foreground">Precio de costo</Label>
+              <Label htmlFor="pf-cost" className="text-foreground">
+                Precio de costo
+              </Label>
               <Input
                 id="pf-cost"
                 type="number"
@@ -179,10 +182,7 @@ export function ProductFormDialog({
 
           <div>
             <Label className="text-foreground">Categoria</Label>
-            <Select
-              value={category}
-              onValueChange={(v) => setCategory(v as Category)}
-            >
+            <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
               <SelectTrigger className="mt-1">
                 <SelectValue />
               </SelectTrigger>
@@ -205,5 +205,5 @@ export function ProductFormDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

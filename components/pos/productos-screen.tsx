@@ -1,24 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import {
-  Search,
-  Plus,
-  Pencil,
-  Trash2,
-  AlertTriangle,
-} from "lucide-react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { AlertTriangle, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -26,11 +22,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Card, CardContent } from "@/components/ui/card"
-import { useStore, type Product, type Category } from "@/lib/store"
-import { ProductFormDialog } from "./product-form-dialog"
+} from "@/components/ui/table";
+import { type Category, type Product, useStore } from "@/lib/store";
+import { ProductFormDialog } from "./product-form-dialog";
 
 const CATEGORIES: Category[] = [
   "General",
@@ -39,60 +33,55 @@ const CATEGORIES: Category[] = [
   "Arte",
   "Oficina",
   "Otro",
-]
+];
 
 function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`
+  return `$${amount.toFixed(2)}`;
 }
 
 function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return "Nunca"
+  if (!dateStr) return "Nunca";
   return new Date(dateStr).toLocaleDateString("es-MX", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  })
+  });
 }
 
 export function ProductosScreen() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState<string>("all")
-  const [showForm, setShowForm] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [showForm, setShowForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const products = useStore((s) => s.products)
-  const deleteProduct = useStore((s) => s.deleteProduct)
+  const products = useStore((s) => s.products);
+  const deleteProduct = useStore((s) => s.deleteProduct);
 
   // Filter products
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
       searchQuery === "" ||
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.barcode.includes(searchQuery)
-    const matchesCategory =
-      categoryFilter === "all" || p.category === categoryFilter
-    return matchesSearch && matchesCategory
-  })
+      p.barcode.includes(searchQuery);
+    const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
 
   const unnamed = products.filter(
     (p) => !p.name || p.name.startsWith("Producto sin nombre")
-  ).length
+  ).length;
 
   const handleDelete = (product: Product) => {
-    if (
-      window.confirm(
-        `Eliminar "${product.name}"? Esta accion no se puede deshacer.`
-      )
-    ) {
-      deleteProduct(product.id)
-      toast.success("Producto eliminado")
+    if (window.confirm(`Eliminar "${product.name}"? Esta accion no se puede deshacer.`)) {
+      deleteProduct(product.id);
+      toast.success("Producto eliminado");
     }
-  }
+  };
 
   const handleEdit = (product: Product) => {
-    setEditingProduct(product)
-    setShowForm(true)
-  }
+    setEditingProduct(product);
+    setShowForm(true);
+  };
 
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
@@ -114,8 +103,8 @@ export function ProductosScreen() {
         </div>
         <Button
           onClick={() => {
-            setEditingProduct(null)
-            setShowForm(true)
+            setEditingProduct(null);
+            setShowForm(true);
           }}
           className="bg-primary text-primary-foreground"
         >
@@ -238,9 +227,7 @@ export function ProductosScreen() {
                     <TableRow key={product.id}>
                       <TableCell className="font-mono text-sm">
                         {product.barcode || (
-                          <span className="text-muted-foreground">
-                            Sin codigo
-                          </span>
+                          <span className="text-muted-foreground">Sin codigo</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -304,5 +291,5 @@ export function ProductosScreen() {
         product={editingProduct}
       />
     </div>
-  )
+  );
 }

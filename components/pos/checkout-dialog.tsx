@@ -1,62 +1,57 @@
-"use client"
+"use client";
 
-import React from "react"
-
-import { useState, useRef, useEffect } from "react"
-import { toast } from "sonner"
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useStore } from "@/lib/store"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useStore } from "@/lib/store";
 
 function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`
+  return `$${amount.toFixed(2)}`;
 }
 
 interface CheckoutDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onComplete: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onComplete: () => void;
 }
 
-export function CheckoutDialog({
-  open,
-  onOpenChange,
-  onComplete,
-}: CheckoutDialogProps) {
-  const [payment, setPayment] = useState("")
-  const paymentRef = useRef<HTMLInputElement>(null)
+export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialogProps) {
+  const [payment, setPayment] = useState("");
+  const paymentRef = useRef<HTMLInputElement>(null);
 
-  const getCartTotal = useStore((s) => s.getCartTotal)
-  const completeSale = useStore((s) => s.completeSale)
+  const getCartTotal = useStore((s) => s.getCartTotal);
+  const completeSale = useStore((s) => s.completeSale);
 
-  const total = getCartTotal()
-  const paymentNum = parseFloat(payment) || 0
-  const change = paymentNum - total
-  const canConfirm = paymentNum >= total && total > 0
+  const total = getCartTotal();
+  const paymentNum = parseFloat(payment) || 0;
+  const change = paymentNum - total;
+  const canConfirm = paymentNum >= total && total > 0;
 
   useEffect(() => {
     if (open) {
-      setPayment("")
-      setTimeout(() => paymentRef.current?.focus(), 100)
+      setPayment("");
+      setTimeout(() => paymentRef.current?.focus(), 100);
     }
-  }, [open])
+  }, [open]);
 
   const handleConfirm = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!canConfirm) return
-    const sale = completeSale(paymentNum)
-    toast.success(`Venta registrada - ${formatCurrency(sale.total)}`)
-    onOpenChange(false)
-    onComplete()
-  }
+    e.preventDefault();
+    if (!canConfirm) return;
+    const sale = completeSale(paymentNum);
+    toast.success(`Venta registrada - ${formatCurrency(sale.total)}`);
+    onOpenChange(false);
+    onComplete();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,13 +64,13 @@ export function CheckoutDialog({
         <form onSubmit={handleConfirm} className="mt-2 flex flex-col gap-5">
           <div className="rounded-lg bg-muted p-4 text-center">
             <p className="text-sm text-muted-foreground">Total a cobrar</p>
-            <p className="text-3xl font-bold text-foreground">
-              {formatCurrency(total)}
-            </p>
+            <p className="text-3xl font-bold text-foreground">{formatCurrency(total)}</p>
           </div>
 
           <div>
-            <Label htmlFor="payment" className="text-foreground">Pago del cliente</Label>
+            <Label htmlFor="payment" className="text-foreground">
+              Pago del cliente
+            </Label>
             <Input
               ref={paymentRef}
               id="payment"
@@ -114,5 +109,5 @@ export function CheckoutDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

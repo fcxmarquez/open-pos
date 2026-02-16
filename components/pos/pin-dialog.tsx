@@ -1,107 +1,107 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect, useCallback } from "react"
-import { Lock, ShieldAlert } from "lucide-react"
+import { Lock, ShieldAlert } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
-const CORRECT_PIN = "1234"
-const PIN_LENGTH = 4
+const CORRECT_PIN = "1234";
+const PIN_LENGTH = 4;
 
 interface PinDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
 }
 
 export function PinDialog({ open, onOpenChange, onSuccess }: PinDialogProps) {
-  const [digits, setDigits] = useState<string[]>(["", "", "", ""])
-  const [error, setError] = useState(false)
-  const [shake, setShake] = useState(false)
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [digits, setDigits] = useState<string[]>(["", "", "", ""]);
+  const [error, setError] = useState(false);
+  const [shake, setShake] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const resetState = useCallback(() => {
-    setDigits(["", "", "", ""])
-    setError(false)
-    setShake(false)
-  }, [])
+    setDigits(["", "", "", ""]);
+    setError(false);
+    setShake(false);
+  }, []);
 
   useEffect(() => {
     if (open) {
-      resetState()
-      setTimeout(() => inputRefs.current[0]?.focus(), 100)
+      resetState();
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
-  }, [open, resetState])
+  }, [open, resetState]);
 
   const handleDigitChange = (index: number, value: string) => {
     // Only allow single digits
-    const digit = value.replace(/\D/g, "").slice(-1)
-    const newDigits = [...digits]
-    newDigits[index] = digit
-    setDigits(newDigits)
-    setError(false)
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const newDigits = [...digits];
+    newDigits[index] = digit;
+    setDigits(newDigits);
+    setError(false);
 
     if (digit && index < PIN_LENGTH - 1) {
       // Move to next input
-      inputRefs.current[index + 1]?.focus()
+      inputRefs.current[index + 1]?.focus();
     }
 
     // Check if all digits are filled
     if (digit && index === PIN_LENGTH - 1) {
-      const pin = newDigits.join("")
+      const pin = newDigits.join("");
       if (pin === CORRECT_PIN) {
-        onSuccess()
-        onOpenChange(false)
+        onSuccess();
+        onOpenChange(false);
       } else {
-        setError(true)
-        setShake(true)
+        setError(true);
+        setShake(true);
         setTimeout(() => {
-          setShake(false)
-          setDigits(["", "", "", ""])
-          inputRefs.current[0]?.focus()
-        }, 500)
+          setShake(false);
+          setDigits(["", "", "", ""]);
+          inputRefs.current[0]?.focus();
+        }, 500);
       }
     }
-  }
+  };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus()
+      inputRefs.current[index - 1]?.focus();
     }
     if (e.key === "Escape") {
-      onOpenChange(false)
+      onOpenChange(false);
     }
-  }
+  };
 
   const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault()
-    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, PIN_LENGTH)
+    e.preventDefault();
+    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, PIN_LENGTH);
     if (text.length === PIN_LENGTH) {
-      const newDigits = text.split("")
-      setDigits(newDigits)
-      const pin = newDigits.join("")
+      const newDigits = text.split("");
+      setDigits(newDigits);
+      const pin = newDigits.join("");
       if (pin === CORRECT_PIN) {
-        onSuccess()
-        onOpenChange(false)
+        onSuccess();
+        onOpenChange(false);
       } else {
-        setError(true)
-        setShake(true)
+        setError(true);
+        setShake(true);
         setTimeout(() => {
-          setShake(false)
-          setDigits(["", "", "", ""])
-          inputRefs.current[0]?.focus()
-        }, 500)
+          setShake(false);
+          setDigits(["", "", "", ""]);
+          inputRefs.current[0]?.focus();
+        }, 500);
       }
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,8 +124,11 @@ export function PinDialog({ open, onOpenChange, onSuccess }: PinDialogProps) {
         >
           {digits.map((digit, index) => (
             <Input
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length PIN input, never reordered
               key={index}
-              ref={(el) => { inputRefs.current[index] = el }}
+              ref={(el) => {
+                inputRefs.current[index] = el;
+              }}
               type="password"
               inputMode="numeric"
               maxLength={1}
@@ -161,5 +164,5 @@ export function PinDialog({ open, onOpenChange, onSuccess }: PinDialogProps) {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
