@@ -40,7 +40,7 @@ Components in `components/ui/` are shadcn/ui primitives (Radix UI + Tailwind CSS
 - Currency formatted as `$X.XX` via inline `toFixed(2)`
 - Dates use `date-fns` with `es-MX` (Spanish/Mexico) locale
 - Path alias: `@/*` maps to project root
-- Admin PIN is hardcoded as `"1234"`
+- Admin PIN is configured via `NEXT_PUBLIC_ADMIN_PIN` env variable (defaults to `"1234"`)
 
 ### CI
 

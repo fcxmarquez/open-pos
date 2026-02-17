@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-const CORRECT_PIN = "1234";
+const CORRECT_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN ?? "1234";
 const PIN_LENGTH = 4;
 
 interface PinDialogProps {
