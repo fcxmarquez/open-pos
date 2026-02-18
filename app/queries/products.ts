@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { products, saleItems } from "@/db/schema";
 
@@ -73,7 +73,7 @@ export async function getFrequentProducts(limit = 12) {
   const productRows = await db
     .select()
     .from(products)
-    .where(and(eq(products.isActive, true), sql`${products.id} IN ${ids}`));
+    .where(and(eq(products.isActive, true), inArray(products.id, ids)));
 
   const orderMap = new Map(ids.map((id, i) => [id, i]));
   return productRows.sort(
