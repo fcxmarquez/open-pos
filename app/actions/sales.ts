@@ -33,25 +33,28 @@ interface CompleteSaleResult {
   createdAt: Date;
 }
 
-async function getOrCreateTodaySession(): Promise<string> {
+type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function getOrCreateTodaySession(tx: DbTransaction): Promise<string> {
   const today = new Date().toISOString().split("T")[0];
 
-  const existing = await db
+  const inserted = await tx
+    .insert(salesSessions)
+    .values({ sessionDate: today })
+    .onConflictDoNothing({ target: salesSessions.sessionDate })
+    .returning({ id: salesSessions.id });
+
+  if (inserted.length > 0) {
+    return inserted[0].id;
+  }
+
+  const [existing] = await tx
     .select({ id: salesSessions.id })
     .from(salesSessions)
     .where(eq(salesSessions.sessionDate, today))
     .limit(1);
 
-  if (existing.length > 0) {
-    return existing[0].id;
-  }
-
-  const [created] = await db
-    .insert(salesSessions)
-    .values({ sessionDate: today })
-    .returning({ id: salesSessions.id });
-
-  return created.id;
+  return existing.id;
 }
 
 export async function completeSale(
@@ -78,36 +81,40 @@ export async function completeSale(
   const change = payment - total;
 
   try {
-    const sessionId = await getOrCreateTodaySession();
+    const sale = await db.transaction(async (tx) => {
+      const sessionId = await getOrCreateTodaySession(tx);
 
-    const [sale] = await db
-      .insert(sales)
-      .values({
-        sessionId,
-        total: total.toFixed(2),
-        paymentAmount: payment.toFixed(2),
-        changeAmount: change.toFixed(2),
-      })
-      .returning();
+      const [newSale] = await tx
+        .insert(sales)
+        .values({
+          sessionId,
+          total: total.toFixed(2),
+          paymentAmount: payment.toFixed(2),
+          changeAmount: change.toFixed(2),
+        })
+        .returning();
 
-    await db.insert(saleItems).values(
-      items.map((item) => ({
-        saleId: sale.id,
-        productId: item.productId,
-        barcode: item.barcode,
-        productName: item.productName,
-        unitPrice: item.unitPrice.toFixed(2),
-        quantity: item.quantity,
-        subtotal: (item.unitPrice * item.quantity).toFixed(2),
-      }))
-    );
+      await tx.insert(saleItems).values(
+        items.map((item) => ({
+          saleId: newSale.id,
+          productId: item.productId,
+          barcode: item.barcode,
+          productName: item.productName,
+          unitPrice: item.unitPrice.toFixed(2),
+          quantity: item.quantity,
+          subtotal: (item.unitPrice * item.quantity).toFixed(2),
+        }))
+      );
 
-    await db
-      .update(salesSessions)
-      .set({
-        systemTotal: sql`COALESCE(${salesSessions.systemTotal}, 0) + ${total.toFixed(2)}::decimal`,
-      })
-      .where(eq(salesSessions.id, sessionId));
+      await tx
+        .update(salesSessions)
+        .set({
+          systemTotal: sql`COALESCE(${salesSessions.systemTotal}, 0) + ${total.toFixed(2)}::decimal`,
+        })
+        .where(eq(salesSessions.id, sessionId));
+
+      return newSale;
+    });
 
     revalidatePath("/");
 
