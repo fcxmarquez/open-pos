@@ -5,10 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { saleItems, sales, salesSessions } from "@/db/schema";
-
-type ActionResult<T = null> =
-  | { success: true; data: T; error: null }
-  | { success: false; data: null; error: string };
+import type { ActionResult } from "@/lib/types";
 
 const cartItemSchema = z.object({
   productId: z.string().uuid().nullable(),

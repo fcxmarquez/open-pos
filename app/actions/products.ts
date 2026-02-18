@@ -5,12 +5,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { products } from "@/db/schema";
+import type { ActionResult } from "@/lib/types";
 
 type Product = typeof products.$inferSelect;
-
-type ActionResult<T = null> =
-  | { success: true; data: T; error: null }
-  | { success: false; data: null; error: string };
 
 const nullableTrimmedString = z.preprocess((value) => {
   if (typeof value !== "string") return value;
