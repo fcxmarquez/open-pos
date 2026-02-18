@@ -125,7 +125,8 @@ export async function completeSale(
       },
       error: null,
     };
-  } catch {
+  } catch (err) {
+    console.error("completeSale failed:", err);
     return {
       success: false,
       data: null,
