@@ -1,9 +1,10 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { salesSessions } from "@/db/schema";
+import { getTodayDateString } from "@/lib/utils";
 
 export async function getTodaySession() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayDateString();
 
   const [session] = await db
     .select()

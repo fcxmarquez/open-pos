@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { saleItems, sales, salesSessions } from "@/db/schema";
 import type { ActionResult } from "@/lib/types";
 import { formatZodError } from "@/lib/types";
+import { getTodayDateString } from "@/lib/utils";
 
 const cartItemSchema = z.object({
   productId: z.string().uuid().nullable(),
@@ -32,7 +33,7 @@ interface CompleteSaleResult {
 type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 async function getOrCreateTodaySession(tx: DbTransaction): Promise<string> {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayDateString();
 
   const inserted = await tx
     .insert(salesSessions)
