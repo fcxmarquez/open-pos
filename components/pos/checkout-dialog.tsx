@@ -1,8 +1,10 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { completeSale } from "@/app/actions/sales";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,10 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store";
-
-function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`;
-}
+import { formatCurrency } from "@/lib/utils";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -27,15 +26,17 @@ interface CheckoutDialogProps {
 
 export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialogProps) {
   const [payment, setPayment] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const paymentRef = useRef<HTMLInputElement>(null);
 
+  const cart = useStore((s) => s.cart);
   const getCartTotal = useStore((s) => s.getCartTotal);
-  const completeSale = useStore((s) => s.completeSale);
+  const clearCart = useStore((s) => s.clearCart);
 
   const total = getCartTotal();
   const paymentNum = parseFloat(payment) || 0;
   const change = paymentNum - total;
-  const canConfirm = paymentNum >= total && total > 0;
+  const canConfirm = paymentNum >= total && total > 0 && !isProcessing;
 
   useEffect(() => {
     if (open) {
@@ -44,17 +45,44 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
     }
   }, [open]);
 
-  const handleConfirm = (e: React.FormEvent) => {
+  const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canConfirm) return;
-    const sale = completeSale(paymentNum);
-    toast.success(`Venta registrada - ${formatCurrency(sale.total)}`);
-    onOpenChange(false);
-    onComplete();
+
+    setIsProcessing(true);
+
+    try {
+      const items = cart.map((item) => ({
+        productId:
+          item.product.id.startsWith("temp-") || item.product.id.startsWith("quick-")
+            ? null
+            : item.product.id,
+        barcode: item.product.barcode || null,
+        productName: item.product.name,
+        unitPrice: item.product.price,
+        quantity: item.quantity,
+      }));
+
+      const result = await completeSale({ items, payment: paymentNum });
+
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+
+      clearCart();
+      toast.success(`Venta registrada - ${formatCurrency(total)}`);
+      onOpenChange(false);
+      onComplete();
+    } catch {
+      toast.error("Error al procesar la venta");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={isProcessing ? undefined : onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">Cobrar</DialogTitle>
@@ -81,6 +109,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
               onChange={(e) => setPayment(e.target.value)}
               placeholder="0.00"
               className="mt-1 h-12 text-center text-xl font-semibold text-foreground"
+              disabled={isProcessing}
             />
           </div>
 
@@ -104,7 +133,14 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
             disabled={!canConfirm}
             className="w-full bg-accent text-accent-foreground text-base font-semibold hover:bg-accent/90"
           >
-            Confirmar venta
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Procesando...
+              </>
+            ) : (
+              "Confirmar venta"
+            )}
           </Button>
         </form>
       </DialogContent>
