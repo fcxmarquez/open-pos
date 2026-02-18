@@ -32,10 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useStore } from "@/lib/store";
-
-function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`;
-}
+import { formatCurrency } from "@/lib/utils";
 
 function formatTime(timestamp: string): string {
   return new Date(timestamp).toLocaleTimeString("es-MX", {

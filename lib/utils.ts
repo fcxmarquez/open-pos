@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function formatCurrency(amount: number): string {
+  return `$${amount.toFixed(2)}`;
+}
+
 /** Returns today's date as "YYYY-MM-DD" in Mexico City timezone. */
 export function getTodayDateString(): string {
   return new Intl.DateTimeFormat("en-CA", {

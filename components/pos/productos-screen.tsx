@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { type Category, type Product, useStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
 import { ProductFormDialog } from "./product-form-dialog";
 
 const CATEGORIES: Category[] = [
@@ -34,10 +35,6 @@ const CATEGORIES: Category[] = [
   "Oficina",
   "Otro",
 ];
-
-function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`;
-}
 
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "Nunca";
