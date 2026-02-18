@@ -114,6 +114,7 @@ export async function createProduct(
       };
     }
 
+    console.error("createProduct failed:", error);
     return {
       success: false,
       data: null,
@@ -197,6 +198,7 @@ export async function updateProduct(
       };
     }
 
+    console.error("updateProduct failed:", error);
     return {
       success: false,
       data: null,
@@ -235,7 +237,8 @@ export async function deleteProduct(
     revalidateProducts();
 
     return { success: true, data: null, error: null };
-  } catch {
+  } catch (err) {
+    console.error("deleteProduct failed:", err);
     return {
       success: false,
       data: null,

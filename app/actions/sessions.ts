@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { salesSessions } from "@/db/schema";
 import type { ActionResult } from "@/lib/types";
+import { formatZodError } from "@/lib/types";
 
 const closeSessionSchema = z.object({
   sessionId: z.string().uuid("ID de sesión inválido"),
@@ -30,61 +31,68 @@ export async function closeSession(
   const parsed = closeSessionSchema.safeParse(input);
 
   if (!parsed.success) {
-    const firstIssue = parsed.error.issues[0];
     return {
       success: false,
       data: null,
-      error: firstIssue?.message ?? "Datos de entrada inválidos",
+      error: formatZodError(parsed.error),
     };
   }
 
   const { sessionId, countedTotal } = parsed.data;
 
   try {
-    const [session] = await db
-      .select()
-      .from(salesSessions)
-      .where(eq(salesSessions.id, sessionId))
-      .limit(1);
+    const result = await db.transaction(async (tx) => {
+      const [session] = await tx
+        .select()
+        .from(salesSessions)
+        .where(eq(salesSessions.id, sessionId))
+        .limit(1);
 
-    if (!session) {
-      return { success: false, data: null, error: "Sesión no encontrada" };
+      if (!session) {
+        return { success: false, data: null, error: "Sesión no encontrada" } as const;
+      }
+
+      if (session.status !== "open") {
+        return { success: false, data: null, error: "La sesión ya fue cerrada" } as const;
+      }
+
+      const systemTotal = Number(session.systemTotal ?? 0);
+      const difference = countedTotal - systemTotal;
+      const closedAt = new Date();
+
+      const [updated] = await tx
+        .update(salesSessions)
+        .set({
+          countedTotal: countedTotal.toFixed(2),
+          difference: difference.toFixed(2),
+          status: "closed",
+          closedAt,
+        })
+        .where(eq(salesSessions.id, sessionId))
+        .returning();
+
+      return {
+        success: true,
+        data: {
+          id: updated.id,
+          sessionDate: updated.sessionDate,
+          systemTotal: updated.systemTotal ?? "0.00",
+          countedTotal: updated.countedTotal ?? countedTotal.toFixed(2),
+          difference: updated.difference ?? difference.toFixed(2),
+          status: updated.status ?? "closed",
+          closedAt,
+        },
+        error: null,
+      } as const;
+    });
+
+    if (result.success) {
+      revalidatePath("/");
     }
 
-    if (session.status !== "open") {
-      return { success: false, data: null, error: "La sesión ya fue cerrada" };
-    }
-
-    const systemTotal = Number(session.systemTotal ?? 0);
-    const difference = countedTotal - systemTotal;
-
-    const [updated] = await db
-      .update(salesSessions)
-      .set({
-        countedTotal: countedTotal.toFixed(2),
-        difference: difference.toFixed(2),
-        status: "closed",
-        closedAt: new Date(),
-      })
-      .where(eq(salesSessions.id, sessionId))
-      .returning();
-
-    revalidatePath("/");
-
-    return {
-      success: true,
-      data: {
-        id: updated.id,
-        sessionDate: updated.sessionDate,
-        systemTotal: updated.systemTotal ?? "0.00",
-        countedTotal: updated.countedTotal ?? countedTotal.toFixed(2),
-        difference: updated.difference ?? difference.toFixed(2),
-        status: updated.status ?? "closed",
-        closedAt: updated.closedAt!,
-      },
-      error: null,
-    };
-  } catch {
+    return result;
+  } catch (err) {
+    console.error("closeSession failed:", err);
     return {
       success: false,
       data: null,
