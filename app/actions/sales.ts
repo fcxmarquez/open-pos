@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { saleItems, sales, salesSessions } from "@/db/schema";
 import type { ActionResult } from "@/lib/types";
+import { formatZodError } from "@/lib/types";
 
 const cartItemSchema = z.object({
   productId: z.string().uuid().nullable(),
@@ -19,11 +20,6 @@ const completeSaleSchema = z.object({
   items: z.array(cartItemSchema).min(1, "El carrito no puede estar vacio"),
   payment: z.coerce.number().positive("El pago debe ser mayor a 0"),
 });
-
-function formatZodError(error: z.ZodError): string {
-  const firstIssue = error.issues[0];
-  return firstIssue?.message ?? "Datos de entrada invalidos";
-}
 
 interface CompleteSaleResult {
   saleId: string;
