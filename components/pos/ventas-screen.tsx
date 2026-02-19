@@ -1,11 +1,11 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Minus, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
-  getFrequentProducts,
   getProductByBarcode,
   searchProducts as searchProductsQuery,
 } from "@/app/actions/product-queries";
@@ -16,12 +16,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
 import { CheckoutDialog } from "./checkout-dialog";
+import {
+  frequentProductsQueryKey,
+  frequentProductsQueryOptions,
+} from "./queries/frequent-products";
 import { QuickSaleDialog } from "./quick-sale-dialog";
 import { UnregisteredProductSheet } from "./unregistered-product-sheet";
 
-type DbProduct = Awaited<ReturnType<typeof getFrequentProducts>>[number];
+type SearchableProduct = Awaited<ReturnType<typeof getProductByBarcode>>;
 
-function dbProductToStoreProduct(p: DbProduct): Product {
+function dbProductToStoreProduct(p: NonNullable<SearchableProduct>): Product {
   return {
     id: p.id,
     barcode: p.barcode ?? "",
@@ -35,7 +39,6 @@ function dbProductToStoreProduct(p: DbProduct): Product {
 export function VentasScreen() {
   const [searchValue, setSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [frequentProducts, setFrequentProducts] = useState<Product[]>([]);
   const [showUnregistered, setShowUnregistered] = useState(false);
   const [unregisteredBarcode, setUnregisteredBarcode] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
@@ -57,19 +60,8 @@ export function VentasScreen() {
   const cartTotal = getCartTotal();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const loadFrequentProducts = useCallback(async () => {
-    try {
-      const products = await getFrequentProducts();
-      setFrequentProducts(products.map(dbProductToStoreProduct));
-    } catch {
-      // Silently fail - frequent products are not critical
-    }
-  }, []);
-
-  // Load frequent products on mount
-  useEffect(() => {
-    loadFrequentProducts();
-  }, [loadFrequentProducts]);
+  const queryClient = useQueryClient();
+  const { data: frequentProducts = [] } = useQuery(frequentProductsQueryOptions());
 
   const focusInput = useCallback(() => {
     setTimeout(() => inputRef.current?.focus(), 50);
@@ -197,7 +189,7 @@ export function VentasScreen() {
 
   const handleSaleComplete = () => {
     focusInput();
-    loadFrequentProducts();
+    queryClient.invalidateQueries({ queryKey: frequentProductsQueryKey });
   };
 
   // Shared cart content component
