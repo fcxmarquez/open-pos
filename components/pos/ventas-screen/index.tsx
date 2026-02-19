@@ -9,19 +9,16 @@ import {
   getProductByBarcode,
   searchProducts as searchProductsQuery,
 } from "@/app/actions/product-queries";
+import { CheckoutDialog } from "@/components/pos/checkout-dialog";
+import { QuickSaleDialog } from "@/components/pos/quick-sale-dialog";
+import { UnregisteredProductSheet } from "@/components/pos/unregistered-product-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
-import { CheckoutDialog } from "./checkout-dialog";
-import {
-  frequentProductsQueryKey,
-  frequentProductsQueryOptions,
-} from "./queries/frequent-products";
-import { QuickSaleDialog } from "./quick-sale-dialog";
-import { UnregisteredProductSheet } from "./unregistered-product-sheet";
+import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query";
 
 type SearchableProduct = Awaited<ReturnType<typeof getProductByBarcode>>;
 
