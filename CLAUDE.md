@@ -42,6 +42,14 @@ Components in `components/ui/` are shadcn/ui primitives (Radix UI + Tailwind CSS
 - Path alias: `@/*` maps to project root
 - Admin PIN is configured via `NEXT_PUBLIC_ADMIN_PIN` env variable (defaults to `"1234"`)
 
+
+### Query Organization Conventions
+
+- Server-side database query modules live in `lib/server/queries/*` (not under `app/*`).
+- `app/actions/*` files are the server action boundary and can call `lib/server/queries/*`.
+- TanStack Query client/cache definitions should be feature-local (for example `components/pos/queries/*`), while shared query client setup lives in a global location (for example `components/query-provider.tsx` or `lib/query/*`).
+- Keep UI components focused on rendering and interactions: extract query keys and query functions into the feature query files.
+
 ### CI
 
 GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `main` using Bun.

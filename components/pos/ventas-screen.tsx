@@ -6,7 +6,6 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
-  getFrequentProducts,
   getProductByBarcode,
   searchProducts as searchProductsQuery,
 } from "@/app/actions/product-queries";
@@ -17,12 +16,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
 import { CheckoutDialog } from "./checkout-dialog";
+import {
+  frequentProductsQueryKey,
+  frequentProductsQueryOptions,
+} from "./queries/frequent-products";
 import { QuickSaleDialog } from "./quick-sale-dialog";
 import { UnregisteredProductSheet } from "./unregistered-product-sheet";
 
-type DbProduct = Awaited<ReturnType<typeof getFrequentProducts>>[number];
+type SearchableProduct = Awaited<ReturnType<typeof getProductByBarcode>>;
 
-function dbProductToStoreProduct(p: DbProduct): Product {
+function dbProductToStoreProduct(p: NonNullable<SearchableProduct>): Product {
   return {
     id: p.id,
     barcode: p.barcode ?? "",
@@ -58,13 +61,7 @@ export function VentasScreen() {
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const queryClient = useQueryClient();
-  const { data: frequentProducts = [] } = useQuery({
-    queryKey: ["frequent-products"],
-    queryFn: async () => {
-      const products = await getFrequentProducts();
-      return products.map(dbProductToStoreProduct);
-    },
-  });
+  const { data: frequentProducts = [] } = useQuery(frequentProductsQueryOptions());
 
   const focusInput = useCallback(() => {
     setTimeout(() => inputRef.current?.focus(), 50);
@@ -192,7 +189,7 @@ export function VentasScreen() {
 
   const handleSaleComplete = () => {
     focusInput();
-    queryClient.invalidateQueries({ queryKey: ["frequent-products"] });
+    queryClient.invalidateQueries({ queryKey: frequentProductsQueryKey });
   };
 
   // Shared cart content component
