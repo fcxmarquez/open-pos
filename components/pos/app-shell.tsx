@@ -54,6 +54,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    const isProtected = activeScreen === "productos" || activeScreen === "corte";
+    if (isProtected && !adminUnlocked) {
+      setPendingScreen(activeScreen);
+      setPinDialogOpen(true);
+    }
+  }, [activeScreen, adminUnlocked]);
+
   const navItems = [
     { id: "ventas" as const, label: "Ventas", icon: ShoppingCart, locked: false },
     { id: "productos" as const, label: "Productos", icon: Package, locked: true },
