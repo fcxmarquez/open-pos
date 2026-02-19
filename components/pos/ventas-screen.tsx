@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Minus, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
@@ -35,7 +36,6 @@ function dbProductToStoreProduct(p: DbProduct): Product {
 export function VentasScreen() {
   const [searchValue, setSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [frequentProducts, setFrequentProducts] = useState<Product[]>([]);
   const [showUnregistered, setShowUnregistered] = useState(false);
   const [unregisteredBarcode, setUnregisteredBarcode] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
@@ -57,19 +57,14 @@ export function VentasScreen() {
   const cartTotal = getCartTotal();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const loadFrequentProducts = useCallback(async () => {
-    try {
+  const queryClient = useQueryClient();
+  const { data: frequentProducts = [] } = useQuery({
+    queryKey: ["frequent-products"],
+    queryFn: async () => {
       const products = await getFrequentProducts();
-      setFrequentProducts(products.map(dbProductToStoreProduct));
-    } catch {
-      // Silently fail - frequent products are not critical
-    }
-  }, []);
-
-  // Load frequent products on mount
-  useEffect(() => {
-    loadFrequentProducts();
-  }, [loadFrequentProducts]);
+      return products.map(dbProductToStoreProduct);
+    },
+  });
 
   const focusInput = useCallback(() => {
     setTimeout(() => inputRef.current?.focus(), 50);
@@ -197,7 +192,7 @@ export function VentasScreen() {
 
   const handleSaleComplete = () => {
     focusInput();
-    loadFrequentProducts();
+    queryClient.invalidateQueries({ queryKey: ["frequent-products"] });
   };
 
   // Shared cart content component

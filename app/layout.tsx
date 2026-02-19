@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
 import { Toaster } from "sonner";
+import { QueryProvider } from "@/components/query-provider";
 
 import "./globals.css";
 
@@ -24,8 +25,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="font-sans antialiased">
-        {children}
-        <Toaster position="top-right" richColors closeButton />
+        <QueryProvider>
+          {children}
+          <Toaster position="top-right" richColors closeButton />
+        </QueryProvider>
       </body>
     </html>
   );
