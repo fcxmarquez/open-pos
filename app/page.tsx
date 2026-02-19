@@ -1,5 +1,5 @@
-import { AppShell } from "@/components/pos/app-shell";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <AppShell />;
+  redirect("/ventas");
 }
