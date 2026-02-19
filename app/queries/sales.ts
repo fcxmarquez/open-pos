@@ -1,5 +1,3 @@
-"use server";
-
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { saleItems, sales, salesSessions } from "@/db/schema";
