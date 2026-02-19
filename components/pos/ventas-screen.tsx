@@ -1,50 +1,75 @@
 "use client";
 
-import { Minus, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
+import { Loader2, Minus, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
+import {
+  getFrequentProducts,
+  getProductByBarcode,
+  searchProducts as searchProductsQuery,
+} from "@/app/actions/product-queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type Product, useStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { CheckoutDialog } from "./checkout-dialog";
 import { QuickSaleDialog } from "./quick-sale-dialog";
 import { UnregisteredProductSheet } from "./unregistered-product-sheet";
 
-function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`;
+type DbProduct = Awaited<ReturnType<typeof getFrequentProducts>>[number];
+
+function dbProductToStoreProduct(p: DbProduct): Product {
+  return {
+    id: p.id,
+    barcode: p.barcode ?? "",
+    name: p.name ?? "Sin nombre",
+    price: Number(p.price),
+    category: (p.category as Product["category"]) ?? "General",
+    createdAt: p.createdAt.toISOString(),
+  };
 }
 
 export function VentasScreen() {
   const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [frequentProducts, setFrequentProducts] = useState<Product[]>([]);
   const [showUnregistered, setShowUnregistered] = useState(false);
   const [unregisteredBarcode, setUnregisteredBarcode] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
   const [showQuickSale, setShowQuickSale] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  const products = useStore((s) => s.products);
   const cart = useStore((s) => s.cart);
   const addToCart = useStore((s) => s.addToCart);
   const removeFromCart = useStore((s) => s.removeFromCart);
   const updateCartQuantity = useStore((s) => s.updateCartQuantity);
   const clearCart = useStore((s) => s.clearCart);
   const getCartTotal = useStore((s) => s.getCartTotal);
-  const findProductByBarcode = useStore((s) => s.findProductByBarcode);
-  const searchProducts = useStore((s) => s.searchProducts);
 
   const cartTotal = getCartTotal();
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Frequent products (first 12)
-  const frequentProducts = products.slice(0, 12);
+  const loadFrequentProducts = useCallback(async () => {
+    try {
+      const products = await getFrequentProducts();
+      setFrequentProducts(products.map(dbProductToStoreProduct));
+    } catch {
+      // Silently fail - frequent products are not critical
+    }
+  }, []);
 
-  // Search results
-  const searchResults = searchValue.length >= 2 ? searchProducts(searchValue) : [];
+  // Load frequent products on mount
+  useEffect(() => {
+    loadFrequentProducts();
+  }, [loadFrequentProducts]);
 
   const focusInput = useCallback(() => {
     setTimeout(() => inputRef.current?.focus(), 50);
@@ -71,40 +96,84 @@ export function VentasScreen() {
     return () => window.removeEventListener("keydown", handler);
   }, [cart.length]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Debounced search as user types
+  useEffect(() => {
+    if (searchValue.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      setIsSearching(true);
+      startTransition(async () => {
+        try {
+          const results = await searchProductsQuery(searchValue);
+          setSearchResults(results.map(dbProductToStoreProduct));
+        } catch {
+          // Silently fail on search
+        } finally {
+          setIsSearching(false);
+        }
+      });
+    }, 300);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchValue]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = searchValue.trim();
     if (!value) return;
 
-    // First try exact barcode match
-    const product = findProductByBarcode(value);
-    if (product) {
-      addToCart(product);
-      toast.success(`${product.name} agregado`);
+    setIsSubmitting(true);
+
+    try {
+      // First try exact barcode match
+      const product = await getProductByBarcode(value);
+      if (product) {
+        addToCart(dbProductToStoreProduct(product));
+        toast.success(`${product.name ?? "Producto"} agregado`);
+        setSearchValue("");
+        setSearchResults([]);
+        focusInput();
+        return;
+      }
+
+      // Try name search
+      const results = await searchProductsQuery(value);
+      if (results.length === 1) {
+        const p = dbProductToStoreProduct(results[0]);
+        addToCart(p);
+        toast.success(`${p.name} agregado`);
+        setSearchValue("");
+        setSearchResults([]);
+        focusInput();
+        return;
+      }
+
+      if (results.length > 1) {
+        setSearchResults(results.map(dbProductToStoreProduct));
+        return;
+      }
+
+      // No match - open unregistered product sheet
+      setUnregisteredBarcode(value);
+      setShowUnregistered(true);
       setSearchValue("");
-      focusInput();
-      return;
+      setSearchResults([]);
+    } catch {
+      toast.error("Error al buscar el producto");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // Try name search
-    const results = searchProducts(value);
-    if (results.length === 1) {
-      addToCart(results[0]);
-      toast.success(`${results[0].name} agregado`);
-      setSearchValue("");
-      focusInput();
-      return;
-    }
-
-    if (results.length > 1) {
-      // Show results, don't open unregistered
-      return;
-    }
-
-    // No match - open unregistered product sheet
-    setUnregisteredBarcode(value);
-    setShowUnregistered(true);
-    setSearchValue("");
   };
 
   const handleProductClick = (product: Product) => {
@@ -124,6 +193,11 @@ export function VentasScreen() {
       toast.info("Venta cancelada");
       focusInput();
     }
+  };
+
+  const handleSaleComplete = () => {
+    focusInput();
+    loadFrequentProducts();
   };
 
   // Shared cart content component
@@ -243,7 +317,11 @@ export function VentasScreen() {
         {/* Barcode input */}
         <form onSubmit={handleSubmit} className="mb-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            {isSubmitting ? (
+              <Loader2 className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 animate-spin text-muted-foreground" />
+            ) : (
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            )}
             <Input
               ref={inputRef}
               value={searchValue}
@@ -251,6 +329,7 @@ export function VentasScreen() {
               placeholder="Escanear codigo o buscar..."
               className="animate-pulse-ring h-12 pl-10 text-base"
               autoFocus
+              disabled={isSubmitting}
             />
           </div>
         </form>
@@ -258,6 +337,11 @@ export function VentasScreen() {
         {/* Search results dropdown */}
         {searchValue.length >= 2 && searchResults.length > 1 && (
           <div className="mb-4 max-h-48 overflow-auto rounded-md border bg-card shadow-md">
+            {isSearching && (
+              <div className="flex items-center justify-center py-2">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            )}
             {searchResults.map((p) => (
               <button
                 type="button"
@@ -266,6 +350,7 @@ export function VentasScreen() {
                   addToCart(p);
                   toast.success(`${p.name} agregado`);
                   setSearchValue("");
+                  setSearchResults([]);
                   focusInput();
                 }}
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
@@ -416,7 +501,7 @@ export function VentasScreen() {
           setShowCheckout(open);
           if (!open) focusInput();
         }}
-        onComplete={focusInput}
+        onComplete={handleSaleComplete}
       />
 
       {/* Quick sale dialog */}
