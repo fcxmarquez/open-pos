@@ -48,7 +48,7 @@ export default async function LoginPage({
 }) {
   const session = await auth();
   if (session) {
-    redirect("/");
+    redirect("/ventas");
   }
 
   const params = await searchParams;
@@ -76,7 +76,7 @@ export default async function LoginPage({
           <form
             action={async () => {
               "use server";
-              await signIn("google", { redirectTo: "/" });
+              await signIn("google", { redirectTo: "/ventas" });
             }}
           >
             <Button type="submit" variant="outline" className="w-full gap-3 py-5">

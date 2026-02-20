@@ -10,15 +10,19 @@ import {
   Store,
   X,
 } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CorteScreen } from "./corte-screen";
 import { PinDialog } from "./pin-dialog";
-import { ProductosScreen } from "./productos-screen";
-import { VentasScreen } from "./ventas-screen";
 
 type Screen = "ventas" | "productos" | "corte";
+
+const screenPaths: Record<Screen, string> = {
+  ventas: "/ventas",
+  productos: "/productos",
+  corte: "/corte",
+};
 
 function formatDate(): string {
   return new Date().toLocaleDateString("es-MX", {
@@ -29,8 +33,17 @@ function formatDate(): string {
   });
 }
 
-export function AppShell() {
-  const [activeScreen, setActiveScreen] = useState<Screen>("ventas");
+function pathToScreen(pathname: string): Screen {
+  if (pathname.startsWith("/productos")) return "productos";
+  if (pathname.startsWith("/corte")) return "corte";
+  return "ventas";
+}
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const activeScreen = pathToScreen(pathname);
+
   const [mounted, setMounted] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [adminUnlocked, setAdminUnlocked] = useState(false);
@@ -40,6 +53,14 @@ export function AppShell() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const isProtected = activeScreen === "productos" || activeScreen === "corte";
+    if (isProtected && !adminUnlocked) {
+      setPendingScreen(activeScreen);
+      setPinDialogOpen(true);
+    }
+  }, [activeScreen, adminUnlocked]);
 
   const navItems = [
     { id: "ventas" as const, label: "Ventas", icon: ShoppingCart, locked: false },
@@ -54,14 +75,14 @@ export function AppShell() {
       setPinDialogOpen(true);
       return;
     }
-    setActiveScreen(id);
+    router.push(screenPaths[id]);
     setMobileNavOpen(false);
   };
 
   const handlePinSuccess = () => {
     setAdminUnlocked(true);
     if (pendingScreen) {
-      setActiveScreen(pendingScreen);
+      router.push(screenPaths[pendingScreen]);
       setPendingScreen(null);
     }
     setMobileNavOpen(false);
@@ -69,7 +90,7 @@ export function AppShell() {
 
   const handleLogout = () => {
     setAdminUnlocked(false);
-    setActiveScreen("ventas");
+    router.push("/ventas");
     setMobileNavOpen(false);
   };
 
@@ -200,11 +221,7 @@ export function AppShell() {
         </header>
 
         {/* Screen content */}
-        <main className="flex-1 overflow-hidden">
-          {activeScreen === "ventas" && <VentasScreen />}
-          {activeScreen === "productos" && <ProductosScreen />}
-          {activeScreen === "corte" && <CorteScreen />}
-        </main>
+        <main className="flex-1 overflow-hidden">{children}</main>
       </div>
 
       {/* PIN Dialog */}

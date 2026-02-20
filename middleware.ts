@@ -10,7 +10,7 @@ export default auth((req) => {
   if (isPublicRoute) {
     // Redirect authenticated users away from /login to the app
     if (isLoggedIn && pathname === "/login") {
-      return Response.redirect(new URL("/", req.url));
+      return Response.redirect(new URL("/ventas", req.url));
     }
     return;
   }
