@@ -1,9 +1,10 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Minus, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
-import type React from "react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
   getProductByBarcode,
@@ -14,8 +15,10 @@ import { QuickSaleDialog } from "@/components/pos/quick-sale-dialog";
 import { UnregisteredProductSheet } from "@/components/pos/unregistered-product-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
 import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query";
@@ -34,7 +37,6 @@ function dbProductToStoreProduct(p: NonNullable<SearchableProduct>): Product {
 }
 
 export function VentasScreen() {
-  const [searchValue, setSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [showUnregistered, setShowUnregistered] = useState(false);
   const [unregisteredBarcode, setUnregisteredBarcode] = useState("");
@@ -46,6 +48,11 @@ export function VentasScreen() {
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const searchForm = useForm({
+    resolver: zodResolver(ventasSearchFormSchema),
+    defaultValues: ventasSearchFormDefaults,
+  });
+  const searchValue = searchForm.watch("searchValue");
 
   const cart = useStore((s) => s.cart);
   const addToCart = useStore((s) => s.addToCart);
@@ -117,9 +124,17 @@ export function VentasScreen() {
     };
   }, [searchValue]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const value = searchValue.trim();
+  const clearSearch = () => {
+    searchForm.reset(ventasSearchFormDefaults);
+    setSearchResults([]);
+  };
+
+  const handleSubmit = async ({
+    searchValue: submittedValue,
+  }: {
+    searchValue: string;
+  }) => {
+    const value = submittedValue.trim();
     if (!value) return;
 
     setIsSubmitting(true);
@@ -130,8 +145,7 @@ export function VentasScreen() {
       if (product) {
         addToCart(dbProductToStoreProduct(product));
         toast.success(`${product.name ?? "Producto"} agregado`);
-        setSearchValue("");
-        setSearchResults([]);
+        clearSearch();
         focusInput();
         return;
       }
@@ -142,8 +156,7 @@ export function VentasScreen() {
         const p = dbProductToStoreProduct(results[0]);
         addToCart(p);
         toast.success(`${p.name} agregado`);
-        setSearchValue("");
-        setSearchResults([]);
+        clearSearch();
         focusInput();
         return;
       }
@@ -156,8 +169,7 @@ export function VentasScreen() {
       // No match - open unregistered product sheet
       setUnregisteredBarcode(value);
       setShowUnregistered(true);
-      setSearchValue("");
-      setSearchResults([]);
+      clearSearch();
     } catch {
       toast.error("Error al buscar el producto");
     } finally {
@@ -304,24 +316,40 @@ export function VentasScreen() {
       {/* Left column - Product entry */}
       <div className="flex flex-1 flex-col overflow-hidden border-b p-4 lg:border-b-0 lg:border-r lg:p-5">
         {/* Barcode input */}
-        <form onSubmit={handleSubmit} className="mb-4">
-          <div className="relative">
-            {isSubmitting ? (
-              <Loader2 className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 animate-spin text-muted-foreground" />
-            ) : (
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            )}
-            <Input
-              ref={inputRef}
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Escanear codigo o buscar..."
-              className="animate-pulse-ring h-12 pl-10 text-base"
-              autoFocus
-              disabled={isSubmitting}
+        <Form {...searchForm}>
+          <form onSubmit={searchForm.handleSubmit(handleSubmit)} className="mb-4">
+            <FormField
+              control={searchForm.control}
+              name="searchValue"
+              render={({ field }) => {
+                const { ref, ...fieldProps } = field;
+
+                return (
+                  <FormItem className="relative space-y-0">
+                    {isSubmitting ? (
+                      <Loader2 className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 animate-spin text-muted-foreground" />
+                    ) : (
+                      <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    )}
+                    <FormControl>
+                      <Input
+                        ref={(element) => {
+                          ref(element);
+                          inputRef.current = element;
+                        }}
+                        placeholder="Escanear codigo o buscar..."
+                        className="animate-pulse-ring h-12 pl-10 text-base"
+                        autoFocus
+                        disabled={isSubmitting}
+                        {...fieldProps}
+                      />
+                    </FormControl>
+                  </FormItem>
+                );
+              }}
             />
-          </div>
-        </form>
+          </form>
+        </Form>
 
         {/* Search results dropdown */}
         {searchValue.length >= 2 && searchResults.length > 1 && (
@@ -338,8 +366,7 @@ export function VentasScreen() {
                 onClick={() => {
                   addToCart(p);
                   toast.success(`${p.name} agregado`);
-                  setSearchValue("");
-                  setSearchResults([]);
+                  clearSearch();
                   focusInput();
                 }}
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
