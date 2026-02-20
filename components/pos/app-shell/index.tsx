@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PinDialog } from "@/components/pos/pin-dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PinDialog } from "./pin-dialog";
 
 type Screen = "ventas" | "productos" | "corte";
 

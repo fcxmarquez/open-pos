@@ -3,6 +3,7 @@
 import { AlertTriangle, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ProductFormDialog } from "@/components/pos/product-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,7 +26,6 @@ import {
 } from "@/components/ui/table";
 import { type Category, type Product, useStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
-import { ProductFormDialog } from "./product-form-dialog";
 
 const CATEGORIES: Category[] = [
   "General",
