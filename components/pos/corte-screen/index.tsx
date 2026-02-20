@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -7,11 +8,13 @@ import {
   ChevronUp,
   DollarSign,
   Info,
+  Loader2,
   Package,
   Receipt,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { closeSession } from "@/app/actions/sessions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,11 +34,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
+import {
+  sessionHistoryQueryKey,
+  sessionHistoryQueryOptions,
+  todaySalesQueryKey,
+  todaySalesQueryOptions,
+  todaySessionQueryKey,
+  todaySessionQueryOptions,
+} from "./query";
 
-function formatTime(timestamp: string): string {
-  return new Date(timestamp).toLocaleTimeString("es-MX", {
+function formatTime(timestamp: Date): string {
+  return timestamp.toLocaleTimeString("es-MX", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -52,13 +62,24 @@ function formatDateShort(dateStr: string): string {
 export function CorteScreen() {
   const [countedCash, setCountedCash] = useState("");
   const [showDetail, setShowDetail] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const getTodaySales = useStore((s) => s.getTodaySales);
-  const addReconciliation = useStore((s) => s.addReconciliation);
-  const reconciliations = useStore((s) => s.reconciliations);
+  const queryClient = useQueryClient();
 
-  const todaySales = getTodaySales();
-  const systemTotal = todaySales.reduce((sum, s) => sum + s.total, 0);
+  const { data: session, isLoading: isLoadingSession } = useQuery(
+    todaySessionQueryOptions()
+  );
+  const { data: todaySales = [], isLoading: isLoadingSales } = useQuery(
+    todaySalesQueryOptions()
+  );
+  const { data: sessionHistory = [], isLoading: isLoadingHistory } = useQuery(
+    sessionHistoryQueryOptions()
+  );
+
+  const isLoading = isLoadingSession || isLoadingSales;
+  const sessionIsClosed = session?.status === "closed";
+
+  const systemTotal = Number(session?.systemTotal ?? 0);
   const itemsSold = todaySales.reduce(
     (sum, s) => sum + s.items.reduce((is, i) => is + i.quantity, 0),
     0
@@ -80,19 +101,42 @@ export function CorteScreen() {
       toast.error("Ingresa el efectivo contado");
       return;
     }
+    if (!session) {
+      toast.error("No hay sesión activa para hoy");
+      return;
+    }
     if (
       window.confirm("Cerrar el corte de caja del dia? Esta accion no se puede deshacer.")
     ) {
-      addReconciliation(countedNum);
-      toast.success("Corte de caja registrado");
-      setCountedCash("");
+      startTransition(async () => {
+        const result = await closeSession({
+          sessionId: session.id,
+          countedTotal: countedNum,
+        });
+
+        if (result.success) {
+          toast.success("Corte de caja registrado");
+          setCountedCash("");
+          queryClient.invalidateQueries({ queryKey: todaySessionQueryKey });
+          queryClient.invalidateQueries({ queryKey: todaySalesQueryKey });
+          queryClient.invalidateQueries({ queryKey: sessionHistoryQueryKey });
+        } else {
+          toast.error(result.error);
+        }
+      });
     }
   };
 
-  // History
-  const history = [...reconciliations].sort(
-    (a, b) => new Date(b.closedAt).getTime() - new Date(a.closedAt).getTime()
-  );
+  // History: closed sessions excluding today's (shown separately)
+  const history = sessionHistory.filter((s) => s.status === "closed");
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <ScrollArea className="h-full">
@@ -147,67 +191,89 @@ export function CorteScreen() {
             <CardTitle className="text-foreground">Conteo de efectivo</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-4">
-              <div>
-                <Label htmlFor="counted" className="text-base text-foreground">
-                  Efectivo contado
-                </Label>
-                <Input
-                  id="counted"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={countedCash}
-                  onChange={(e) => setCountedCash(e.target.value)}
-                  placeholder="Ingresa la cantidad contada en caja"
-                  className="mt-2 h-12 text-lg font-semibold text-foreground"
-                />
+            {sessionIsClosed ? (
+              <div className="flex items-center gap-3 rounded-lg bg-accent/10 p-4">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6" />
+                <div>
+                  <span className="text-base font-semibold text-accent sm:text-lg">
+                    Corte ya registrado
+                  </span>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Contado: {formatCurrency(Number(session.countedTotal ?? 0))} &mdash;
+                    Diferencia: {formatCurrency(Number(session.difference ?? 0))}
+                  </p>
+                </div>
               </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <Label htmlFor="counted" className="text-base text-foreground">
+                    Efectivo contado
+                  </Label>
+                  <Input
+                    id="counted"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={countedCash}
+                    onChange={(e) => setCountedCash(e.target.value)}
+                    placeholder="Ingresa la cantidad contada en caja"
+                    className="mt-2 h-12 text-lg font-semibold text-foreground"
+                  />
+                </div>
 
-              {hasCount && (
-                <div
-                  className={`flex items-center gap-3 rounded-lg p-4 ${
-                    difference === 0
-                      ? "bg-accent/10"
-                      : difference > 0
-                        ? "bg-blue-50"
-                        : "bg-amber-50"
-                  }`}
+                {hasCount && (
+                  <div
+                    className={`flex items-center gap-3 rounded-lg p-4 ${
+                      difference === 0
+                        ? "bg-accent/10"
+                        : difference > 0
+                          ? "bg-blue-50"
+                          : "bg-amber-50"
+                    }`}
+                  >
+                    {difference === 0 ? (
+                      <>
+                        <CheckCircle2 className="h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6" />
+                        <span className="text-base font-semibold text-accent sm:text-lg">
+                          Cuadra perfecto
+                        </span>
+                      </>
+                    ) : difference > 0 ? (
+                      <>
+                        <Info className="h-5 w-5 shrink-0 text-blue-600 sm:h-6 sm:w-6" />
+                        <span className="text-base font-semibold text-blue-600 sm:text-lg">
+                          Sobrante: {formatCurrency(difference)}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 sm:h-6 sm:w-6" />
+                        <span className="text-base font-semibold text-amber-600 sm:text-lg">
+                          Faltante: {formatCurrency(Math.abs(difference))}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <Button
+                  size="lg"
+                  onClick={handleCloseRegister}
+                  disabled={!hasCount || !session || isPending}
+                  className="w-full bg-primary text-primary-foreground text-base font-semibold"
                 >
-                  {difference === 0 ? (
+                  {isPending ? (
                     <>
-                      <CheckCircle2 className="h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6" />
-                      <span className="text-base font-semibold text-accent sm:text-lg">
-                        Cuadra perfecto
-                      </span>
-                    </>
-                  ) : difference > 0 ? (
-                    <>
-                      <Info className="h-5 w-5 shrink-0 text-blue-600 sm:h-6 sm:w-6" />
-                      <span className="text-base font-semibold text-blue-600 sm:text-lg">
-                        Sobrante: {formatCurrency(difference)}
-                      </span>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Cerrando...
                     </>
                   ) : (
-                    <>
-                      <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 sm:h-6 sm:w-6" />
-                      <span className="text-base font-semibold text-amber-600 sm:text-lg">
-                        Faltante: {formatCurrency(Math.abs(difference))}
-                      </span>
-                    </>
+                    "Cerrar corte"
                   )}
-                </div>
-              )}
-
-              <Button
-                size="lg"
-                onClick={handleCloseRegister}
-                disabled={!hasCount}
-                className="w-full bg-primary text-primary-foreground text-base font-semibold"
-              >
-                Cerrar corte
-              </Button>
-            </div>
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -240,15 +306,15 @@ export function CorteScreen() {
                       <div key={sale.id} className="px-4 py-3">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-foreground">
-                            {formatTime(sale.timestamp)}
+                            {formatTime(sale.createdAt)}
                           </span>
                           <span className="font-semibold text-foreground">
-                            {formatCurrency(sale.total)}
+                            {formatCurrency(Number(sale.total))}
                           </span>
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {sale.items
-                            .map((i) => `${i.product.name} x${i.quantity}`)
+                            .map((i) => `${i.productName} x${i.quantity}`)
                             .join(", ")}
                         </p>
                       </div>
@@ -279,15 +345,15 @@ export function CorteScreen() {
                         todaySales.map((sale) => (
                           <TableRow key={sale.id}>
                             <TableCell className="text-sm text-foreground">
-                              {formatTime(sale.timestamp)}
+                              {formatTime(sale.createdAt)}
                             </TableCell>
                             <TableCell className="text-sm text-muted-foreground">
                               {sale.items
-                                .map((i) => `${i.product.name} x${i.quantity}`)
+                                .map((i) => `${i.productName} x${i.quantity}`)
                                 .join(", ")}
                             </TableCell>
                             <TableCell className="text-right font-semibold text-foreground">
-                              {formatCurrency(sale.total)}
+                              {formatCurrency(Number(sale.total))}
                             </TableCell>
                           </TableRow>
                         ))
@@ -301,7 +367,7 @@ export function CorteScreen() {
         </Collapsible>
 
         {/* History */}
-        {history.length > 0 && (
+        {!isLoadingHistory && history.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-foreground">Historial de cortes</CardTitle>
@@ -309,32 +375,42 @@ export function CorteScreen() {
             <CardContent className="p-0">
               {/* Mobile: stacked cards */}
               <div className="divide-y md:hidden">
-                {history.map((rec) => (
-                  <div key={rec.id} className="px-4 py-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">
-                        {formatDateShort(rec.date)}
-                      </span>
-                      {rec.difference === 0 ? (
-                        <Badge variant="secondary" className="bg-accent/10 text-accent">
-                          Cuadra
-                        </Badge>
-                      ) : rec.difference > 0 ? (
-                        <Badge variant="secondary" className="bg-blue-50 text-blue-600">
-                          +{formatCurrency(rec.difference)}
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="bg-amber-50 text-amber-600">
-                          {formatCurrency(rec.difference)}
-                        </Badge>
-                      )}
+                {history.map((rec) => {
+                  const diff = Number(rec.difference ?? 0);
+                  return (
+                    <div key={rec.id} className="px-4 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-foreground">
+                          {formatDateShort(rec.sessionDate)}
+                        </span>
+                        {diff === 0 ? (
+                          <Badge variant="secondary" className="bg-accent/10 text-accent">
+                            Cuadra
+                          </Badge>
+                        ) : diff > 0 ? (
+                          <Badge variant="secondary" className="bg-blue-50 text-blue-600">
+                            +{formatCurrency(diff)}
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className="bg-amber-50 text-amber-600"
+                          >
+                            {formatCurrency(diff)}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
+                        <span>
+                          Sistema: {formatCurrency(Number(rec.systemTotal ?? 0))}
+                        </span>
+                        <span>
+                          Contado: {formatCurrency(Number(rec.countedTotal ?? 0))}
+                        </span>
+                      </div>
                     </div>
-                    <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>Sistema: {formatCurrency(rec.systemTotal)}</span>
-                      <span>Contado: {formatCurrency(rec.countedTotal)}</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               {/* Desktop: table */}
               <div className="hidden md:block">
@@ -348,43 +424,46 @@ export function CorteScreen() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {history.map((rec) => (
-                      <TableRow key={rec.id}>
-                        <TableCell className="text-sm text-foreground">
-                          {formatDateShort(rec.date)}
-                        </TableCell>
-                        <TableCell className="text-right text-sm text-foreground">
-                          {formatCurrency(rec.systemTotal)}
-                        </TableCell>
-                        <TableCell className="text-right text-sm text-foreground">
-                          {formatCurrency(rec.countedTotal)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {rec.difference === 0 ? (
-                            <Badge
-                              variant="secondary"
-                              className="bg-accent/10 text-accent"
-                            >
-                              Cuadra
-                            </Badge>
-                          ) : rec.difference > 0 ? (
-                            <Badge
-                              variant="secondary"
-                              className="bg-blue-50 text-blue-600"
-                            >
-                              +{formatCurrency(rec.difference)}
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant="secondary"
-                              className="bg-amber-50 text-amber-600"
-                            >
-                              {formatCurrency(rec.difference)}
-                            </Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {history.map((rec) => {
+                      const diff = Number(rec.difference ?? 0);
+                      return (
+                        <TableRow key={rec.id}>
+                          <TableCell className="text-sm text-foreground">
+                            {formatDateShort(rec.sessionDate)}
+                          </TableCell>
+                          <TableCell className="text-right text-sm text-foreground">
+                            {formatCurrency(Number(rec.systemTotal ?? 0))}
+                          </TableCell>
+                          <TableCell className="text-right text-sm text-foreground">
+                            {formatCurrency(Number(rec.countedTotal ?? 0))}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {diff === 0 ? (
+                              <Badge
+                                variant="secondary"
+                                className="bg-accent/10 text-accent"
+                              >
+                                Cuadra
+                              </Badge>
+                            ) : diff > 0 ? (
+                              <Badge
+                                variant="secondary"
+                                className="bg-blue-50 text-blue-600"
+                              >
+                                +{formatCurrency(diff)}
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant="secondary"
+                                className="bg-amber-50 text-amber-600"
+                              >
+                                {formatCurrency(diff)}
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
