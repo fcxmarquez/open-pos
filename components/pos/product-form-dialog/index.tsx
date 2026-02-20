@@ -1,7 +1,8 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -20,16 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type Category, type Product, useStore } from "@/lib/store";
-
-const CATEGORIES: Category[] = [
-  "General",
-  "Papelería",
-  "Útiles escolares",
-  "Arte",
-  "Oficina",
-  "Otro",
-];
+import {
+  CATEGORY_OPTIONS,
+  type ProductFormValues,
+  productFormDefaults,
+  productFormSchema,
+} from "@/lib/pos-form-schemas";
+import { type Product, useStore } from "@/lib/store";
 
 interface ProductFormDialogProps {
   open: boolean;
@@ -42,65 +47,55 @@ export function ProductFormDialog({
   onOpenChange,
   product,
 }: ProductFormDialogProps) {
-  const [barcode, setBarcode] = useState("");
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [costPrice, setCostPrice] = useState("");
-  const [category, setCategory] = useState<Category>("General");
-
   const addProduct = useStore((s) => s.addProduct);
   const updateProduct = useStore((s) => s.updateProduct);
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: productFormDefaults,
+  });
 
   useEffect(() => {
-    if (open) {
-      if (product) {
-        setBarcode(product.barcode);
-        setName(product.name);
-        setPrice(product.price.toString());
-        setCostPrice(product.costPrice?.toString() || "");
-        setCategory(product.category);
-      } else {
-        setBarcode("");
-        setName("");
-        setPrice("");
-        setCostPrice("");
-        setCategory("General");
-      }
-    }
-  }, [open, product]);
+    if (!open) return;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const priceNum = parseFloat(price);
-    if (!name.trim()) {
-      toast.error("El nombre es requerido");
+    if (product) {
+      form.reset({
+        barcode: product.barcode,
+        name: product.name,
+        price: product.price.toString(),
+        costPrice: product.costPrice?.toString() ?? "",
+        category: product.category,
+      });
       return;
     }
-    if (Number.isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido");
-      return;
-    }
-    const costNum = costPrice ? parseFloat(costPrice) : undefined;
+
+    form.reset(productFormDefaults);
+  }, [open, product, form]);
+
+  const handleSubmit = (values: ProductFormValues) => {
+    const priceNum = Number.parseFloat(values.price);
+    const costNum =
+      values.costPrice === "" ? undefined : Number.parseFloat(values.costPrice);
 
     if (product) {
       updateProduct(product.id, {
-        barcode,
-        name: name.trim(),
+        barcode: values.barcode,
+        name: values.name,
         price: priceNum,
         costPrice: costNum,
-        category,
+        category: values.category,
       });
       toast.success("Producto actualizado");
     } else {
       addProduct({
-        barcode,
-        name: name.trim(),
+        barcode: values.barcode,
+        name: values.name,
         price: priceNum,
         costPrice: costNum,
-        category,
+        category: values.category,
       });
       toast.success("Producto agregado");
     }
+
     onOpenChange(false);
   };
 
@@ -118,91 +113,131 @@ export function ProductFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-4">
-          <div>
-            <Label htmlFor="pf-barcode" className="text-foreground">
-              Codigo de barras
-            </Label>
-            <Input
-              id="pf-barcode"
-              value={barcode}
-              onChange={(e) => setBarcode(e.target.value)}
-              placeholder="Opcional"
-              className="mt-1 font-mono text-foreground"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="pf-name" className="text-foreground">
-              Nombre <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="pf-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nombre del producto"
-              className="mt-1 text-foreground"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="pf-price" className="text-foreground">
-                Precio de venta <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="pf-price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="0.00"
-                className="mt-1 text-foreground"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="pf-cost" className="text-foreground">
-                Precio de costo
-              </Label>
-              <Input
-                id="pf-cost"
-                type="number"
-                step="0.01"
-                min="0"
-                value={costPrice}
-                onChange={(e) => setCostPrice(e.target.value)}
-                placeholder="Opcional"
-                className="mt-1 text-foreground"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label className="text-foreground">Categoria</Label>
-            <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            type="submit"
-            className="mt-1 w-full bg-primary text-primary-foreground"
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="mt-2 flex flex-col gap-4"
           >
-            {product ? "Guardar cambios" : "Agregar producto"}
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="barcode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Codigo de barras</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="pf-barcode"
+                      placeholder="Opcional"
+                      className="mt-1 font-mono text-foreground"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">
+                    Nombre <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      id="pf-name"
+                      placeholder="Nombre del producto"
+                      className="mt-1 text-foreground"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">
+                      Precio de venta <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        id="pf-price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        className="mt-1 text-foreground"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="costPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Precio de costo</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="pf-cost"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Opcional"
+                        className="mt-1 text-foreground"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Categoria</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {CATEGORY_OPTIONS.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="mt-1 w-full bg-primary text-primary-foreground"
+            >
+              {product ? "Guardar cambios" : "Agregar producto"}
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -11,6 +12,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,8 +22,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -31,6 +40,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  type CorteFormValues,
+  corteFormDefaults,
+  corteFormSchema,
+} from "@/lib/pos-form-schemas";
 import { useStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 
@@ -50,8 +64,11 @@ function formatDateShort(dateStr: string): string {
 }
 
 export function CorteScreen() {
-  const [countedCash, setCountedCash] = useState("");
   const [showDetail, setShowDetail] = useState(false);
+  const form = useForm<CorteFormValues>({
+    resolver: zodResolver(corteFormSchema),
+    defaultValues: corteFormDefaults,
+  });
 
   const getTodaySales = useStore((s) => s.getTodaySales);
   const addReconciliation = useStore((s) => s.addReconciliation);
@@ -64,6 +81,7 @@ export function CorteScreen() {
     0
   );
 
+  const countedCash = form.watch("countedCash");
   const countedNum = parseFloat(countedCash) || 0;
   const difference = countedNum - systemTotal;
   const hasCount = countedCash !== "";
@@ -75,17 +93,15 @@ export function CorteScreen() {
     year: "numeric",
   });
 
-  const handleCloseRegister = () => {
-    if (!hasCount) {
-      toast.error("Ingresa el efectivo contado");
-      return;
-    }
+  const handleCloseRegister = (values: CorteFormValues) => {
+    const countedTotal = Number.parseFloat(values.countedCash);
+
     if (
       window.confirm("Cerrar el corte de caja del dia? Esta accion no se puede deshacer.")
     ) {
-      addReconciliation(countedNum);
+      addReconciliation(countedTotal);
       toast.success("Corte de caja registrado");
-      setCountedCash("");
+      form.reset(corteFormDefaults);
     }
   };
 
@@ -147,67 +163,80 @@ export function CorteScreen() {
             <CardTitle className="text-foreground">Conteo de efectivo</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-4">
-              <div>
-                <Label htmlFor="counted" className="text-base text-foreground">
-                  Efectivo contado
-                </Label>
-                <Input
-                  id="counted"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={countedCash}
-                  onChange={(e) => setCountedCash(e.target.value)}
-                  placeholder="Ingresa la cantidad contada en caja"
-                  className="mt-2 h-12 text-lg font-semibold text-foreground"
-                />
-              </div>
-
-              {hasCount && (
-                <div
-                  className={`flex items-center gap-3 rounded-lg p-4 ${
-                    difference === 0
-                      ? "bg-accent/10"
-                      : difference > 0
-                        ? "bg-blue-50"
-                        : "bg-amber-50"
-                  }`}
-                >
-                  {difference === 0 ? (
-                    <>
-                      <CheckCircle2 className="h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6" />
-                      <span className="text-base font-semibold text-accent sm:text-lg">
-                        Cuadra perfecto
-                      </span>
-                    </>
-                  ) : difference > 0 ? (
-                    <>
-                      <Info className="h-5 w-5 shrink-0 text-blue-600 sm:h-6 sm:w-6" />
-                      <span className="text-base font-semibold text-blue-600 sm:text-lg">
-                        Sobrante: {formatCurrency(difference)}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 sm:h-6 sm:w-6" />
-                      <span className="text-base font-semibold text-amber-600 sm:text-lg">
-                        Faltante: {formatCurrency(Math.abs(difference))}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
-
-              <Button
-                size="lg"
-                onClick={handleCloseRegister}
-                disabled={!hasCount}
-                className="w-full bg-primary text-primary-foreground text-base font-semibold"
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleCloseRegister)}
+                className="flex flex-col gap-4"
               >
-                Cerrar corte
-              </Button>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="countedCash"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base text-foreground">
+                        Efectivo contado
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          id="counted"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="Ingresa la cantidad contada en caja"
+                          className="mt-2 h-12 text-lg font-semibold text-foreground"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {hasCount && (
+                  <div
+                    className={`flex items-center gap-3 rounded-lg p-4 ${
+                      difference === 0
+                        ? "bg-accent/10"
+                        : difference > 0
+                          ? "bg-blue-50"
+                          : "bg-amber-50"
+                    }`}
+                  >
+                    {difference === 0 ? (
+                      <>
+                        <CheckCircle2 className="h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6" />
+                        <span className="text-base font-semibold text-accent sm:text-lg">
+                          Cuadra perfecto
+                        </span>
+                      </>
+                    ) : difference > 0 ? (
+                      <>
+                        <Info className="h-5 w-5 shrink-0 text-blue-600 sm:h-6 sm:w-6" />
+                        <span className="text-base font-semibold text-blue-600 sm:text-lg">
+                          Sobrante: {formatCurrency(difference)}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 sm:h-6 sm:w-6" />
+                        <span className="text-base font-semibold text-amber-600 sm:text-lg">
+                          Faltante: {formatCurrency(Math.abs(difference))}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={!hasCount}
+                  className="w-full bg-primary text-primary-foreground text-base font-semibold"
+                >
+                  Cerrar corte
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
 
