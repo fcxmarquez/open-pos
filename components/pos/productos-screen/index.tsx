@@ -1,12 +1,15 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ProductFormDialog } from "@/components/pos/product-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -24,17 +27,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { type Category, type Product, useStore } from "@/lib/store";
+import {
+  CATEGORY_OPTIONS,
+  productosFiltersFormDefaults,
+  productosFiltersFormSchema,
+} from "@/lib/pos-form-schemas";
+import { type Product, useStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
-
-const CATEGORIES: Category[] = [
-  "General",
-  "Papelería",
-  "Útiles escolares",
-  "Arte",
-  "Oficina",
-  "Otro",
-];
 
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "Nunca";
@@ -46,10 +45,14 @@ function formatDate(dateStr: string | undefined): string {
 }
 
 export function ProductosScreen() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const filtersForm = useForm({
+    resolver: zodResolver(productosFiltersFormSchema),
+    defaultValues: productosFiltersFormDefaults,
+  });
+  const searchQuery = filtersForm.watch("searchQuery");
+  const categoryFilter = filtersForm.watch("categoryFilter");
 
   const products = useStore((s) => s.products);
   const deleteProduct = useStore((s) => s.deleteProduct);
@@ -112,28 +115,47 @@ export function ProductosScreen() {
 
       {/* Search and filters */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por nombre o codigo..."
-            className="pl-9"
+        <Form {...filtersForm}>
+          <FormField
+            control={filtersForm.control}
+            name="searchQuery"
+            render={({ field }) => (
+              <FormItem className="relative flex-1 space-y-0">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <FormControl>
+                  <Input
+                    placeholder="Buscar por nombre o codigo..."
+                    className="pl-9"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
-        </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Categoria" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas las categorias</SelectItem>
-            {CATEGORIES.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <FormField
+            control={filtersForm.control}
+            name="categoryFilter"
+            render={({ field }) => (
+              <FormItem className="w-full space-y-0 sm:w-48">
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Categoria" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="all">Todas las categorias</SelectItem>
+                    {CATEGORY_OPTIONS.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+        </Form>
       </div>
 
       {/* Products - Table on desktop, Cards on mobile */}

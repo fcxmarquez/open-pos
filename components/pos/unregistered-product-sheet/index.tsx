@@ -1,11 +1,20 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createProduct } from "@/app/actions/products";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,16 +31,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  CATEGORY_OPTIONS,
+  type UnregisteredProductFormValues,
+  unregisteredProductFormDefaults,
+  unregisteredProductFormSchema,
+} from "@/lib/pos-form-schemas";
 import { type Category, type Product, useStore } from "@/lib/store";
-
-const CATEGORIES: Category[] = [
-  "General",
-  "Papelería",
-  "Útiles escolares",
-  "Arte",
-  "Oficina",
-  "Otro",
-];
 
 interface UnregisteredProductSheetProps {
   open: boolean;
@@ -46,39 +52,33 @@ export function UnregisteredProductSheet({
   barcode,
   onComplete,
 }: UnregisteredProductSheetProps) {
-  const [price, setPrice] = useState("");
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState<Category>("General");
   const [isRegistering, setIsRegistering] = useState(false);
-  const priceRef = useRef<HTMLInputElement>(null);
+  const form = useForm<UnregisteredProductFormValues>({
+    resolver: zodResolver(unregisteredProductFormSchema),
+    defaultValues: unregisteredProductFormDefaults,
+  });
 
   const addToCart = useStore((s) => s.addToCart);
 
   useEffect(() => {
     if (open) {
-      setPrice("");
-      setName("");
-      setCategory("General");
-      setTimeout(() => priceRef.current?.focus(), 100);
+      form.reset(unregisteredProductFormDefaults);
+      setTimeout(() => form.setFocus("price"), 100);
     }
-  }, [open]);
+  }, [open, form]);
 
-  const handleRegisterAndAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const priceNum = parseFloat(price);
-    if (Number.isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido");
-      return;
-    }
+  const handleRegisterAndAdd = async (values: UnregisteredProductFormValues) => {
+    const priceNum = Number.parseFloat(values.price);
+    const productName = values.name || `Producto - ${barcode}`;
 
     setIsRegistering(true);
 
     try {
       const result = await createProduct({
         barcode,
-        name: name || `Producto - ${barcode}`,
+        name: productName,
         price: priceNum,
-        category,
+        category: values.category,
       });
 
       if (!result.success) {
@@ -90,7 +90,7 @@ export function UnregisteredProductSheet({
       const product: Product = {
         id: dbProduct.id,
         barcode: dbProduct.barcode ?? "",
-        name: dbProduct.name ?? `Producto - ${barcode}`,
+        name: dbProduct.name ?? productName,
         price: Number(dbProduct.price),
         category: (dbProduct.category as Category) ?? "General",
         createdAt: dbProduct.createdAt.toISOString(),
@@ -107,20 +107,17 @@ export function UnregisteredProductSheet({
     }
   };
 
-  const handleAddOnlyToSale = () => {
-    const priceNum = parseFloat(price);
-    if (Number.isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido");
-      return;
-    }
+  const handleAddOnlyToSale = (values: UnregisteredProductFormValues) => {
+    const priceNum = Number.parseFloat(values.price);
+    const productName = values.name || `Producto sin nombre - ${barcode}`;
 
     // Create a temporary product (not saved to catalog)
     const tempProduct: Product = {
       id: `temp-${Date.now()}`,
       barcode,
-      name: name || `Producto sin nombre - ${barcode}`,
+      name: productName,
       price: priceNum,
-      category: "General",
+      category: values.category as Category,
       createdAt: new Date().toISOString(),
     };
     addToCart(tempProduct);
@@ -140,95 +137,123 @@ export function UnregisteredProductSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleRegisterAndAdd} className="mt-6 flex flex-col gap-4">
-          <div>
-            <Label className="text-foreground">Codigo de barras</Label>
-            <Input
-              value={barcode}
-              readOnly
-              className="mt-1 bg-muted font-mono text-foreground"
-            />
-          </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleRegisterAndAdd)}
+            className="mt-6 flex flex-col gap-4"
+          >
+            <div>
+              <Label className="text-foreground">Codigo de barras</Label>
+              <Input
+                value={barcode}
+                readOnly
+                className="mt-1 bg-muted font-mono text-foreground"
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="price" className="text-foreground">
-              Precio de venta <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              ref={priceRef}
-              id="price"
-              type="number"
-              step="0.01"
-              min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="0.00"
-              className="mt-1 text-foreground"
-              required
-              disabled={isRegistering}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="name" className="text-foreground">
-              Nombre del producto (opcional)
-            </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ej. Cuaderno de notas"
-              className="mt-1 text-foreground"
-              disabled={isRegistering}
-            />
-          </div>
-
-          <div>
-            <Label className="text-foreground">Categoria</Label>
-            <Select
-              value={category}
-              onValueChange={(v) => setCategory(v as Category)}
-              disabled={isRegistering}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="mt-2 flex flex-col gap-2">
-            <Button
-              type="submit"
-              className="w-full bg-primary text-primary-foreground"
-              disabled={isRegistering}
-            >
-              {isRegistering ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Registrando...
-                </>
-              ) : (
-                "Registrar y agregar"
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">
+                    Precio de venta <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="mt-1 text-foreground"
+                      disabled={isRegistering}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-transparent"
-              onClick={handleAddOnlyToSale}
-              disabled={isRegistering}
-            >
-              Solo agregar a venta
-            </Button>
-          </div>
-        </form>
+            />
+
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">
+                    Nombre del producto (opcional)
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      id="name"
+                      placeholder="Ej. Cuaderno de notas"
+                      className="mt-1 text-foreground"
+                      disabled={isRegistering}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Categoria</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isRegistering}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {CATEGORY_OPTIONS.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="mt-2 flex flex-col gap-2">
+              <Button
+                type="submit"
+                className="w-full bg-primary text-primary-foreground"
+                disabled={isRegistering}
+              >
+                {isRegistering ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Registrando...
+                  </>
+                ) : (
+                  "Registrar y agregar"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full bg-transparent"
+                onClick={form.handleSubmit(handleAddOnlyToSale)}
+                disabled={isRegistering}
+              >
+                Solo agregar a venta
+              </Button>
+            </div>
+          </form>
+        </Form>
       </SheetContent>
     </Sheet>
   );

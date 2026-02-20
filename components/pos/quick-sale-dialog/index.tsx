@@ -1,7 +1,8 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +12,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  type QuickSaleFormValues,
+  quickSaleFormDefaults,
+  quickSaleFormSchema,
+} from "@/lib/pos-form-schemas";
 import { type Category, useStore } from "@/lib/store";
 
 interface QuickSaleDialogProps {
@@ -26,38 +39,33 @@ export function QuickSaleDialog({
   onOpenChange,
   onComplete,
 }: QuickSaleDialogProps) {
-  const [price, setPrice] = useState("");
-  const [name, setName] = useState("");
-  const priceRef = useRef<HTMLInputElement>(null);
-
+  const form = useForm<QuickSaleFormValues>({
+    resolver: zodResolver(quickSaleFormSchema),
+    defaultValues: quickSaleFormDefaults,
+  });
   const addToCart = useStore((s) => s.addToCart);
 
   useEffect(() => {
     if (open) {
-      setPrice("");
-      setName("");
-      setTimeout(() => priceRef.current?.focus(), 100);
+      form.reset(quickSaleFormDefaults);
+      setTimeout(() => form.setFocus("price"), 100);
     }
-  }, [open]);
+  }, [open, form]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const priceNum = parseFloat(price);
-    if (Number.isNaN(priceNum) || priceNum <= 0) {
-      toast.error("Ingresa un precio valido");
-      return;
-    }
+  const handleSubmit = (values: QuickSaleFormValues) => {
+    const priceNum = Number.parseFloat(values.price);
+    const saleName = values.name || "Venta rapida";
 
     const tempProduct = {
       id: `quick-${Date.now()}`,
       barcode: "",
-      name: name || "Venta rapida",
+      name: saleName,
       price: priceNum,
       category: "General" as Category,
       createdAt: new Date().toISOString(),
     };
     addToCart(tempProduct);
-    toast.success(`${name || "Venta rapida"} agregado - $${priceNum.toFixed(2)}`);
+    toast.success(`${saleName} agregado - $${priceNum.toFixed(2)}`);
     onOpenChange(false);
     onComplete();
   };
@@ -70,42 +78,61 @@ export function QuickSaleDialog({
           <DialogDescription>Agrega un articulo sin codigo de barras</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-4">
-          <div>
-            <Label htmlFor="qs-price" className="text-foreground">
-              Precio <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              ref={priceRef}
-              id="qs-price"
-              type="number"
-              step="0.01"
-              min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="0.00"
-              className="mt-1 text-foreground"
-              required
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="mt-2 flex flex-col gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">
+                    Precio <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      id="qs-price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="mt-1 text-foreground"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div>
-            <Label htmlFor="qs-name" className="text-foreground">
-              Descripcion (opcional)
-            </Label>
-            <Input
-              id="qs-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ej. Fotocopias, impresiones..."
-              className="mt-1 text-foreground"
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">
+                    Descripcion (opcional)
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      id="qs-name"
+                      placeholder="Ej. Fotocopias, impresiones..."
+                      className="mt-1 text-foreground"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <Button type="submit" className="w-full bg-primary text-primary-foreground">
-            Agregar a venta
-          </Button>
-        </form>
+            <Button type="submit" className="w-full bg-primary text-primary-foreground">
+              Agregar a venta
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
