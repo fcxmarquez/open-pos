@@ -42,6 +42,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: checkoutFormDefaults,
+    mode: "onChange",
   });
 
   const cart = useStore((s) => s.cart);
@@ -61,16 +62,14 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
     }
   }, [open, form]);
 
-  useEffect(() => {
-    if (payment !== "" && form.formState.errors.payment) {
-      form.clearErrors("payment");
-    }
-  }, [payment, form]);
-
   const handleConfirm = async (values: CheckoutFormValues) => {
     const submittedPayment = Number.parseFloat(values.payment);
 
-    if (submittedPayment < total || total <= 0) {
+    if (total <= 0) {
+      return;
+    }
+
+    if (submittedPayment < total) {
       form.setError("payment", {
         message: "El pago debe ser mayor o igual al total",
       });
