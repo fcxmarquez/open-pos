@@ -79,8 +79,7 @@ export function ProductFormDialog({
 
   const handleSubmit = (values: ProductFormValues) => {
     const priceNum = Number.parseFloat(values.price);
-    const costNum =
-      values.costPrice === "" ? undefined : Number.parseFloat(values.costPrice);
+    const costNum = values.costPrice === "" ? null : Number.parseFloat(values.costPrice);
 
     startTransition(async () => {
       if (product) {
@@ -104,7 +103,7 @@ export function ProductFormDialog({
           barcode: values.barcode || null,
           name: values.name,
           price: priceNum,
-          costPrice: costNum,
+          costPrice: costNum ?? undefined,
           category: values.category,
         });
         if (result.success) {
@@ -119,7 +118,13 @@ export function ProductFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (isPending && !v) return;
+        onOpenChange(v);
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">
