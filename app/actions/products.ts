@@ -27,6 +27,7 @@ const createProductSchema = z.object({
   barcode: nullableTrimmedString,
   name: nullableTrimmedString,
   price: z.coerce.number().positive("El precio debe ser mayor a 0"),
+  costPrice: z.coerce.number().nonnegative().optional(),
   category: optionalTrimmedString.default("General"),
 });
 
@@ -35,6 +36,7 @@ const updateProductSchema = z.object({
   barcode: nullableTrimmedString,
   name: nullableTrimmedString,
   price: z.coerce.number().positive("El precio debe ser mayor a 0").optional(),
+  costPrice: z.coerce.number().nonnegative().nullable().optional(),
   category: optionalTrimmedString,
 });
 
@@ -98,6 +100,7 @@ export async function createProduct(
         barcode: parsed.data.barcode ?? null,
         name: parsed.data.name ?? null,
         price: parsed.data.price.toFixed(2),
+        costPrice: parsed.data.costPrice?.toFixed(2) ?? null,
         category: parsed.data.category ?? "General",
       })
       .returning();
@@ -146,6 +149,11 @@ export async function updateProduct(
 
   if (parsed.data.price !== undefined) {
     updateData.price = parsed.data.price.toFixed(2);
+  }
+
+  if (parsed.data.costPrice !== undefined) {
+    updateData.costPrice =
+      parsed.data.costPrice === null ? null : parsed.data.costPrice.toFixed(2);
   }
 
   if (parsed.data.category !== undefined) {

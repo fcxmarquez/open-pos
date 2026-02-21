@@ -5,6 +5,8 @@
 
 import {
   getFrequentProducts as queryFrequentProducts,
+  getProducts as queryGetProducts,
+  getPendingProducts as queryPendingProducts,
   getProductByBarcode as queryProductByBarcode,
   searchProducts as querySearchProducts,
 } from "@/lib/server/queries/products";
@@ -19,4 +21,12 @@ export async function searchProducts(query: string) {
 
 export async function getFrequentProducts(limit?: number) {
   return queryFrequentProducts(limit);
+}
+
+export async function getProducts(opts?: { search?: string; category?: string }) {
+  return queryGetProducts(opts);
+}
+
+export async function getPendingProducts() {
+  return queryPendingProducts();
 }

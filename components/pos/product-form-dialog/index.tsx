@@ -1,9 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import {
+  createProduct as createProductAction,
+  updateProduct as updateProductAction,
+} from "@/app/actions/products";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,21 +39,22 @@ import {
   productFormDefaults,
   productFormSchema,
 } from "@/lib/pos-form-schemas";
-import { type Product, useStore } from "@/lib/store";
+import type { Product } from "@/lib/store";
 
 interface ProductFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  product: Product | null; // null = creating new
+  product: Product | null;
+  onSuccess?: () => void;
 }
 
 export function ProductFormDialog({
   open,
   onOpenChange,
   product,
+  onSuccess,
 }: ProductFormDialogProps) {
-  const addProduct = useStore((s) => s.addProduct);
-  const updateProduct = useStore((s) => s.updateProduct);
+  const [isPending, startTransition] = useTransition();
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: productFormDefaults,
@@ -73,34 +79,52 @@ export function ProductFormDialog({
 
   const handleSubmit = (values: ProductFormValues) => {
     const priceNum = Number.parseFloat(values.price);
-    const costNum =
-      values.costPrice === "" ? undefined : Number.parseFloat(values.costPrice);
+    const costNum = values.costPrice === "" ? null : Number.parseFloat(values.costPrice);
 
-    if (product) {
-      updateProduct(product.id, {
-        barcode: values.barcode,
-        name: values.name,
-        price: priceNum,
-        costPrice: costNum,
-        category: values.category,
-      });
-      toast.success("Producto actualizado");
-    } else {
-      addProduct({
-        barcode: values.barcode,
-        name: values.name,
-        price: priceNum,
-        costPrice: costNum,
-        category: values.category,
-      });
-      toast.success("Producto agregado");
-    }
-
-    onOpenChange(false);
+    startTransition(async () => {
+      if (product) {
+        const result = await updateProductAction({
+          id: product.id,
+          barcode: values.barcode || null,
+          name: values.name,
+          price: priceNum,
+          costPrice: costNum,
+          category: values.category,
+        });
+        if (result.success) {
+          toast.success("Producto actualizado");
+          onOpenChange(false);
+          onSuccess?.();
+        } else {
+          toast.error(result.error);
+        }
+      } else {
+        const result = await createProductAction({
+          barcode: values.barcode || null,
+          name: values.name,
+          price: priceNum,
+          costPrice: costNum ?? undefined,
+          category: values.category,
+        });
+        if (result.success) {
+          toast.success("Producto agregado");
+          onOpenChange(false);
+          onSuccess?.();
+        } else {
+          toast.error(result.error);
+        }
+      }
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (isPending && !v) return;
+        onOpenChange(v);
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">
@@ -129,6 +153,7 @@ export function ProductFormDialog({
                       id="pf-barcode"
                       placeholder="Opcional"
                       className="mt-1 font-mono text-foreground"
+                      disabled={isPending}
                       {...field}
                     />
                   </FormControl>
@@ -150,6 +175,7 @@ export function ProductFormDialog({
                       id="pf-name"
                       placeholder="Nombre del producto"
                       className="mt-1 text-foreground"
+                      disabled={isPending}
                       {...field}
                     />
                   </FormControl>
@@ -175,6 +201,7 @@ export function ProductFormDialog({
                         min="0"
                         placeholder="0.00"
                         className="mt-1 text-foreground"
+                        disabled={isPending}
                         {...field}
                       />
                     </FormControl>
@@ -196,6 +223,7 @@ export function ProductFormDialog({
                         min="0"
                         placeholder="Opcional"
                         className="mt-1 text-foreground"
+                        disabled={isPending}
                         {...field}
                       />
                     </FormControl>
@@ -211,7 +239,11 @@ export function ProductFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground">Categoria</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                  >
                     <FormControl>
                       <SelectTrigger className="mt-1">
                         <SelectValue />
@@ -233,8 +265,18 @@ export function ProductFormDialog({
             <Button
               type="submit"
               className="mt-1 w-full bg-primary text-primary-foreground"
+              disabled={isPending}
             >
-              {product ? "Guardar cambios" : "Agregar producto"}
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Guardando...
+                </>
+              ) : product ? (
+                "Guardar cambios"
+              ) : (
+                "Agregar producto"
+              )}
             </Button>
           </form>
         </Form>
