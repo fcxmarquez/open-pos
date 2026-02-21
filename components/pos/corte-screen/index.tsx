@@ -2,6 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -59,18 +61,34 @@ import {
 } from "./query";
 
 function formatTime(timestamp: Date): string {
-  return timestamp.toLocaleTimeString("es-MX", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const d = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  return format(d, "HH:mm", { locale: es });
 }
 
 function formatDateShort(dateStr: string): string {
-  return new Date(`${dateStr}T12:00:00`).toLocaleDateString("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return format(new Date(`${dateStr}T12:00:00`), "dd MMM yyyy", { locale: es });
+}
+
+function DiffBadge({ diff }: { diff: number }) {
+  if (diff === 0) {
+    return (
+      <Badge variant="secondary" className="bg-accent/10 text-accent">
+        Cuadra
+      </Badge>
+    );
+  }
+  if (diff > 0) {
+    return (
+      <Badge variant="secondary" className="bg-blue-50 text-blue-600">
+        +{formatCurrency(diff)}
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="secondary" className="bg-amber-50 text-amber-600">
+      {formatCurrency(diff)}
+    </Badge>
+  );
 }
 
 export function CorteScreen() {
@@ -416,22 +434,7 @@ export function CorteScreen() {
                         <span className="text-sm font-medium text-foreground">
                           {formatDateShort(rec.sessionDate)}
                         </span>
-                        {diff === 0 ? (
-                          <Badge variant="secondary" className="bg-accent/10 text-accent">
-                            Cuadra
-                          </Badge>
-                        ) : diff > 0 ? (
-                          <Badge variant="secondary" className="bg-blue-50 text-blue-600">
-                            +{formatCurrency(diff)}
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="secondary"
-                            className="bg-amber-50 text-amber-600"
-                          >
-                            {formatCurrency(diff)}
-                          </Badge>
-                        )}
+                        <DiffBadge diff={diff} />
                       </div>
                       <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
                         <span>
@@ -471,28 +474,7 @@ export function CorteScreen() {
                             {formatCurrency(Number(rec.countedTotal ?? 0))}
                           </TableCell>
                           <TableCell className="text-right">
-                            {diff === 0 ? (
-                              <Badge
-                                variant="secondary"
-                                className="bg-accent/10 text-accent"
-                              >
-                                Cuadra
-                              </Badge>
-                            ) : diff > 0 ? (
-                              <Badge
-                                variant="secondary"
-                                className="bg-blue-50 text-blue-600"
-                              >
-                                +{formatCurrency(diff)}
-                              </Badge>
-                            ) : (
-                              <Badge
-                                variant="secondary"
-                                className="bg-amber-50 text-amber-600"
-                              >
-                                {formatCurrency(diff)}
-                              </Badge>
-                            )}
+                            <DiffBadge diff={diff} />
                           </TableCell>
                         </TableRow>
                       );
