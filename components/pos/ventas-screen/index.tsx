@@ -18,23 +18,11 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { dbProductToStoreProduct } from "@/lib/mappers";
 import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
 import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query";
-
-type SearchableProduct = Awaited<ReturnType<typeof getProductByBarcode>>;
-
-function dbProductToStoreProduct(p: NonNullable<SearchableProduct>): Product {
-  return {
-    id: p.id,
-    barcode: p.barcode ?? "",
-    name: p.name ?? "Sin nombre",
-    price: Number(p.price),
-    category: (p.category as Product["category"]) ?? "General",
-    createdAt: p.createdAt.toISOString(),
-  };
-}
 
 export function VentasScreen() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
