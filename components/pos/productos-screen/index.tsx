@@ -1,10 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, Pencil, Plus, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { deleteProduct as deleteProductAction } from "@/app/actions/products";
 import { ProductFormDialog } from "@/components/pos/product-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,8 +34,14 @@ import {
   productosFiltersFormDefaults,
   productosFiltersFormSchema,
 } from "@/lib/pos-form-schemas";
-import { type Product, useStore } from "@/lib/store";
+import type { Product } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
+import {
+  pendingProductsQueryKey,
+  pendingProductsQueryOptions,
+  productsQueryKey,
+  productsQueryOptions,
+} from "./query";
 
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "Nunca";
@@ -47,6 +55,7 @@ function formatDate(dateStr: string | undefined): string {
 export function ProductosScreen() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isPending, startTransition] = useTransition();
   const filtersForm = useForm({
     resolver: zodResolver(productosFiltersFormSchema),
     defaultValues: productosFiltersFormDefaults,
@@ -54,27 +63,50 @@ export function ProductosScreen() {
   const searchQuery = filtersForm.watch("searchQuery");
   const categoryFilter = filtersForm.watch("categoryFilter");
 
-  const products = useStore((s) => s.products);
-  const deleteProduct = useStore((s) => s.deleteProduct);
+  // Debounced search value
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  // Filter products
-  const filteredProducts = products.filter((p) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.barcode.includes(searchQuery);
-    const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
 
-  const unnamed = products.filter(
-    (p) => !p.name || p.name.startsWith("Producto sin nombre")
-  ).length;
+  const queryClient = useQueryClient();
+
+  const queryOpts = {
+    search: debouncedSearch || undefined,
+    category: categoryFilter === "all" ? undefined : categoryFilter,
+  };
+
+  const { data: products = [], isLoading } = useQuery(productsQueryOptions(queryOpts));
+  const { data: pendingCount = 0 } = useQuery(pendingProductsQueryOptions());
+
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({ queryKey: productsQueryKey });
+    queryClient.invalidateQueries({ queryKey: pendingProductsQueryKey });
+  };
 
   const handleDelete = (product: Product) => {
     if (window.confirm(`Eliminar "${product.name}"? Esta accion no se puede deshacer.`)) {
-      deleteProduct(product.id);
-      toast.success("Producto eliminado");
+      startTransition(async () => {
+        const result = await deleteProductAction({ id: product.id });
+        if (result.success) {
+          toast.success("Producto eliminado");
+          invalidateQueries();
+        } else {
+          toast.error(result.error);
+        }
+      });
     }
   };
 
@@ -82,6 +114,14 @@ export function ProductosScreen() {
     setEditingProduct(product);
     setShowForm(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
@@ -91,13 +131,13 @@ export function ProductosScreen() {
           <Badge variant="secondary" className="text-sm">
             {products.length} productos
           </Badge>
-          {unnamed > 0 && (
+          {pendingCount > 0 && (
             <Badge
               variant="outline"
               className="border-amber-300 bg-amber-50 text-amber-700"
             >
               <AlertTriangle className="mr-1 h-3 w-3" />
-              {unnamed} sin nombre
+              {pendingCount} sin nombre
             </Badge>
           )}
         </div>
@@ -160,7 +200,7 @@ export function ProductosScreen() {
 
       {/* Products - Table on desktop, Cards on mobile */}
       <ScrollArea className="flex-1">
-        {filteredProducts.length === 0 ? (
+        {products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
             No se encontraron productos
           </div>
@@ -168,7 +208,7 @@ export function ProductosScreen() {
           <>
             {/* Mobile: Card layout */}
             <div className="flex flex-col gap-3 md:hidden">
-              {filteredProducts.map((product) => (
+              {products.map((product) => (
                 <Card key={product.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-3">
@@ -207,6 +247,7 @@ export function ProductosScreen() {
                             size="icon"
                             className="h-8 w-8"
                             onClick={() => handleEdit(product)}
+                            disabled={isPending}
                           >
                             <Pencil className="h-3.5 w-3.5" />
                             <span className="sr-only">Editar</span>
@@ -216,6 +257,7 @@ export function ProductosScreen() {
                             size="icon"
                             className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                             onClick={() => handleDelete(product)}
+                            disabled={isPending}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             <span className="sr-only">Eliminar</span>
@@ -242,7 +284,7 @@ export function ProductosScreen() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProducts.map((product) => (
+                  {products.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell className="font-mono text-sm">
                         {product.barcode || (
@@ -279,6 +321,7 @@ export function ProductosScreen() {
                             size="icon"
                             className="h-8 w-8"
                             onClick={() => handleEdit(product)}
+                            disabled={isPending}
                           >
                             <Pencil className="h-3.5 w-3.5" />
                             <span className="sr-only">Editar</span>
@@ -288,6 +331,7 @@ export function ProductosScreen() {
                             size="icon"
                             className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                             onClick={() => handleDelete(product)}
+                            disabled={isPending}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             <span className="sr-only">Eliminar</span>
@@ -308,6 +352,7 @@ export function ProductosScreen() {
         open={showForm}
         onOpenChange={setShowForm}
         product={editingProduct}
+        onSuccess={invalidateQueries}
       />
     </div>
   );
