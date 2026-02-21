@@ -163,7 +163,10 @@ export function CorteScreen() {
   };
 
   // History: closed sessions excluding today's (shown separately)
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // Use Mexico City timezone to match how sessionDate is stored server-side
+  const todayStr = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Mexico_City",
+  }).format(new Date());
   const history = sessionHistory.filter(
     (s) => s.status === "closed" && s.sessionDate !== todayStr
   );
