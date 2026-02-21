@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { getPendingProducts, getProducts } from "@/app/actions/product-queries";
 import { dbProductToStoreProduct } from "@/lib/mappers";
 
@@ -12,6 +12,7 @@ export function productsQueryOptions(opts?: { search?: string; category?: string
       const rows = await getProducts(opts);
       return rows.map(dbProductToStoreProduct);
     },
+    placeholderData: keepPreviousData,
   });
 }
 
