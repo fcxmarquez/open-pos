@@ -145,7 +145,10 @@ export function CorteScreen() {
   };
 
   // History: closed sessions excluding today's (shown separately)
-  const history = sessionHistory.filter((s) => s.status === "closed");
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const history = sessionHistory.filter(
+    (s) => s.status === "closed" && s.sessionDate !== todayStr
+  );
 
   if (isLoading) {
     return (
