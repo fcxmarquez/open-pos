@@ -50,7 +50,7 @@ import {
   corteFormDefaults,
   corteFormSchema,
 } from "@/lib/pos-form-schemas";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getTodayDateString } from "@/lib/utils";
 import {
   sessionHistoryQueryKey,
   sessionHistoryQueryOptions,
@@ -163,10 +163,7 @@ export function CorteScreen() {
   };
 
   // History: closed sessions excluding today's (shown separately)
-  // Use Mexico City timezone to match how sessionDate is stored server-side
-  const todayStr = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Mexico_City",
-  }).format(new Date());
+  const todayStr = getTodayDateString();
   const history = sessionHistory.filter(
     (s) => s.status === "closed" && s.sessionDate !== todayStr
   );
