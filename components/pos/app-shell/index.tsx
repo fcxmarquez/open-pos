@@ -60,12 +60,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     const isProtected = activeScreen === "productos" || activeScreen === "corte";
     if (isProtected && !adminUnlocked) {
       setPendingScreen(activeScreen);
       setPinDialogOpen(true);
     }
-  }, [activeScreen, adminUnlocked]);
+  }, [mounted, activeScreen, adminUnlocked]);
 
   const navItems = [
     { id: "ventas" as const, label: "Ventas", icon: ShoppingCart, locked: false },
@@ -184,7 +185,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             >
               <LogOut className="h-5 w-5" />
-              Cerrar sesion
+              Cerrar sesión
             </button>
           </div>
         )}
@@ -218,10 +219,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 size="icon"
                 className="h-9 w-9 text-muted-foreground hover:text-foreground"
                 onClick={handleLogout}
-                title="Cerrar sesion"
+                title="Cerrar sesión"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="sr-only">Cerrar sesion</span>
+                <span className="sr-only">Cerrar sesión</span>
               </Button>
             )}
           </div>
