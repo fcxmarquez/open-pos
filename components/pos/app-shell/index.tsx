@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -51,6 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
+  const isLoggingOut = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -61,6 +62,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
+    if (isLoggingOut.current) {
+      isLoggingOut.current = false;
+      return;
+    }
     const isProtected = activeScreen === "productos" || activeScreen === "corte";
     if (isProtected && !adminUnlocked) {
       setPendingScreen(activeScreen);
@@ -96,6 +101,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   const handleLogout = () => {
+    isLoggingOut.current = true;
     sessionStorage.removeItem(SESSION_KEY);
     setAdminUnlocked(false);
     router.push("/ventas");
