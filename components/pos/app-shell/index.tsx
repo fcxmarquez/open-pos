@@ -213,18 +213,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="hidden text-sm capitalize text-muted-foreground sm:block">
               {formatDate()}
             </div>
-            {adminUnlocked && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground"
-                onClick={handleLogout}
-                title="Cerrar sesión"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="sr-only">Cerrar sesión</span>
-              </Button>
-            )}
           </div>
         </header>
 
