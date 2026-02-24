@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -17,7 +18,12 @@ export async function getProducts(opts?: {
   search?: string;
   category?: string;
   includeInactive?: boolean;
+  page?: number;
+  pageSize?: number;
 }) {
+  const page = Math.max(1, opts?.page ?? 1);
+  const pageSize = Math.min(Math.max(1, opts?.pageSize ?? 100), 200);
+  const offset = (page - 1) * pageSize;
   const conditions = [];
 
   if (!opts?.includeInactive) {
@@ -33,11 +39,35 @@ export async function getProducts(opts?: {
     conditions.push(eq(products.category, opts.category));
   }
 
-  return db
-    .select()
-    .from(products)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(products.name);
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+  const [rows, totalRows] = await Promise.all([
+    db
+      .select()
+      .from(products)
+      .where(where)
+      .orderBy(asc(products.name), asc(products.id))
+      .limit(pageSize)
+      .offset(offset),
+    db
+      .select({
+        total: count(products.id),
+      })
+      .from(products)
+      .where(where),
+  ]);
+
+  const total = Number(totalRows[0]?.total ?? 0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  return {
+    rows,
+    total,
+    page,
+    pageSize,
+    totalPages,
+    hasPreviousPage: page > 1,
+    hasNextPage: page < totalPages,
+  };
 }
 
 export async function getProductByBarcode(barcode: string) {
