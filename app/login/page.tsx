@@ -1,6 +1,6 @@
-import { AuthError } from "next-auth";
 import { Store } from "lucide-react";
 import { redirect } from "next/navigation";
+import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import {
