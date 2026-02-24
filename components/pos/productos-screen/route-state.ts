@@ -4,7 +4,7 @@ export const SEARCH_DEBOUNCE_MS = 300;
 
 export type CategoryFilter = (typeof CATEGORY_FILTER_OPTIONS)[number];
 
-interface QueryParamsReader {
+export interface QueryParamsReader {
   get: (key: string) => string | null;
 }
 

@@ -36,7 +36,6 @@ export function useProductosRouteFilters() {
   });
   const searchQuery = filtersForm.watch("searchQuery");
   const categoryFilter = filtersForm.watch("categoryFilter");
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousFilterRef = useRef(
     `${initialState.searchQuery.trim()}|${initialState.categoryFilter}`
   );
@@ -46,18 +45,12 @@ export function useProductosRouteFilters() {
   const normalizedSearch = debouncedSearch.trim();
 
   useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setDebouncedSearch(searchQuery);
     }, SEARCH_DEBOUNCE_MS);
 
     return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
+      clearTimeout(timeoutId);
     };
   }, [searchQuery]);
 
