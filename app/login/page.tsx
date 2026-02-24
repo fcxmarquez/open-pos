@@ -61,7 +61,8 @@ export default async function LoginPage({
     ? (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.Default)
     : null;
 
-  const isTestingMode = process.env.AUTH_BYPASS === "true";
+  const isTestingMode =
+    process.env.AUTH_BYPASS === "true" && process.env.VERCEL_ENV !== "production";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
