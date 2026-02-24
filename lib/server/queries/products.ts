@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm";
 import { db } from "@/db";
 import { products, saleItems } from "@/db/schema";
+import { PRODUCTS_PAGE_SIZE } from "@/lib/constants/products";
 
 function normalizePaginationValue(
   value: number | undefined,
@@ -32,6 +33,11 @@ function normalizePaginationValue(
   return Math.min(normalized, max);
 }
 
+function buildContainsPattern(rawValue: string): string {
+  const escapedValue = rawValue.replace(/[\\%_]/g, "\\$&");
+  return `%${escapedValue}%`;
+}
+
 export async function getProducts(opts?: {
   search?: string;
   category?: string;
@@ -39,7 +45,7 @@ export async function getProducts(opts?: {
   page?: number;
   pageSize?: number;
 }) {
-  const pageSize = normalizePaginationValue(opts?.pageSize, 100, 200);
+  const pageSize = normalizePaginationValue(opts?.pageSize, PRODUCTS_PAGE_SIZE, 200);
   const maxPage = Math.floor(Number.MAX_SAFE_INTEGER / pageSize) + 1;
   const page = normalizePaginationValue(opts?.page, 1, maxPage);
   const offset = (page - 1) * pageSize;
@@ -50,7 +56,7 @@ export async function getProducts(opts?: {
   }
 
   if (opts?.search) {
-    const term = `%${opts.search}%`;
+    const term = buildContainsPattern(opts.search);
     conditions.push(or(ilike(products.name, term), ilike(products.barcode, term))!);
   }
 
@@ -100,7 +106,7 @@ export async function getProductByBarcode(barcode: string) {
 }
 
 export async function searchProducts(query: string) {
-  const term = `%${query}%`;
+  const term = buildContainsPattern(query);
 
   return db
     .select()

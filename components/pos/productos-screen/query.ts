@@ -1,11 +1,12 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { getPendingProducts, getProducts } from "@/app/actions/product-queries";
+import { PRODUCTS_PAGE_SIZE } from "@/lib/constants/products";
 import { dbProductToStoreProduct } from "@/lib/mappers";
 import type { Product } from "@/lib/store";
 
 export const productsQueryKey = ["products"] as const;
 export const pendingProductsQueryKey = ["pending-products"] as const;
-export const PRODUCTS_PAGE_SIZE = 100;
+export { PRODUCTS_PAGE_SIZE };
 
 export interface ProductsPageData {
   products: Product[];
