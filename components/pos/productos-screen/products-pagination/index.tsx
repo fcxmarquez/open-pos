@@ -46,7 +46,7 @@ export function ProductsPagination({
           Anterior
         </Button>
         <span className="min-w-28 text-center text-sm text-muted-foreground">
-          Pagina {page} de {totalPages}
+          Página {page} de {totalPages}
         </span>
         <Button
           variant="outline"

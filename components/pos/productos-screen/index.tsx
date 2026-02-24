@@ -123,7 +123,7 @@ export function ProductosScreen() {
             {totalProducts} productos
           </Badge>
           <Badge variant="outline" className="text-sm">
-            Pagina {page} de {totalPages}
+            Página {page} de {totalPages}
           </Badge>
           {pendingCount > 0 && (
             <Badge

@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+import { es as esMX } from "date-fns/locale";
 import { AlertTriangle, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,11 +17,7 @@ import { formatCurrency } from "@/lib/utils";
 
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "Nunca";
-  return new Date(dateStr).toLocaleDateString("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return format(new Date(dateStr), "dd MMM yyyy", { locale: esMX });
 }
 
 interface ProductsListProps {
@@ -107,11 +105,11 @@ export function ProductsList({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Codigo</TableHead>
+            <TableHead>Código</TableHead>
             <TableHead>Nombre</TableHead>
             <TableHead className="text-right">Precio de venta</TableHead>
-            <TableHead>Categoria</TableHead>
-            <TableHead>Ultima venta</TableHead>
+            <TableHead>Categoría</TableHead>
+            <TableHead>Última venta</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
