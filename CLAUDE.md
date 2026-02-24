@@ -82,8 +82,9 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
 ## Cursor Cloud specific instructions
 
 - **Runtime**: Bun is installed at `~/.bun/bin/bun`. The update script runs `bun install --frozen-lockfile` automatically.
-- **Environment**: A `.env.local` file must exist with `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, and `ALLOWED_EMAILS`. See `.env.example` for the template. Without real credentials, the app still builds/lints and the dev server starts (login page renders), but Google OAuth sign-in and database-backed features will not function.
+- **Environment**: A `.env.local` file must exist with `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, and `ALLOWED_EMAILS`. See `.env.example` for the template. These values come from injected secrets; generate `.env.local` from env vars before starting the dev server. Without real credentials, the app still builds/lints and the dev server starts (login page renders), but Google OAuth sign-in and database-backed features will not function.
 - **Dev server**: `bun run dev` starts Next.js on port 3000. The root `/` redirects to `/login` when unauthenticated.
-- **Lint**: Uses Biome (`biome check .`), not ESLint, despite references to `bun run lint`.
-- **No test framework**: There are no automated tests to run. Quality checks are `bun run lint`, `bunx tsc --noEmit`, and `bun run build`.
+- **Authentication**: Google OAuth only — requires a real Google account listed in `ALLOWED_EMAILS`. For manual testing of authenticated flows, use the Desktop pane to sign in.
+- **Lint**: Uses Biome (`biome check .`), not ESLint, despite the `bun run lint` alias.
+- **No test framework**: There are no automated tests. Quality checks are `bun run lint`, `bunx tsc --noEmit`, and `bun run build`.
 - **No Docker**: The app connects to a cloud-hosted Neon PostgreSQL database; no local database setup is needed.
