@@ -1,16 +1,13 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { AlertTriangle, Loader2, Plus, Search } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { deleteProduct as deleteProductAction } from "@/app/actions/products";
 import { ProductFormDialog } from "@/components/pos/product-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,75 +18,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  CATEGORY_OPTIONS,
-  productosFiltersFormDefaults,
-  productosFiltersFormSchema,
-} from "@/lib/pos-form-schemas";
+import { useIsMobile } from "@/components/ui/use-mobile";
+import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import type { Product } from "@/lib/store";
-import { formatCurrency } from "@/lib/utils";
+import { ProductsList } from "./products-list";
+import { ProductsPagination } from "./products-pagination";
 import {
+  PRODUCTS_PAGE_SIZE,
   pendingProductsQueryKey,
   pendingProductsQueryOptions,
   productsQueryKey,
   productsQueryOptions,
 } from "./query";
-
-function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return "Nunca";
-  return new Date(dateStr).toLocaleDateString("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { useProductosRouteFilters } from "./use-productos-route-filters";
 
 export function ProductosScreen() {
+  const isMobile = useIsMobile();
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isPending, startTransition] = useTransition();
-  const filtersForm = useForm({
-    resolver: zodResolver(productosFiltersFormSchema),
-    defaultValues: productosFiltersFormDefaults,
-  });
-  const searchQuery = filtersForm.watch("searchQuery");
-  const categoryFilter = filtersForm.watch("categoryFilter");
-
-  // Debounced search value
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
-
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-    }, 300);
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchQuery]);
-
+  const { filtersForm, categoryFilter, normalizedSearch, page, setPage } =
+    useProductosRouteFilters();
   const queryClient = useQueryClient();
+  const selectedCategory = categoryFilter === "all" ? undefined : categoryFilter;
 
   const queryOpts = {
-    search: debouncedSearch || undefined,
-    category: categoryFilter === "all" ? undefined : categoryFilter,
+    search: normalizedSearch || undefined,
+    category: selectedCategory,
+    page,
+    pageSize: PRODUCTS_PAGE_SIZE,
   };
 
-  const { data: products = [], isLoading } = useQuery(productsQueryOptions(queryOpts));
+  const {
+    data: productsPage,
+    isLoading,
+    isFetching,
+  } = useQuery(productsQueryOptions(queryOpts));
   const { data: pendingCount = 0 } = useQuery(pendingProductsQueryOptions());
+  const products = productsPage?.products ?? [];
+  const totalProducts = productsPage?.total ?? 0;
+  const totalPages = productsPage?.totalPages ?? 1;
+  const hasPreviousPage = productsPage?.hasPreviousPage ?? false;
+  const hasNextPage = productsPage?.hasNextPage ?? false;
+  const pageSize = productsPage?.pageSize ?? PRODUCTS_PAGE_SIZE;
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, setPage, totalPages]);
+
+  useEffect(() => {
+    if (!hasNextPage) {
+      return;
+    }
+
+    void queryClient.prefetchQuery(
+      productsQueryOptions({
+        search: normalizedSearch || undefined,
+        category: selectedCategory,
+        page: page + 1,
+        pageSize,
+      })
+    );
+  }, [hasNextPage, normalizedSearch, page, pageSize, queryClient, selectedCategory]);
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: productsQueryKey });
@@ -125,11 +117,13 @@ export function ProductosScreen() {
 
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
-      {/* Header with stats and actions */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="text-sm">
-            {products.length} productos
+            {totalProducts} productos
+          </Badge>
+          <Badge variant="outline" className="text-sm">
+            Página {page} de {totalPages}
           </Badge>
           {pendingCount > 0 && (
             <Badge
@@ -153,7 +147,6 @@ export function ProductosScreen() {
         </Button>
       </div>
 
-      {/* Search and filters */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <Form {...filtersForm}>
           <FormField
@@ -198,156 +191,34 @@ export function ProductosScreen() {
         </Form>
       </div>
 
-      {/* Products - Table on desktop, Cards on mobile */}
       <ScrollArea className="flex-1">
         {products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
             No se encontraron productos
           </div>
         ) : (
-          <>
-            {/* Mobile: Card layout */}
-            <div className="flex flex-col gap-3 md:hidden">
-              {products.map((product) => (
-                <Card key={product.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        {product.name === "Sin nombre" ? (
-                          <p className="text-sm text-amber-600">
-                            <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-                            Sin nombre - requiere registro
-                          </p>
-                        ) : (
-                          <p className="text-sm font-medium text-foreground">
-                            {product.name}
-                          </p>
-                        )}
-                        {product.barcode && (
-                          <p className="mt-0.5 font-mono text-xs text-muted-foreground">
-                            {product.barcode}
-                          </p>
-                        )}
-                        <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {product.category}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            Venta: {formatDate(product.lastSoldAt)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="text-base font-bold text-foreground">
-                          {formatCurrency(product.price)}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleEdit(product)}
-                            disabled={isPending}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                            <span className="sr-only">Editar</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => handleDelete(product)}
-                            disabled={isPending}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            <span className="sr-only">Eliminar</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Desktop: Table layout */}
-            <div className="hidden rounded-md border md:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Codigo</TableHead>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead className="text-right">Precio de venta</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Ultima venta</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell className="font-mono text-sm">
-                        {product.barcode || (
-                          <span className="text-muted-foreground">Sin codigo</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {product.name === "Sin nombre" ? (
-                          <span className="text-amber-600">
-                            <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-                            Sin nombre - requiere registro
-                          </span>
-                        ) : (
-                          <span className="font-medium text-foreground">
-                            {product.name}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right font-semibold text-foreground">
-                        {formatCurrency(product.price)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="text-xs">
-                          {product.category}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatDate(product.lastSoldAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleEdit(product)}
-                            disabled={isPending}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                            <span className="sr-only">Editar</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => handleDelete(product)}
-                            disabled={isPending}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            <span className="sr-only">Eliminar</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </>
+          <ProductsList
+            isMobile={isMobile}
+            isPending={isPending}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            products={products}
+          />
         )}
       </ScrollArea>
 
-      {/* Product form dialog */}
+      <ProductsPagination
+        hasNextPage={hasNextPage}
+        hasPreviousPage={hasPreviousPage}
+        isFetching={isFetching}
+        onNext={() => setPage((currentPage) => currentPage + 1)}
+        onPrevious={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
+        page={page}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        totalProducts={totalProducts}
+      />
+
       <ProductFormDialog
         open={showForm}
         onOpenChange={setShowForm}

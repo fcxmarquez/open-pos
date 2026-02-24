@@ -23,7 +23,12 @@ export async function getFrequentProducts(limit?: number) {
   return queryFrequentProducts(limit);
 }
 
-export async function getProducts(opts?: { search?: string; category?: string }) {
+export async function getProducts(opts?: {
+  search?: string;
+  category?: string;
+  page?: number;
+  pageSize?: number;
+}) {
   return queryGetProducts(opts);
 }
 
