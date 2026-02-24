@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { Button } from "@/components/ui/button";
@@ -104,8 +105,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     isLoggingOut.current = true;
     sessionStorage.removeItem(SESSION_KEY);
     setAdminUnlocked(false);
-    router.push("/ventas");
     setMobileNavOpen(false);
+    signOut({ redirectTo: "/login" });
   };
 
   if (!mounted) {
