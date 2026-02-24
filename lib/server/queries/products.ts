@@ -14,6 +14,24 @@ import {
 import { db } from "@/db";
 import { products, saleItems } from "@/db/schema";
 
+function normalizePaginationValue(
+  value: number | undefined,
+  fallback: number,
+  max: number
+) {
+  const numericValue = typeof value === "number" ? value : Number.NaN;
+  if (!Number.isFinite(numericValue)) {
+    return fallback;
+  }
+
+  const normalized = Math.trunc(numericValue);
+  if (normalized < 1) {
+    return 1;
+  }
+
+  return Math.min(normalized, max);
+}
+
 export async function getProducts(opts?: {
   search?: string;
   category?: string;
@@ -21,8 +39,9 @@ export async function getProducts(opts?: {
   page?: number;
   pageSize?: number;
 }) {
-  const page = Math.max(1, opts?.page ?? 1);
-  const pageSize = Math.min(Math.max(1, opts?.pageSize ?? 100), 200);
+  const pageSize = normalizePaginationValue(opts?.pageSize, 100, 200);
+  const maxPage = Math.floor(Number.MAX_SAFE_INTEGER / pageSize) + 1;
+  const page = normalizePaginationValue(opts?.page, 1, maxPage);
   const offset = (page - 1) * pageSize;
   const conditions = [];
 
