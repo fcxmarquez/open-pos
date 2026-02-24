@@ -34,6 +34,7 @@ export interface Product {
 export interface CartItem {
   product: Product;
   quantity: number;
+  unitPrice: number;
 }
 
 export interface Sale {
@@ -155,8 +156,8 @@ function createSeedSales(products: Product[]): Sale[] {
     {
       id: generateId(),
       items: [
-        { product: products[0], quantity: 2 },
-        { product: products[1], quantity: 3 },
+        { product: products[0], quantity: 2, unitPrice: products[0].price },
+        { product: products[1], quantity: 3, unitPrice: products[1].price },
       ],
       total: 105.0,
       payment: 120.0,
@@ -167,8 +168,8 @@ function createSeedSales(products: Product[]): Sale[] {
     {
       id: generateId(),
       items: [
-        { product: products[8], quantity: 1 },
-        { product: products[7], quantity: 2 },
+        { product: products[8], quantity: 1, unitPrice: products[8].price },
+        { product: products[7], quantity: 2, unitPrice: products[7].price },
       ],
       total: 95.0,
       payment: 100.0,
@@ -179,9 +180,9 @@ function createSeedSales(products: Product[]): Sale[] {
     {
       id: generateId(),
       items: [
-        { product: products[10], quantity: 1 },
-        { product: products[9], quantity: 1 },
-        { product: products[11], quantity: 1 },
+        { product: products[10], quantity: 1, unitPrice: products[10].price },
+        { product: products[9], quantity: 1, unitPrice: products[9].price },
+        { product: products[11], quantity: 1, unitPrice: products[11].price },
       ],
       total: 108.0,
       payment: 110.0,
@@ -192,8 +193,8 @@ function createSeedSales(products: Product[]): Sale[] {
     {
       id: generateId(),
       items: [
-        { product: products[5], quantity: 1 },
-        { product: products[6], quantity: 1 },
+        { product: products[5], quantity: 1, unitPrice: products[5].price },
+        { product: products[6], quantity: 1, unitPrice: products[6].price },
       ],
       total: 37.0,
       payment: 50.0,
@@ -280,6 +281,7 @@ interface PosStore {
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
+  updateCartItemPrice: (productId: string, price: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
 
@@ -369,7 +371,7 @@ export const useStore = create<PosStore>()((set, get) => ({
         };
       }
       return {
-        cart: [...state.cart, { product, quantity }],
+        cart: [...state.cart, { product, quantity, unitPrice: product.price }],
       };
     });
   },
@@ -392,10 +394,21 @@ export const useStore = create<PosStore>()((set, get) => ({
     }));
   },
 
+  updateCartItemPrice: (productId, price) => {
+    if (!Number.isFinite(price) || price < 0) {
+      return;
+    }
+    set((state) => ({
+      cart: state.cart.map((item) =>
+        item.product.id === productId ? { ...item, unitPrice: price } : item
+      ),
+    }));
+  },
+
   clearCart: () => set({ cart: [] }),
 
   getCartTotal: () => {
-    return get().cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    return get().cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
   },
 
   completeSale: (payment) => {

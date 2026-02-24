@@ -86,7 +86,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
             : item.product.id,
         barcode: item.product.barcode || null,
         productName: item.product.name,
-        unitPrice: item.product.price,
+        unitPrice: item.unitPrice,
         quantity: item.quantity,
       }));
 

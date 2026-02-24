@@ -2,7 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Minus, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
+import {
+  Loader2,
+  Minus,
+  Pencil,
+  Plus,
+  Search,
+  ShoppingBag,
+  Trash2,
+  X,
+  Zap,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -31,6 +41,7 @@ export function VentasScreen() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [showQuickSale, setShowQuickSale] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, startTransition] = useTransition();
@@ -46,6 +57,7 @@ export function VentasScreen() {
   const addToCart = useStore((s) => s.addToCart);
   const removeFromCart = useStore((s) => s.removeFromCart);
   const updateCartQuantity = useStore((s) => s.updateCartQuantity);
+  const updateCartItemPrice = useStore((s) => s.updateCartItemPrice);
   const clearCart = useStore((s) => s.clearCart);
   const getCartTotal = useStore((s) => s.getCartTotal);
 
@@ -209,9 +221,45 @@ export function VentasScreen() {
                   <p className="text-sm font-medium leading-snug text-foreground">
                     {item.product.name}
                   </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatCurrency(item.product.price)} c/u
-                  </p>
+                  <div className="mt-1.5 flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">Precio</span>
+                    {editingPriceId === item.product.id ? (
+                      <Input
+                        type="number"
+                        value={item.unitPrice}
+                        onChange={(e) =>
+                          updateCartItemPrice(
+                            item.product.id,
+                            Number.parseFloat(e.target.value) || 0
+                          )
+                        }
+                        onBlur={() => setEditingPriceId(null)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === "Escape")
+                            setEditingPriceId(null);
+                        }}
+                        className="h-7 w-24 text-sm"
+                        min="0"
+                        step="1"
+                        autoFocus
+                      />
+                    ) : (
+                      <>
+                        <span className="text-xs text-foreground">
+                          ${item.unitPrice.toFixed(2)}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                          onClick={() => setEditingPriceId(item.product.id)}
+                          tabIndex={-1}
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
                   {/* Quantity controls */}
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <Button
@@ -250,7 +298,7 @@ export function VentasScreen() {
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <span className="text-sm font-semibold text-foreground">
-                    {formatCurrency(item.product.price * item.quantity)}
+                    {`$${(item.unitPrice * item.quantity).toFixed(2)}`}
                   </span>
                   <Button
                     variant="ghost"
