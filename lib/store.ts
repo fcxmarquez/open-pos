@@ -9,6 +9,15 @@ export type Category =
   | "Útiles escolares"
   | "Arte"
   | "Oficina"
+  | "Escritura"
+  | "Cuadernos"
+  | "Papel"
+  | "Adhesivos"
+  | "Colores y Dibujo"
+  | "Corrección"
+  | "Corte y Medición"
+  | "Cintas"
+  | "Notas Adhesivas"
   | "Otro";
 
 export interface Product {
