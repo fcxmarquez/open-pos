@@ -46,6 +46,7 @@ export function VentasScreen() {
   const addToCart = useStore((s) => s.addToCart);
   const removeFromCart = useStore((s) => s.removeFromCart);
   const updateCartQuantity = useStore((s) => s.updateCartQuantity);
+  const updateCartItemPrice = useStore((s) => s.updateCartItemPrice);
   const clearCart = useStore((s) => s.clearCart);
   const getCartTotal = useStore((s) => s.getCartTotal);
 
@@ -209,9 +210,22 @@ export function VentasScreen() {
                   <p className="text-sm font-medium leading-snug text-foreground">
                     {item.product.name}
                   </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatCurrency(item.product.price)} c/u
-                  </p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Precio</span>
+                    <Input
+                      type="number"
+                      value={item.unitPrice}
+                      onChange={(e) =>
+                        updateCartItemPrice(
+                          item.product.id,
+                          Number.parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="h-7 w-24 text-sm"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
                   {/* Quantity controls */}
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <Button
@@ -250,7 +264,7 @@ export function VentasScreen() {
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <span className="text-sm font-semibold text-foreground">
-                    {formatCurrency(item.product.price * item.quantity)}
+                    {formatCurrency(item.unitPrice * item.quantity)}
                   </span>
                   <Button
                     variant="ghost"
