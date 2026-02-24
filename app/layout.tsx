@@ -1,13 +1,10 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import type React from "react";
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/components/query-provider";
 
 import "./globals.css";
-
-const _inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Papeleria Luna - Punto de Venta",
