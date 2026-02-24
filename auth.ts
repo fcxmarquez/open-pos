@@ -12,7 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (process.env.AUTH_BYPASS !== "true") return null;
-        if (process.env.NODE_ENV === "production") return null;
+        if (process.env.VERCEL_ENV === "production") return null;
         if (credentials.username === "root" && credentials.password === "testing") {
           return { id: "test-user", name: "Test User", email: "test@testing.local" };
         }

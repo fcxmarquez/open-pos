@@ -1,3 +1,4 @@
+import { AuthError } from "next-auth";
 import { Store } from "lucide-react";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
@@ -82,11 +83,18 @@ export default async function LoginPage({
             <form
               action={async (formData: FormData) => {
                 "use server";
-                await signIn("credentials", {
-                  username: formData.get("username"),
-                  password: formData.get("password"),
-                  redirectTo: "/ventas",
-                });
+                try {
+                  await signIn("credentials", {
+                    username: formData.get("username"),
+                    password: formData.get("password"),
+                    redirectTo: "/ventas",
+                  });
+                } catch (error) {
+                  if (error instanceof AuthError) {
+                    redirect(`/login?error=${error.type}`);
+                  }
+                  throw error;
+                }
               }}
               className="space-y-3"
             >
