@@ -9,6 +9,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun --env-file=.env.local drizzle-kit migrate",
     "db:push": "bun --env-file=.env.local drizzle-kit push",
+    "db:seed:csv:dry": "bun --env-file=.env.local scripts/import-seed-products.ts --dry-run",
+    "db:seed:csv": "bun --env-file=.env.local scripts/import-seed-products.ts",
     "lint": "biome check .",
     "format": "biome format --write .",
     "lint:fix": "biome check --write ."
