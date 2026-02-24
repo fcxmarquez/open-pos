@@ -1,8 +1,26 @@
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers: [Google],
+  providers: [
+    Google,
+    Credentials({
+      credentials: {
+        username: {},
+        password: {},
+      },
+      async authorize(credentials) {
+        if (process.env.AUTH_BYPASS !== "true") return null;
+        if (process.env.VERCEL_ENV === "production") return null;
+        if (!credentials?.username || !credentials?.password) return null;
+        if (credentials.username === "root" && credentials.password === "testing") {
+          return { id: "test-user", name: "Test User", email: "test@testing.local" };
+        }
+        return null;
+      },
+    }),
+  ],
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -12,7 +30,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
   callbacks: {
-    async signIn({ profile }) {
+    async signIn({ account, profile }) {
+      // Credentials provider is only active when AUTH_BYPASS is true
+      if (account?.provider === "credentials") return true;
+
       if (!profile?.email) return false;
 
       const allowedEmails = (process.env.ALLOWED_EMAILS ?? "")
@@ -24,11 +45,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return allowedEmails.includes(profile.email);
     },
-    async jwt({ token, profile }) {
+    async jwt({ token, user, profile }) {
       if (profile) {
         token.email = profile.email;
         token.name = profile.name;
         token.picture = profile.picture;
+      } else if (user) {
+        token.email = user.email;
+        token.name = user.name;
       }
       return token;
     },

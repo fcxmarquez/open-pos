@@ -78,3 +78,12 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
   - `bun run lint`
   - `bunx tsc --noEmit`
   - `bun run build`
+
+### Automated Testing / Remote Agents
+
+The app supports an alternative login mode for automated testing and CI environments. When this mode is active, the login page shows a username/password form instead of Google OAuth. Use the following credentials to log in:
+
+- **Username**: `root`
+- **Password**: `testing`
+
+This mode is enabled via an environment variable in `.env.local`. Check `.env.example` for the variable name and usage instructions.

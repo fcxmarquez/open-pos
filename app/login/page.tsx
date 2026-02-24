@@ -1,5 +1,6 @@
 import { Store } from "lucide-react";
 import { redirect } from "next/navigation";
+import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,12 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const ERROR_MESSAGES: Record<string, string> = {
   AccessDenied: "Tu cuenta no tiene acceso a este sistema. Contacta al administrador.",
   OAuthAccountNotLinked:
     "Este correo ya esta asociado a otro metodo de inicio de sesion.",
   Configuration: "Error de configuracion del servidor. Contacta al administrador.",
+  CredentialsSignin: "Credenciales incorrectas. Intenta de nuevo.",
   Default: "Ocurrio un error al iniciar sesion. Intenta de nuevo.",
 };
 
@@ -57,6 +61,9 @@ export default async function LoginPage({
     ? (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.Default)
     : null;
 
+  const isTestingMode =
+    process.env.AUTH_BYPASS === "true" && process.env.VERCEL_ENV !== "production";
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm">
@@ -73,17 +80,55 @@ export default async function LoginPage({
               {errorMessage}
             </div>
           )}
-          <form
-            action={async () => {
-              "use server";
-              await signIn("google", { redirectTo: "/ventas" });
-            }}
-          >
-            <Button type="submit" variant="outline" className="w-full gap-3 py-5">
-              <GoogleIcon />
-              Continuar con Google
-            </Button>
-          </form>
+          {isTestingMode ? (
+            <form
+              action={async (formData: FormData) => {
+                "use server";
+                try {
+                  await signIn("credentials", {
+                    username: formData.get("username"),
+                    password: formData.get("password"),
+                    redirectTo: "/ventas",
+                  });
+                } catch (error) {
+                  if (error instanceof AuthError) {
+                    redirect(`/login?error=${error.type}`);
+                  }
+                  throw error;
+                }
+              }}
+              className="space-y-3"
+            >
+              <div className="space-y-1">
+                <Label htmlFor="username">Usuario</Label>
+                <Input id="username" name="username" autoComplete="username" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="password">Contraseña</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Iniciar sesion
+              </Button>
+            </form>
+          ) : (
+            <form
+              action={async () => {
+                "use server";
+                await signIn("google", { redirectTo: "/ventas" });
+              }}
+            >
+              <Button type="submit" variant="outline" className="w-full gap-3 py-5">
+                <GoogleIcon />
+                Continuar con Google
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
