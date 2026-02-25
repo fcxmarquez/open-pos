@@ -215,3 +215,46 @@ export async function getPendingProducts() {
     )
     .orderBy(desc(products.createdAt));
 }
+
+export interface BulkProductUpdates {
+  price?: number;
+  costPrice?: number | null;
+  category?: string;
+}
+
+export async function bulkUpdateProducts(ids: string[], updates: BulkProductUpdates) {
+  if (ids.length === 0) {
+    return 0;
+  }
+
+  const updateData: Partial<typeof products.$inferInsert> = {
+    updatedAt: new Date(),
+  };
+
+  if (updates.price !== undefined) {
+    updateData.price = updates.price.toFixed(2);
+  }
+
+  if (updates.costPrice !== undefined) {
+    updateData.costPrice =
+      updates.costPrice === null ? null : updates.costPrice.toFixed(2);
+  }
+
+  if (updates.category !== undefined) {
+    updateData.category = updates.category;
+  }
+
+  if (Object.keys(updateData).length === 1) {
+    return 0;
+  }
+
+  return db.transaction(async (tx) => {
+    const updated = await tx
+      .update(products)
+      .set(updateData)
+      .where(and(eq(products.isActive, true), inArray(products.id, ids)))
+      .returning({ id: products.id });
+
+    return updated.length;
+  });
+}

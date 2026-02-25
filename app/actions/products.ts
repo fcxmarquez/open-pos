@@ -6,7 +6,12 @@ import { z } from "zod";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { PLU_CODE_REGEX } from "@/lib/constants/products";
-import { barcodeExists, pluCodeExists } from "@/lib/server/queries/products";
+import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
+import {
+  barcodeExists,
+  bulkUpdateProducts as bulkUpdateProductsQuery,
+  pluCodeExists,
+} from "@/lib/server/queries/products";
 import type { ActionResult } from "@/lib/types";
 
 type Product = typeof products.$inferSelect;
@@ -61,6 +66,34 @@ const updateProductSchema = z.object({
 
 const deleteProductSchema = z.object({
   id: z.string().uuid("ID de producto invalido"),
+});
+
+const bulkProductUpdatesSchema = z
+  .object({
+    price: z.coerce.number().positive("El precio debe ser mayor a 0").optional(),
+    costPrice: z
+      .union([
+        z.coerce.number().nonnegative(
+          "El precio de costo debe ser mayor o igual a 0"
+        ),
+        z.null(),
+      ])
+      .optional(),
+    category: z.enum(CATEGORY_OPTIONS).optional(),
+  })
+  .refine(
+    (value) =>
+      value.price !== undefined ||
+      value.costPrice !== undefined ||
+      value.category !== undefined,
+    "No se enviaron campos para actualizar"
+  );
+
+const bulkUpdateProductsSchema = z.object({
+  ids: z
+    .array(z.string().uuid("ID de producto invalido"))
+    .min(1, "Selecciona al menos un producto"),
+  updates: bulkProductUpdatesSchema,
 });
 
 function formatZodError(error: z.ZodError): string {
@@ -335,6 +368,43 @@ export async function deleteProduct(
       success: false,
       data: null,
       error: "No se pudo eliminar el producto",
+    };
+  }
+}
+
+export async function bulkUpdateProducts(
+  input: z.input<typeof bulkUpdateProductsSchema>
+): Promise<ActionResult<{ updatedCount: number }>> {
+  const parsed = bulkUpdateProductsSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return { success: false, data: null, error: formatZodError(parsed.error) };
+  }
+
+  try {
+    const updatedCount = await bulkUpdateProductsQuery(parsed.data.ids, parsed.data.updates);
+
+    if (updatedCount === 0) {
+      return {
+        success: false,
+        data: null,
+        error: "No se actualizaron productos",
+      };
+    }
+
+    revalidateProducts();
+
+    return {
+      success: true,
+      data: { updatedCount },
+      error: null,
+    };
+  } catch (error) {
+    console.error("bulkUpdateProducts failed:", error);
+    return {
+      success: false,
+      data: null,
+      error: "No se pudieron actualizar los productos",
     };
   }
 }

@@ -4,7 +4,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Loader2, Plus, Search } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { deleteProduct as deleteProductAction } from "@/app/actions/products";
+import {
+  bulkUpdateProducts as bulkUpdateProductsAction,
+  deleteProduct as deleteProductAction,
+} from "@/app/actions/products";
+import {
+  BulkEditDialog,
+  type BulkProductUpdatesPayload,
+} from "@/components/pos/bulk-edit-dialog";
 import { ProductFormDialog } from "@/components/pos/product-form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,7 +42,9 @@ import { useProductosRouteFilters } from "./use-productos-route-filters";
 export function ProductosScreen() {
   const isMobile = useIsMobile();
   const [showForm, setShowForm] = useState(false);
+  const [showBulkEditDialog, setShowBulkEditDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
   const { filtersForm, categoryFilter, normalizedSearch, page, setPage } =
     useProductosRouteFilters();
@@ -61,12 +70,38 @@ export function ProductosScreen() {
   const hasPreviousPage = productsPage?.hasPreviousPage ?? false;
   const hasNextPage = productsPage?.hasNextPage ?? false;
   const pageSize = productsPage?.pageSize ?? PRODUCTS_PAGE_SIZE;
+  const selectedCount = selectedProductIds.size;
+  const selectedOnPageCount = products.reduce(
+    (count, product) => count + (selectedProductIds.has(product.id) ? 1 : 0),
+    0
+  );
+  const allSelectedOnPage = products.length > 0 && selectedOnPageCount === products.length;
+  const someSelectedOnPage = selectedOnPageCount > 0 && !allSelectedOnPage;
 
   useEffect(() => {
     if (page > totalPages) {
       setPage(totalPages);
     }
   }, [page, setPage, totalPages]);
+
+  useEffect(() => {
+    setSelectedProductIds((previousSelection) => {
+      if (previousSelection.size === 0) {
+        return previousSelection;
+      }
+
+      const currentPageIds = new Set(products.map((product) => product.id));
+      const filteredSelection = new Set(
+        [...previousSelection].filter((id) => currentPageIds.has(id))
+      );
+
+      if (filteredSelection.size === previousSelection.size) {
+        return previousSelection;
+      }
+
+      return filteredSelection;
+    });
+  }, [products]);
 
   useEffect(() => {
     if (!hasNextPage) {
@@ -88,6 +123,33 @@ export function ProductosScreen() {
     queryClient.invalidateQueries({ queryKey: pendingProductsQueryKey });
   };
 
+  const clearSelection = () => {
+    setSelectedProductIds(new Set());
+  };
+
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProductIds((previousSelection) => {
+      const nextSelection = new Set(previousSelection);
+
+      if (nextSelection.has(productId)) {
+        nextSelection.delete(productId);
+      } else {
+        nextSelection.add(productId);
+      }
+
+      return nextSelection;
+    });
+  };
+
+  const toggleSelectAllOnPage = (checked: boolean) => {
+    if (!checked) {
+      clearSelection();
+      return;
+    }
+
+    setSelectedProductIds(new Set(products.map((product) => product.id)));
+  };
+
   const handleDelete = (product: Product) => {
     if (window.confirm(`Eliminar "${product.name}"? Esta accion no se puede deshacer.`)) {
       startTransition(async () => {
@@ -105,6 +167,32 @@ export function ProductosScreen() {
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setShowForm(true);
+  };
+
+  const handleBulkApply = async (updates: BulkProductUpdatesPayload) => {
+    if (selectedCount === 0) {
+      toast.error("Selecciona al menos un producto");
+      return false;
+    }
+
+    const result = await bulkUpdateProductsAction({
+      ids: Array.from(selectedProductIds),
+      updates,
+    });
+
+    if (!result.success) {
+      toast.error(result.error);
+      return false;
+    }
+
+    toast.success(
+      result.data.updatedCount === 1
+        ? "1 producto actualizado"
+        : `${result.data.updatedCount} productos actualizados`
+    );
+    invalidateQueries();
+    clearSelection();
+    return true;
   };
 
   if (isLoading) {
@@ -191,6 +279,37 @@ export function ProductosScreen() {
         </Form>
       </div>
 
+      {isMobile && products.length > 0 && (
+        <div className="mb-3 flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => toggleSelectAllOnPage(!allSelectedOnPage)}
+            disabled={isPending}
+          >
+            {allSelectedOnPage ? "Deseleccionar pagina" : "Seleccionar pagina"}
+          </Button>
+        </div>
+      )}
+
+      {selectedCount > 0 && (
+        <div className="mb-4 flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-medium text-foreground">
+            {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
+            {selectedCount === 1 ? "" : "s"}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button type="button" size="sm" onClick={() => setShowBulkEditDialog(true)}>
+              Editar seleccionados
+            </Button>
+            <Button type="button" size="sm" variant="ghost" onClick={clearSelection}>
+              Limpiar seleccion
+            </Button>
+          </div>
+        </div>
+      )}
+
       <ScrollArea className="flex-1">
         {products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
@@ -198,11 +317,16 @@ export function ProductosScreen() {
           </div>
         ) : (
           <ProductsList
+            allSelectedOnPage={allSelectedOnPage}
             isMobile={isMobile}
             isPending={isPending}
             onDelete={handleDelete}
             onEdit={handleEdit}
+            onToggleProductSelection={toggleProductSelection}
+            onToggleSelectAllPage={toggleSelectAllOnPage}
             products={products}
+            selectedProductIds={selectedProductIds}
+            someSelectedOnPage={someSelectedOnPage}
           />
         )}
       </ScrollArea>
@@ -224,6 +348,12 @@ export function ProductosScreen() {
         onOpenChange={setShowForm}
         product={editingProduct}
         onSuccess={invalidateQueries}
+      />
+      <BulkEditDialog
+        open={showBulkEditDialog}
+        onOpenChange={setShowBulkEditDialog}
+        selectedCount={selectedCount}
+        onApply={handleBulkApply}
       />
     </div>
   );
