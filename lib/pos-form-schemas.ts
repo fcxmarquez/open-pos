@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PLU_CODE_REGEX } from "@/lib/constants/products";
 import type { Category } from "@/lib/store";
 
 export const CATEGORY_OPTIONS = [
@@ -53,7 +54,7 @@ const optionalPluCodeString = z
   .string()
   .trim()
   .refine(
-    (value) => value === "" || /^\d{4}$/.test(value),
+    (value) => value === "" || PLU_CODE_REGEX.test(value),
     "Ingresa un codigo PLU valido de 4 digitos"
   );
 
