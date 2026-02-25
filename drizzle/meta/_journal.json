@@ -15,6 +15,13 @@
       "when": 1771978315118,
       "tag": "0001_curvy_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771983728013,
+      "tag": "0002_drop_redundant_indexes",
+      "breakpoints": true
     }
   ]
 }

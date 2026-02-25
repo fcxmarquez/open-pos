@@ -25,11 +25,7 @@ export const products = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [
-    index("idx_products_barcode").on(table.barcode).where(sql`barcode IS NOT NULL`),
-    index("idx_products_plu_code").on(table.pluCode).where(sql`plu_code IS NOT NULL`),
-    index("idx_products_name").on(table.name).where(sql`name IS NOT NULL`),
-  ]
+  (table) => [index("idx_products_name").on(table.name).where(sql`name IS NOT NULL`)]
 );
 
 export const salesSessions = pgTable(
