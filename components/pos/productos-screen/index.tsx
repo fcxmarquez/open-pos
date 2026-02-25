@@ -144,11 +144,16 @@ export function ProductosScreen() {
 
   const toggleSelectAllOnPage = (checked: boolean) => {
     if (!checked) {
-      clearSelection();
+      const pageIds = new Set(products.map((product) => product.id));
+      setSelectedProductIds(
+        (prev) => new Set([...prev].filter((id) => !pageIds.has(id)))
+      );
       return;
     }
 
-    setSelectedProductIds(new Set(products.map((product) => product.id)));
+    setSelectedProductIds(
+      (prev) => new Set([...prev, ...products.map((product) => product.id)])
+    );
   };
 
   const handleDelete = (product: Product) => {
@@ -296,10 +301,13 @@ export function ProductosScreen() {
 
       {selectedCount > 0 && (
         <div className="mb-4 flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm font-medium text-foreground">
-            {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
-            {selectedCount === 1 ? "" : "s"}
-          </p>
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
+              {selectedCount === 1 ? "" : "s"}
+            </p>
+            <p className="text-xs text-muted-foreground">Solo productos de esta pagina</p>
+          </div>
           <div className="flex items-center gap-2">
             <Button type="button" size="sm" onClick={() => setShowBulkEditDialog(true)}>
               Editar seleccionados

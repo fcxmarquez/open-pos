@@ -90,7 +90,8 @@ const bulkProductUpdatesSchema = z
 const bulkUpdateProductsSchema = z.object({
   ids: z
     .array(z.string().uuid("ID de producto invalido"))
-    .min(1, "Selecciona al menos un producto"),
+    .min(1, "Selecciona al menos un producto")
+    .max(500, "No se pueden actualizar mas de 500 productos a la vez"),
   updates: bulkProductUpdatesSchema,
 });
 
@@ -384,14 +385,6 @@ export async function bulkUpdateProducts(
       parsed.data.ids,
       parsed.data.updates
     );
-
-    if (updatedCount === 0) {
-      return {
-        success: false,
-        data: null,
-        error: "No se actualizaron productos",
-      };
-    }
 
     revalidateProducts();
 

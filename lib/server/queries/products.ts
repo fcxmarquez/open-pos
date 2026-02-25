@@ -248,13 +248,11 @@ export async function bulkUpdateProducts(ids: string[], updates: BulkProductUpda
     return 0;
   }
 
-  return db.transaction(async (tx) => {
-    const updated = await tx
-      .update(products)
-      .set(updateData)
-      .where(and(eq(products.isActive, true), inArray(products.id, ids)))
-      .returning({ id: products.id });
+  const updated = await db
+    .update(products)
+    .set(updateData)
+    .where(and(eq(products.isActive, true), inArray(products.id, ids)))
+    .returning({ id: products.id });
 
-    return updated.length;
-  });
+  return updated.length;
 }
