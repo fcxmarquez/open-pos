@@ -8,6 +8,7 @@ import {
   inArray,
   isNotNull,
   isNull,
+  ne,
   or,
   sql,
 } from "drizzle-orm";
@@ -165,6 +166,40 @@ export async function getFrequentProducts(limit = 12) {
   return productRows.sort(
     (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0)
   );
+}
+
+export async function barcodeExists(
+  barcode: string,
+  excludeId?: string
+): Promise<boolean> {
+  const whereClause = excludeId
+    ? and(eq(products.barcode, barcode), ne(products.id, excludeId))
+    : eq(products.barcode, barcode);
+
+  const existing = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(whereClause)
+    .limit(1);
+
+  return existing.length > 0;
+}
+
+export async function pluCodeExists(
+  pluCode: string,
+  excludeId?: string
+): Promise<boolean> {
+  const whereClause = excludeId
+    ? and(eq(products.pluCode, pluCode), ne(products.id, excludeId))
+    : eq(products.pluCode, pluCode);
+
+  const existing = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(whereClause)
+    .limit(1);
+
+  return existing.length > 0;
 }
 
 export async function getPendingProducts() {

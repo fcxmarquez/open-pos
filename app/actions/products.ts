@@ -1,10 +1,12 @@
 "use server";
 
-import { and, eq, ne } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { products } from "@/db/schema";
+import { PLU_CODE_REGEX } from "@/lib/constants/products";
+import { barcodeExists, pluCodeExists } from "@/lib/server/queries/products";
 import type { ActionResult } from "@/lib/types";
 
 type Product = typeof products.$inferSelect;
@@ -12,7 +14,6 @@ type ProductField = "barcode" | "pluCode";
 type ProductActionResult<T = Product> =
   | { success: true; data: T; error: null }
   | { success: false; data: null; error: string; field?: ProductField };
-const PLU_CODE_REGEX = /^\d{4}$/;
 
 const nullableTrimmedString = z.preprocess((value) => {
   if (typeof value !== "string") return value;
@@ -95,34 +96,6 @@ function getUniqueConstraint(error: unknown): string | null {
 
   const maybeConstraint = (error as { constraint?: unknown }).constraint;
   return typeof maybeConstraint === "string" ? maybeConstraint : null;
-}
-
-async function barcodeExists(barcode: string, excludeId?: string): Promise<boolean> {
-  const whereClause = excludeId
-    ? and(eq(products.barcode, barcode), ne(products.id, excludeId))
-    : eq(products.barcode, barcode);
-
-  const existing = await db
-    .select({ id: products.id })
-    .from(products)
-    .where(whereClause)
-    .limit(1);
-
-  return existing.length > 0;
-}
-
-async function pluCodeExists(pluCode: string, excludeId?: string): Promise<boolean> {
-  const whereClause = excludeId
-    ? and(eq(products.pluCode, pluCode), ne(products.id, excludeId))
-    : eq(products.pluCode, pluCode);
-
-  const existing = await db
-    .select({ id: products.id })
-    .from(products)
-    .where(whereClause)
-    .limit(1);
-
-  return existing.length > 0;
 }
 
 function revalidateProducts() {
