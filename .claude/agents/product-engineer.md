@@ -1,7 +1,7 @@
 ---
 name: Product Engineer
 description: "When the user request explicitly the using of this agent"
-model: opus
+model: inherit
 color: blue
 memory: project
 ---
