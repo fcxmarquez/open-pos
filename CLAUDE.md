@@ -87,3 +87,23 @@ The app supports an alternative login mode for automated testing and CI environm
 - **Password**: `testing`
 
 This mode is enabled via an environment variable in `.env.local`. Check `.env.example` for the variable name and usage instructions.
+
+## Cursor Cloud specific instructions
+
+### Environment
+
+- **Runtime**: Bun (installed at `~/.bun/bin/bun`). Ensure `~/.bun/bin` is on `PATH`.
+- **Database**: Neon PostgreSQL (cloud-hosted). Requires `DATABASE_URL` secret.
+- **Auth**: Set `AUTH_BYPASS=true` in `.env.local` for credential-based login (`root`/`testing`). Requires `AUTH_SECRET` secret.
+- `.env.local` must be created from `.env.example` with the secrets above plus `NEXT_PUBLIC_ADMIN_PIN="1234"`.
+
+### Running the app
+
+- `bun run dev` starts the Next.js dev server on port 3000.
+- The health endpoint at `/api/health` confirms database connectivity.
+- PIN-protected sections (Productos, Corte de Caja) use PIN `1234`.
+
+### Linting
+
+- Linter is **Biome** (not ESLint). `bun run lint` runs `biome check .`.
+- No test framework is configured; quality checks are `bun run lint`, `bunx tsc --noEmit`, and `bun run build`.
