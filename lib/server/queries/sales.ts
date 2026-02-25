@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { saleItems, sales, salesSessions } from "@/db/schema";
 import { getTodayDateString } from "@/lib/utils";
@@ -18,7 +18,7 @@ export async function getTodaySales() {
     .select()
     .from(sales)
     .where(eq(sales.sessionId, session.id))
-    .orderBy(sales.createdAt);
+    .orderBy(desc(sales.createdAt));
 
   if (saleRows.length === 0) return [];
 
