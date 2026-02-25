@@ -14,7 +14,7 @@ import {
 } from "drizzle-orm";
 import { db } from "@/db";
 import { products, saleItems } from "@/db/schema";
-import { PRODUCTS_PAGE_SIZE } from "@/lib/constants/products";
+import { PLU_CODE_REGEX, PRODUCTS_PAGE_SIZE } from "@/lib/constants/products";
 
 function normalizePaginationValue(
   value: number | undefined,
@@ -57,14 +57,18 @@ export async function getProducts(opts?: {
   }
 
   if (opts?.search) {
-    const term = buildContainsPattern(opts.search);
-    conditions.push(
-      or(
-        ilike(products.name, term),
-        ilike(products.barcode, term),
-        ilike(products.pluCode, term)
-      )!
-    );
+    if (PLU_CODE_REGEX.test(opts.search)) {
+      conditions.push(eq(products.pluCode, opts.search));
+    } else {
+      const term = buildContainsPattern(opts.search);
+      conditions.push(
+        or(
+          ilike(products.name, term),
+          ilike(products.barcode, term),
+          ilike(products.pluCode, term)
+        )!
+      );
+    }
   }
 
   if (opts?.category) {
