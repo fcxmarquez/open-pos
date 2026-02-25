@@ -15,6 +15,7 @@ import {
 import { db } from "@/db";
 import { products, saleItems } from "@/db/schema";
 import { PLU_CODE_REGEX, PRODUCTS_PAGE_SIZE } from "@/lib/constants/products";
+import type { Category } from "@/lib/store";
 
 function normalizePaginationValue(
   value: number | undefined,
@@ -214,4 +215,45 @@ export async function getPendingProducts() {
       and(isNotNull(products.barcode), isNull(products.name), eq(products.isActive, true))
     )
     .orderBy(desc(products.createdAt));
+}
+
+export interface BulkProductUpdates {
+  price?: number;
+  costPrice?: number | null;
+  category?: Category;
+}
+
+export async function bulkUpdateProducts(ids: string[], updates: BulkProductUpdates) {
+  if (ids.length === 0) {
+    return 0;
+  }
+
+  const updateData: Partial<typeof products.$inferInsert> = {
+    updatedAt: new Date(),
+  };
+
+  if (updates.price !== undefined) {
+    updateData.price = updates.price.toFixed(2);
+  }
+
+  if (updates.costPrice !== undefined) {
+    updateData.costPrice =
+      updates.costPrice === null ? null : updates.costPrice.toFixed(2);
+  }
+
+  if (updates.category !== undefined) {
+    updateData.category = updates.category;
+  }
+
+  if (Object.keys(updateData).length === 1) {
+    return 0;
+  }
+
+  const updated = await db
+    .update(products)
+    .set(updateData)
+    .where(and(eq(products.isActive, true), inArray(products.id, ids)))
+    .returning({ id: products.id });
+
+  return updated.length;
 }
