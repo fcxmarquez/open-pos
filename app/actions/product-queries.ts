@@ -8,11 +8,16 @@ import {
   getProducts as queryGetProducts,
   getPendingProducts as queryPendingProducts,
   getProductByBarcode as queryProductByBarcode,
+  getProductByPluCode as queryProductByPluCode,
   searchProducts as querySearchProducts,
 } from "@/lib/server/queries/products";
 
 export async function getProductByBarcode(barcode: string) {
   return queryProductByBarcode(barcode);
+}
+
+export async function getProductByPluCode(pluCode: string) {
+  return queryProductByPluCode(pluCode);
 }
 
 export async function searchProducts(query: string) {

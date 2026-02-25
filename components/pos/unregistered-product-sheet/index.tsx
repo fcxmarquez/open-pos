@@ -31,6 +31,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { dbProductToStoreProduct } from "@/lib/mappers";
 import {
   CATEGORY_OPTIONS,
   type UnregisteredProductFormValues,
@@ -86,15 +87,7 @@ export function UnregisteredProductSheet({
         return;
       }
 
-      const dbProduct = result.data;
-      const product: Product = {
-        id: dbProduct.id,
-        barcode: dbProduct.barcode ?? "",
-        name: dbProduct.name ?? productName,
-        price: Number(dbProduct.price),
-        category: (dbProduct.category as Category) ?? "General",
-        createdAt: dbProduct.createdAt.toISOString(),
-      };
+      const product = dbProductToStoreProduct(result.data);
 
       addToCart(product);
       toast.success(`Producto registrado y agregado - $${priceNum.toFixed(2)}`);

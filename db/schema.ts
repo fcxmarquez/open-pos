@@ -16,6 +16,7 @@ export const products = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     barcode: text("barcode").unique(),
+    pluCode: text("plu_code").unique(),
     name: text("name"),
     price: decimal("price", { precision: 10, scale: 2 }).notNull(),
     costPrice: decimal("cost_price", { precision: 10, scale: 2 }),
@@ -24,10 +25,7 @@ export const products = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [
-    index("idx_products_barcode").on(table.barcode).where(sql`barcode IS NOT NULL`),
-    index("idx_products_name").on(table.name).where(sql`name IS NOT NULL`),
-  ]
+  (table) => [index("idx_products_name").on(table.name).where(sql`name IS NOT NULL`)]
 );
 
 export const salesSessions = pgTable(

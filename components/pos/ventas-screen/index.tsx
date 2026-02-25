@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
   getProductByBarcode,
+  getProductByPluCode,
   searchProducts as searchProductsQuery,
 } from "@/app/actions/product-queries";
 import { CheckoutDialog } from "@/components/pos/checkout-dialog";
@@ -33,6 +34,8 @@ import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
 import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query";
+
+const PLU_CODE_REGEX = /^\d{4}$/;
 
 export function VentasScreen() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -148,6 +151,17 @@ export function VentasScreen() {
         clearSearch();
         focusInput();
         return;
+      }
+
+      if (PLU_CODE_REGEX.test(value)) {
+        const pluProduct = await getProductByPluCode(value);
+        if (pluProduct) {
+          addToCart(dbProductToStoreProduct(pluProduct));
+          toast.success(`${pluProduct.name ?? "Producto"} agregado`);
+          clearSearch();
+          focusInput();
+          return;
+        }
       }
 
       // Try name search
@@ -373,7 +387,7 @@ export function VentasScreen() {
                           ref(element);
                           inputRef.current = element;
                         }}
-                        placeholder="Escanear codigo o buscar..."
+                        placeholder="Escanear codigo, PLU o buscar..."
                         className="animate-pulse-ring h-12 pl-10 text-base"
                         autoFocus
                         disabled={isSubmitting}

@@ -8,6 +8,7 @@ import {
   inArray,
   isNotNull,
   isNull,
+  ne,
   or,
   sql,
 } from "drizzle-orm";
@@ -57,7 +58,13 @@ export async function getProducts(opts?: {
 
   if (opts?.search) {
     const term = buildContainsPattern(opts.search);
-    conditions.push(or(ilike(products.name, term), ilike(products.barcode, term))!);
+    conditions.push(
+      or(
+        ilike(products.name, term),
+        ilike(products.barcode, term),
+        ilike(products.pluCode, term)
+      )!
+    );
   }
 
   if (opts?.category) {
@@ -105,6 +112,16 @@ export async function getProductByBarcode(barcode: string) {
   return product ?? null;
 }
 
+export async function getProductByPluCode(pluCode: string) {
+  const [product] = await db
+    .select()
+    .from(products)
+    .where(and(eq(products.pluCode, pluCode), eq(products.isActive, true)))
+    .limit(1);
+
+  return product ?? null;
+}
+
 export async function searchProducts(query: string) {
   const term = buildContainsPattern(query);
 
@@ -114,7 +131,11 @@ export async function searchProducts(query: string) {
     .where(
       and(
         eq(products.isActive, true),
-        or(ilike(products.name, term), ilike(products.barcode, term))
+        or(
+          ilike(products.name, term),
+          ilike(products.barcode, term),
+          ilike(products.pluCode, term)
+        )
       )
     )
     .orderBy(products.name);
@@ -145,6 +166,40 @@ export async function getFrequentProducts(limit = 12) {
   return productRows.sort(
     (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0)
   );
+}
+
+export async function barcodeExists(
+  barcode: string,
+  excludeId?: string
+): Promise<boolean> {
+  const whereClause = excludeId
+    ? and(eq(products.barcode, barcode), ne(products.id, excludeId))
+    : eq(products.barcode, barcode);
+
+  const existing = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(whereClause)
+    .limit(1);
+
+  return existing.length > 0;
+}
+
+export async function pluCodeExists(
+  pluCode: string,
+  excludeId?: string
+): Promise<boolean> {
+  const whereClause = excludeId
+    ? and(eq(products.pluCode, pluCode), ne(products.id, excludeId))
+    : eq(products.pluCode, pluCode);
+
+  const existing = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(whereClause)
+    .limit(1);
+
+  return existing.length > 0;
 }
 
 export async function getPendingProducts() {

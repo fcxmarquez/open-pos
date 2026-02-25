@@ -12,6 +12,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require Drizzle migration when schema changes
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          CHANGED_FILES="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+
+          if echo "$CHANGED_FILES" | rg -q "^db/schema\\.ts$"; then
+            if ! echo "$CHANGED_FILES" | rg -q "^drizzle/.*\\.sql$"; then
+              echo "::error::db/schema.ts changed without a drizzle SQL migration."
+              echo "::error::Run 'bun run db:generate' and commit the resulting drizzle/*.sql file."
+              exit 1
+            fi
+          fi
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2

@@ -157,7 +157,7 @@ export function ProductosScreen() {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <FormControl>
                   <Input
-                    placeholder="Buscar por nombre o codigo..."
+                    placeholder="Buscar por nombre, codigo o PLU..."
                     className="pl-9"
                     {...field}
                   />
