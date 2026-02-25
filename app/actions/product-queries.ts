@@ -6,9 +6,9 @@
 import {
   getFrequentProducts as queryFrequentProducts,
   getProducts as queryGetProducts,
-  getProductByPluCode as queryProductByPluCode,
   getPendingProducts as queryPendingProducts,
   getProductByBarcode as queryProductByBarcode,
+  getProductByPluCode as queryProductByPluCode,
   searchProducts as querySearchProducts,
 } from "@/lib/server/queries/products";
 

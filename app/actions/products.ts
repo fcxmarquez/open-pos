@@ -33,7 +33,11 @@ const nullablePluCode = z.preprocess((value) => {
 
   const trimmed = value.trim();
   return trimmed.length === 0 ? null : trimmed;
-}, z.string().regex(PLU_CODE_REGEX, "El codigo PLU debe tener 4 digitos").nullable().optional());
+}, z
+  .string()
+  .regex(PLU_CODE_REGEX, "El codigo PLU debe tener 4 digitos")
+  .nullable()
+  .optional());
 
 const createProductSchema = z.object({
   barcode: nullableTrimmedString,
@@ -63,7 +67,10 @@ function formatZodError(error: z.ZodError): string {
   return firstIssue?.message ?? "Datos de entrada invalidos";
 }
 
-function duplicateFieldError(field: ProductField): { error: string; field: ProductField } {
+function duplicateFieldError(field: ProductField): {
+  error: string;
+  field: ProductField;
+} {
   if (field === "pluCode") {
     return {
       error: "El codigo PLU ya esta registrado",
@@ -86,9 +93,8 @@ function getUniqueConstraint(error: unknown): string | null {
     return null;
   }
 
-  return typeof (error as { constraint?: unknown }).constraint === "string"
-    ? (error as { constraint: string }).constraint
-    : null;
+  const maybeConstraint = (error as { constraint?: unknown }).constraint;
+  return typeof maybeConstraint === "string" ? maybeConstraint : null;
 }
 
 async function barcodeExists(barcode: string, excludeId?: string): Promise<boolean> {

@@ -58,7 +58,11 @@ export async function getProducts(opts?: {
   if (opts?.search) {
     const term = buildContainsPattern(opts.search);
     conditions.push(
-      or(ilike(products.name, term), ilike(products.barcode, term), ilike(products.pluCode, term))!
+      or(
+        ilike(products.name, term),
+        ilike(products.barcode, term),
+        ilike(products.pluCode, term)
+      )!
     );
   }
 
@@ -126,7 +130,11 @@ export async function searchProducts(query: string) {
     .where(
       and(
         eq(products.isActive, true),
-        or(ilike(products.name, term), ilike(products.barcode, term), ilike(products.pluCode, term))
+        or(
+          ilike(products.name, term),
+          ilike(products.barcode, term),
+          ilike(products.pluCode, term)
+        )
       )
     )
     .orderBy(products.name);

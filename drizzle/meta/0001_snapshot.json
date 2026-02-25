@@ -130,16 +130,12 @@
         "products_barcode_unique": {
           "name": "products_barcode_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "barcode"
-          ]
+          "columns": ["barcode"]
         },
         "products_plu_code_unique": {
           "name": "products_plu_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "plu_code"
-          ]
+          "columns": ["plu_code"]
         }
       },
       "policies": {},
@@ -223,12 +219,8 @@
           "name": "sale_items_sale_id_sales_id_fk",
           "tableFrom": "sale_items",
           "tableTo": "sales",
-          "columnsFrom": [
-            "sale_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sale_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -236,12 +228,8 @@
           "name": "sale_items_product_id_products_id_fk",
           "tableFrom": "sale_items",
           "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -332,12 +320,8 @@
           "name": "sales_session_id_sales_sessions_id_fk",
           "tableFrom": "sales",
           "tableTo": "sales_sessions",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -443,9 +427,7 @@
         "sales_sessions_session_date_unique": {
           "name": "sales_sessions_session_date_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "session_date"
-          ]
+          "columns": ["session_date"]
         }
       },
       "policies": {},
