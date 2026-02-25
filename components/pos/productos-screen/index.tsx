@@ -75,7 +75,8 @@ export function ProductosScreen() {
     (count, product) => count + (selectedProductIds.has(product.id) ? 1 : 0),
     0
   );
-  const allSelectedOnPage = products.length > 0 && selectedOnPageCount === products.length;
+  const allSelectedOnPage =
+    products.length > 0 && selectedOnPageCount === products.length;
   const someSelectedOnPage = selectedOnPageCount > 0 && !allSelectedOnPage;
 
   useEffect(() => {

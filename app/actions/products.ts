@@ -73,9 +73,7 @@ const bulkProductUpdatesSchema = z
     price: z.coerce.number().positive("El precio debe ser mayor a 0").optional(),
     costPrice: z
       .union([
-        z.coerce.number().nonnegative(
-          "El precio de costo debe ser mayor o igual a 0"
-        ),
+        z.coerce.number().nonnegative("El precio de costo debe ser mayor o igual a 0"),
         z.null(),
       ])
       .optional(),
@@ -382,7 +380,10 @@ export async function bulkUpdateProducts(
   }
 
   try {
-    const updatedCount = await bulkUpdateProductsQuery(parsed.data.ids, parsed.data.updates);
+    const updatedCount = await bulkUpdateProductsQuery(
+      parsed.data.ids,
+      parsed.data.updates
+    );
 
     if (updatedCount === 0) {
       return {

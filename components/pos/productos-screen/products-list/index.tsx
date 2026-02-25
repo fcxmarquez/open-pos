@@ -68,7 +68,9 @@ export function ProductsList({
                         Sin nombre - requiere registro
                       </p>
                     ) : (
-                      <p className="text-sm font-medium text-foreground">{product.name}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {product.name}
+                      </p>
                     )}
                     <div className="mt-0.5 flex flex-col gap-0.5 font-mono text-xs text-muted-foreground">
                       {product.barcode ? (
@@ -130,7 +132,9 @@ export function ProductsList({
           <TableRow>
             <TableHead className="w-10">
               <Checkbox
-                checked={allSelectedOnPage ? true : someSelectedOnPage ? "indeterminate" : false}
+                checked={
+                  allSelectedOnPage ? true : someSelectedOnPage ? "indeterminate" : false
+                }
                 onCheckedChange={(checked) => onToggleSelectAllPage(checked === true)}
                 disabled={isPending}
                 aria-label="Seleccionar todos los productos de la pagina"

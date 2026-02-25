@@ -114,7 +114,9 @@ export function BulkEditDialog({
 }: BulkEditDialogProps) {
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<DialogStep>("edit");
-  const [pendingUpdates, setPendingUpdates] = useState<BulkProductUpdatesPayload | null>(null);
+  const [pendingUpdates, setPendingUpdates] = useState<BulkProductUpdatesPayload | null>(
+    null
+  );
   const [pendingFieldLabels, setPendingFieldLabels] = useState<string[]>([]);
   const form = useForm<BulkEditFormValues>({
     resolver: zodResolver(bulkEditFormSchema),
@@ -335,7 +337,12 @@ export function BulkEditDialog({
               >
                 Cancelar
               </Button>
-              <Button type="button" className="flex-1" onClick={handleConfirm} disabled={isPending}>
+              <Button
+                type="button"
+                className="flex-1"
+                onClick={handleConfirm}
+                disabled={isPending}
+              >
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
