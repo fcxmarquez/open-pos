@@ -15,6 +15,7 @@ import {
 import { db } from "@/db";
 import { products, saleItems } from "@/db/schema";
 import { PLU_CODE_REGEX, PRODUCTS_PAGE_SIZE } from "@/lib/constants/products";
+import type { Category } from "@/lib/store";
 
 function normalizePaginationValue(
   value: number | undefined,
@@ -219,7 +220,7 @@ export async function getPendingProducts() {
 export interface BulkProductUpdates {
   price?: number;
   costPrice?: number | null;
-  category?: string;
+  category?: Category;
 }
 
 export async function bulkUpdateProducts(ids: string[], updates: BulkProductUpdates) {

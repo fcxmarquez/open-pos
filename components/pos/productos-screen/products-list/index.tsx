@@ -1,3 +1,5 @@
+"use client";
+
 import { format } from "date-fns";
 import { es as esMX } from "date-fns/locale";
 import { AlertTriangle, Pencil, Trash2 } from "lucide-react";

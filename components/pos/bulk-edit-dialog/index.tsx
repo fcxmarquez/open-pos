@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -123,10 +123,7 @@ export function BulkEditDialog({
     defaultValues: bulkEditFormDefaults,
   });
   const watchedValues = form.watch();
-  const affectedFields = useMemo(
-    () => prepareBulkUpdate(watchedValues).fieldLabels,
-    [watchedValues]
-  );
+  const affectedFields = prepareBulkUpdate(watchedValues).fieldLabels;
 
   useEffect(() => {
     if (!open) {
@@ -335,7 +332,7 @@ export function BulkEditDialog({
                 onClick={() => setStep("edit")}
                 disabled={isPending}
               >
-                Cancelar
+                Volver
               </Button>
               <Button
                 type="button"
