@@ -379,10 +379,12 @@ export function ProductosScreen() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => {
+              disabled={isPending}
+              onClick={(e) => {
+                e.preventDefault();
                 if (productToDelete) {
                   startTransition(async () => {
                     const result = await deleteProductAction({
@@ -399,6 +401,7 @@ export function ProductosScreen() {
                 }
               }}
             >
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
