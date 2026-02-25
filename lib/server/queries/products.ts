@@ -57,7 +57,9 @@ export async function getProducts(opts?: {
 
   if (opts?.search) {
     const term = buildContainsPattern(opts.search);
-    conditions.push(or(ilike(products.name, term), ilike(products.barcode, term))!);
+    conditions.push(
+      or(ilike(products.name, term), ilike(products.barcode, term), ilike(products.pluCode, term))!
+    );
   }
 
   if (opts?.category) {
@@ -105,6 +107,16 @@ export async function getProductByBarcode(barcode: string) {
   return product ?? null;
 }
 
+export async function getProductByPluCode(pluCode: string) {
+  const [product] = await db
+    .select()
+    .from(products)
+    .where(and(eq(products.pluCode, pluCode), eq(products.isActive, true)))
+    .limit(1);
+
+  return product ?? null;
+}
+
 export async function searchProducts(query: string) {
   const term = buildContainsPattern(query);
 
@@ -114,7 +126,7 @@ export async function searchProducts(query: string) {
     .where(
       and(
         eq(products.isActive, true),
-        or(ilike(products.name, term), ilike(products.barcode, term))
+        or(ilike(products.name, term), ilike(products.barcode, term), ilike(products.pluCode, term))
       )
     )
     .orderBy(products.name);

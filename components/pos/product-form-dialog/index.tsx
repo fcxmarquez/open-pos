@@ -66,6 +66,7 @@ export function ProductFormDialog({
     if (product) {
       form.reset({
         barcode: product.barcode,
+        pluCode: product.pluCode ?? "",
         name: product.name,
         price: product.price.toString(),
         costPrice: product.costPrice?.toString() ?? "",
@@ -86,6 +87,7 @@ export function ProductFormDialog({
         const result = await updateProductAction({
           id: product.id,
           barcode: values.barcode || null,
+          pluCode: values.pluCode || null,
           name: values.name,
           price: priceNum,
           costPrice: costNum,
@@ -96,11 +98,16 @@ export function ProductFormDialog({
           onOpenChange(false);
           onSuccess?.();
         } else {
+          if (result.field) {
+            form.setError(result.field, { type: "server", message: result.error });
+            return;
+          }
           toast.error(result.error);
         }
       } else {
         const result = await createProductAction({
           barcode: values.barcode || null,
+          pluCode: values.pluCode || null,
           name: values.name,
           price: priceNum,
           costPrice: costNum ?? undefined,
@@ -111,6 +118,10 @@ export function ProductFormDialog({
           onOpenChange(false);
           onSuccess?.();
         } else {
+          if (result.field) {
+            form.setError(result.field, { type: "server", message: result.error });
+            return;
+          }
           toast.error(result.error);
         }
       }
@@ -152,6 +163,29 @@ export function ProductFormDialog({
                     <Input
                       id="pf-barcode"
                       placeholder="Opcional"
+                      className="mt-1 font-mono text-foreground"
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="pluCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Codigo PLU</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="pf-plu"
+                      type="text"
+                      placeholder="0001"
+                      inputMode="numeric"
+                      maxLength={4}
                       className="mt-1 font-mono text-foreground"
                       disabled={isPending}
                       {...field}

@@ -6,6 +6,7 @@
 import {
   getFrequentProducts as queryFrequentProducts,
   getProducts as queryGetProducts,
+  getProductByPluCode as queryProductByPluCode,
   getPendingProducts as queryPendingProducts,
   getProductByBarcode as queryProductByBarcode,
   searchProducts as querySearchProducts,
@@ -13,6 +14,10 @@ import {
 
 export async function getProductByBarcode(barcode: string) {
   return queryProductByBarcode(barcode);
+}
+
+export async function getProductByPluCode(pluCode: string) {
+  return queryProductByPluCode(pluCode);
 }
 
 export async function searchProducts(query: string) {

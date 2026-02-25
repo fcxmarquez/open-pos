@@ -49,6 +49,13 @@ const optionalNonNegativeNumberString = (message: string) =>
     );
 
 const optionalTrimmedString = z.string().trim();
+const optionalPluCodeString = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || /^\d{4}$/.test(value),
+    "Ingresa un codigo PLU valido de 4 digitos"
+  );
 
 export const ventasSearchFormSchema = z.object({
   searchValue: optionalTrimmedString,
@@ -70,6 +77,7 @@ export const productosFiltersFormDefaults: z.input<typeof productosFiltersFormSc
 
 export const productFormSchema = z.object({
   barcode: optionalTrimmedString,
+  pluCode: optionalPluCodeString,
   name: z.string().trim().min(1, "El nombre es requerido"),
   price: positiveNumberString("Ingresa un precio valido"),
   costPrice: optionalNonNegativeNumberString("Ingresa un precio de costo valido"),
@@ -78,6 +86,7 @@ export const productFormSchema = z.object({
 
 export const productFormDefaults: z.input<typeof productFormSchema> = {
   barcode: "",
+  pluCode: "",
   name: "",
   price: "",
   costPrice: "",

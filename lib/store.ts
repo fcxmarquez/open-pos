@@ -23,6 +23,7 @@ export type Category =
 export interface Product {
   id: string;
   barcode: string;
+  pluCode?: string;
   name: string;
   price: number;
   category: Category;
@@ -354,7 +355,7 @@ export const useStore = create<PosStore>()((set, get) => ({
   searchProducts: (query) => {
     const q = query.toLowerCase();
     return get().products.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.barcode.includes(q)
+      (p) => p.name.toLowerCase().includes(q) || p.barcode.includes(q) || p.pluCode?.includes(q)
     );
   },
 

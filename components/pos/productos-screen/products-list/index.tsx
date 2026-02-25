@@ -51,11 +51,14 @@ export function ProductsList({
                   ) : (
                     <p className="text-sm font-medium text-foreground">{product.name}</p>
                   )}
-                  {product.barcode && (
-                    <p className="mt-0.5 font-mono text-xs text-muted-foreground">
-                      {product.barcode}
-                    </p>
-                  )}
+                  <div className="mt-0.5 flex flex-col gap-0.5 font-mono text-xs text-muted-foreground">
+                    {product.barcode ? (
+                      <p>{product.barcode}</p>
+                    ) : (
+                      <p className="text-muted-foreground/70">Sin codigo</p>
+                    )}
+                    <p>PLU: {product.pluCode ?? "—"}</p>
+                  </div>
                   <div className="mt-1.5 flex flex-wrap items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
                       {product.category}
@@ -117,9 +120,16 @@ export function ProductsList({
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell className="font-mono text-sm">
-                {product.barcode || (
-                  <span className="text-muted-foreground">Sin codigo</span>
-                )}
+                <div className="flex flex-col gap-0.5">
+                  {product.barcode ? (
+                    <span>{product.barcode}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Sin codigo</span>
+                  )}
+                  <span className="text-xs text-muted-foreground">
+                    PLU: {product.pluCode ?? "—"}
+                  </span>
+                </div>
               </TableCell>
               <TableCell>
                 {product.name === "Sin nombre" ? (

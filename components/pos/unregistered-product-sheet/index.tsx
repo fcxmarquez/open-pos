@@ -90,6 +90,7 @@ export function UnregisteredProductSheet({
       const product: Product = {
         id: dbProduct.id,
         barcode: dbProduct.barcode ?? "",
+        pluCode: dbProduct.pluCode ?? undefined,
         name: dbProduct.name ?? productName,
         price: Number(dbProduct.price),
         category: (dbProduct.category as Category) ?? "General",

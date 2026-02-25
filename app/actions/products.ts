@@ -8,6 +8,11 @@ import { products } from "@/db/schema";
 import type { ActionResult } from "@/lib/types";
 
 type Product = typeof products.$inferSelect;
+type ProductField = "barcode" | "pluCode";
+type ProductActionResult<T = Product> =
+  | { success: true; data: T; error: null }
+  | { success: false; data: null; error: string; field?: ProductField };
+const PLU_CODE_REGEX = /^\d{4}$/;
 
 const nullableTrimmedString = z.preprocess((value) => {
   if (typeof value !== "string") return value;
@@ -23,8 +28,16 @@ const optionalTrimmedString = z.preprocess((value) => {
   return trimmed.length === 0 ? undefined : trimmed;
 }, z.string().min(1).optional());
 
+const nullablePluCode = z.preprocess((value) => {
+  if (typeof value !== "string") return value;
+
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? null : trimmed;
+}, z.string().regex(PLU_CODE_REGEX, "El codigo PLU debe tener 4 digitos").nullable().optional());
+
 const createProductSchema = z.object({
   barcode: nullableTrimmedString,
+  pluCode: nullablePluCode,
   name: nullableTrimmedString,
   price: z.coerce.number().positive("El precio debe ser mayor a 0"),
   costPrice: z.coerce.number().nonnegative().optional(),
@@ -34,6 +47,7 @@ const createProductSchema = z.object({
 const updateProductSchema = z.object({
   id: z.string().uuid("ID de producto invalido"),
   barcode: nullableTrimmedString,
+  pluCode: nullablePluCode,
   name: nullableTrimmedString,
   price: z.coerce.number().positive("El precio debe ser mayor a 0").optional(),
   costPrice: z.coerce.number().nonnegative().nullable().optional(),
@@ -49,13 +63,32 @@ function formatZodError(error: z.ZodError): string {
   return firstIssue?.message ?? "Datos de entrada invalidos";
 }
 
-function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: string }).code === "23505"
-  );
+function duplicateFieldError(field: ProductField): { error: string; field: ProductField } {
+  if (field === "pluCode") {
+    return {
+      error: "El codigo PLU ya esta registrado",
+      field,
+    };
+  }
+
+  return {
+    error: "El codigo de barras ya esta registrado",
+    field,
+  };
+}
+
+function getUniqueConstraint(error: unknown): string | null {
+  if (typeof error !== "object" || error === null) {
+    return null;
+  }
+
+  if (!("code" in error) || (error as { code?: string }).code !== "23505") {
+    return null;
+  }
+
+  return typeof (error as { constraint?: unknown }).constraint === "string"
+    ? (error as { constraint: string }).constraint
+    : null;
 }
 
 async function barcodeExists(barcode: string, excludeId?: string): Promise<boolean> {
@@ -72,13 +105,27 @@ async function barcodeExists(barcode: string, excludeId?: string): Promise<boole
   return existing.length > 0;
 }
 
+async function pluCodeExists(pluCode: string, excludeId?: string): Promise<boolean> {
+  const whereClause = excludeId
+    ? and(eq(products.pluCode, pluCode), ne(products.id, excludeId))
+    : eq(products.pluCode, pluCode);
+
+  const existing = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(whereClause)
+    .limit(1);
+
+  return existing.length > 0;
+}
+
 function revalidateProducts() {
   revalidatePath("/");
 }
 
 export async function createProduct(
   input: z.input<typeof createProductSchema>
-): Promise<ActionResult<Product>> {
+): Promise<ProductActionResult<Product>> {
   const parsed = createProductSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -87,10 +134,22 @@ export async function createProduct(
 
   try {
     if (parsed.data.barcode && (await barcodeExists(parsed.data.barcode))) {
+      const duplicate = duplicateFieldError("barcode");
       return {
         success: false,
         data: null,
-        error: "El codigo de barras ya esta registrado",
+        error: duplicate.error,
+        field: duplicate.field,
+      };
+    }
+
+    if (parsed.data.pluCode && (await pluCodeExists(parsed.data.pluCode))) {
+      const duplicate = duplicateFieldError("pluCode");
+      return {
+        success: false,
+        data: null,
+        error: duplicate.error,
+        field: duplicate.field,
       };
     }
 
@@ -98,6 +157,7 @@ export async function createProduct(
       .insert(products)
       .values({
         barcode: parsed.data.barcode ?? null,
+        pluCode: parsed.data.pluCode ?? null,
         name: parsed.data.name ?? null,
         price: parsed.data.price.toFixed(2),
         costPrice: parsed.data.costPrice?.toFixed(2) ?? null,
@@ -109,11 +169,24 @@ export async function createProduct(
 
     return { success: true, data: created, error: null };
   } catch (error) {
-    if (isUniqueViolation(error)) {
+    const uniqueConstraint = getUniqueConstraint(error);
+    if (uniqueConstraint === "products_plu_code_unique") {
+      const duplicate = duplicateFieldError("pluCode");
       return {
         success: false,
         data: null,
-        error: "El codigo de barras ya esta registrado",
+        error: duplicate.error,
+        field: duplicate.field,
+      };
+    }
+
+    if (uniqueConstraint === "products_barcode_unique") {
+      const duplicate = duplicateFieldError("barcode");
+      return {
+        success: false,
+        data: null,
+        error: duplicate.error,
+        field: duplicate.field,
       };
     }
 
@@ -128,7 +201,7 @@ export async function createProduct(
 
 export async function updateProduct(
   input: z.input<typeof updateProductSchema>
-): Promise<ActionResult<Product>> {
+): Promise<ProductActionResult<Product>> {
   const parsed = updateProductSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -141,6 +214,10 @@ export async function updateProduct(
 
   if (parsed.data.barcode !== undefined) {
     updateData.barcode = parsed.data.barcode;
+  }
+
+  if (parsed.data.pluCode !== undefined) {
+    updateData.pluCode = parsed.data.pluCode;
   }
 
   if (parsed.data.name !== undefined) {
@@ -173,10 +250,25 @@ export async function updateProduct(
       parsed.data.barcode &&
       (await barcodeExists(parsed.data.barcode, parsed.data.id))
     ) {
+      const duplicate = duplicateFieldError("barcode");
       return {
         success: false,
         data: null,
-        error: "El codigo de barras ya esta registrado",
+        error: duplicate.error,
+        field: duplicate.field,
+      };
+    }
+
+    if (
+      parsed.data.pluCode &&
+      (await pluCodeExists(parsed.data.pluCode, parsed.data.id))
+    ) {
+      const duplicate = duplicateFieldError("pluCode");
+      return {
+        success: false,
+        data: null,
+        error: duplicate.error,
+        field: duplicate.field,
       };
     }
 
@@ -198,11 +290,24 @@ export async function updateProduct(
 
     return { success: true, data: updated, error: null };
   } catch (error) {
-    if (isUniqueViolation(error)) {
+    const uniqueConstraint = getUniqueConstraint(error);
+    if (uniqueConstraint === "products_plu_code_unique") {
+      const duplicate = duplicateFieldError("pluCode");
       return {
         success: false,
         data: null,
-        error: "El codigo de barras ya esta registrado",
+        error: duplicate.error,
+        field: duplicate.field,
+      };
+    }
+
+    if (uniqueConstraint === "products_barcode_unique") {
+      const duplicate = duplicateFieldError("barcode");
+      return {
+        success: false,
+        data: null,
+        error: duplicate.error,
+        field: duplicate.field,
       };
     }
 
