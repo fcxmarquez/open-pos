@@ -13,6 +13,16 @@ import {
   type BulkProductUpdatesPayload,
 } from "@/components/pos/bulk-edit-dialog";
 import { ProductFormDialog } from "@/components/pos/product-form-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -44,6 +54,7 @@ export function ProductosScreen() {
   const [showForm, setShowForm] = useState(false);
   const [showBulkEditDialog, setShowBulkEditDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
   const { filtersForm, categoryFilter, normalizedSearch, page, setPage } =
@@ -157,17 +168,7 @@ export function ProductosScreen() {
   };
 
   const handleDelete = (product: Product) => {
-    if (window.confirm(`Eliminar "${product.name}"? Esta accion no se puede deshacer.`)) {
-      startTransition(async () => {
-        const result = await deleteProductAction({ id: product.id });
-        if (result.success) {
-          toast.success("Producto eliminado");
-          invalidateQueries();
-        } else {
-          toast.error(result.error);
-        }
-      });
-    }
+    setProductToDelete(product);
   };
 
   const handleEdit = (product: Product) => {
@@ -364,6 +365,48 @@ export function ProductosScreen() {
         selectedCount={selectedCount}
         onApply={handleBulkApply}
       />
+
+      <AlertDialog
+        open={!!productToDelete}
+        onOpenChange={(open) => !open && setProductToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Esto eliminará permanentemente el producto
+              &quot;{productToDelete?.name}&quot; de la base de datos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (productToDelete) {
+                  startTransition(async () => {
+                    const result = await deleteProductAction({
+                      id: productToDelete.id,
+                    });
+                    if (result.success) {
+                      toast.success("Producto eliminado");
+                      invalidateQueries();
+                    } else {
+                      toast.error(result.error);
+                    }
+                    setProductToDelete(null);
+                  });
+                }
+              }}
+            >
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
