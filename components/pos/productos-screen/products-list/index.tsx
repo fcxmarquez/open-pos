@@ -81,17 +81,21 @@ function sortProducts(products: Product[], sortState: SortState | null): Product
         );
         break;
       case "name":
-        comparison = leftProduct.name.localeCompare(rightProduct.name, "es", {
-          sensitivity: "base",
-        });
+        comparison = (leftProduct.name ?? "").localeCompare(
+          rightProduct.name ?? "",
+          "es",
+          { sensitivity: "base" }
+        );
         break;
       case "price":
         comparison = leftProduct.price - rightProduct.price;
         break;
       case "category":
-        comparison = leftProduct.category.localeCompare(rightProduct.category, "es", {
-          sensitivity: "base",
-        });
+        comparison = (leftProduct.category ?? "").localeCompare(
+          rightProduct.category ?? "",
+          "es",
+          { sensitivity: "base" }
+        );
         break;
       case "lastSoldAt":
         comparison =
@@ -132,7 +136,8 @@ export function ProductsList({
   const toggleSort = (column: SortColumn) => {
     setSortState((currentState) => {
       if (!currentState || currentState.column !== column) {
-        return { column, direction: "asc" };
+        // lastSoldAt defaults to desc (most recently sold first); others start asc
+        return { column, direction: column === "lastSoldAt" ? "desc" : "asc" };
       }
 
       if (currentState.direction === "asc") {
