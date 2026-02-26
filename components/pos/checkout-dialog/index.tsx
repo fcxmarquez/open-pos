@@ -113,9 +113,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">Cobrar</DialogTitle>
-          <DialogDescription>
-            Registra el pago del cliente
-          </DialogDescription>
+          <DialogDescription>Registra el pago del cliente</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
