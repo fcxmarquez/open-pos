@@ -32,7 +32,8 @@ export const salesSessions = pgTable(
   "sales_sessions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    sessionDate: date("session_date").unique().notNull(),
+    sessionDate: date("session_date").notNull(),
+    sessionNumber: integer("session_number").default(1).notNull(),
     systemTotal: decimal("system_total", { precision: 10, scale: 2 }).default("0"),
     countedTotal: decimal("counted_total", { precision: 10, scale: 2 }),
     difference: decimal("difference", { precision: 10, scale: 2 }),
