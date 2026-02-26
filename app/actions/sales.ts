@@ -1,10 +1,10 @@
 "use server";
 
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
-import { saleItems, sales, salesSessions } from "@/db/schema";
+import { products, saleItems, sales, salesSessions } from "@/db/schema";
 import type { ActionResult } from "@/lib/types";
 import { formatZodError } from "@/lib/types";
 import { getTodayDateString } from "@/lib/utils";
@@ -135,6 +135,17 @@ export async function completeSale(
           systemTotal: sql`COALESCE(${salesSessions.systemTotal}, 0) + ${total.toFixed(2)}::decimal`,
         })
         .where(eq(salesSessions.id, sessionId));
+
+      const soldProductIds = items
+        .map((item) => item.productId)
+        .filter((id): id is string => id !== null);
+
+      if (soldProductIds.length > 0) {
+        await tx
+          .update(products)
+          .set({ lastSoldAt: newSale.createdAt })
+          .where(inArray(products.id, soldProductIds));
+      }
 
       return newSale;
     });

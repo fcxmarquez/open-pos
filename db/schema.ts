@@ -25,6 +25,7 @@ export const products = pgTable(
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    lastSoldAt: timestamp("last_sold_at"),
   },
   (table) => [index("idx_products_name").on(table.name).where(sql`name IS NOT NULL`)]
 );

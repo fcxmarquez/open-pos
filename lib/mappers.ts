@@ -9,6 +9,7 @@ interface DbProduct {
   costPrice: string | null;
   category: string | null;
   createdAt: Date;
+  lastSoldAt: Date | null;
 }
 
 export function dbProductToStoreProduct(p: DbProduct): Product {
@@ -21,5 +22,6 @@ export function dbProductToStoreProduct(p: DbProduct): Product {
     costPrice: p.costPrice ? Number(p.costPrice) : undefined,
     category: (p.category as Product["category"]) ?? "General",
     createdAt: p.createdAt.toISOString(),
+    lastSoldAt: p.lastSoldAt?.toISOString(),
   };
 }
