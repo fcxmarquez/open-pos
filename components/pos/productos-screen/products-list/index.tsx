@@ -2,7 +2,15 @@
 
 import { format } from "date-fns";
 import { es as esMX } from "date-fns/locale";
-import { AlertTriangle, Pencil, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronsUpDown,
+  ChevronUp,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +44,65 @@ interface ProductsListProps {
   someSelectedOnPage: boolean;
 }
 
+type SortColumn = "code" | "name" | "price" | "category" | "lastSoldAt";
+type SortDirection = "asc" | "desc";
+
+interface SortState {
+  column: SortColumn;
+  direction: SortDirection;
+}
+
+function getCodeSortValue(product: Product): string {
+  return product.barcode || product.pluCode || "";
+}
+
+function getLastSoldAtSortValue(product: Product): number {
+  if (!product.lastSoldAt) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  return new Date(product.lastSoldAt).getTime();
+}
+
+function sortProducts(products: Product[], sortState: SortState | null): Product[] {
+  if (!sortState) {
+    return products;
+  }
+
+  return [...products].sort((leftProduct, rightProduct) => {
+    let comparison = 0;
+
+    switch (sortState.column) {
+      case "code":
+        comparison = getCodeSortValue(leftProduct).localeCompare(
+          getCodeSortValue(rightProduct),
+          "es",
+          { numeric: true, sensitivity: "base" }
+        );
+        break;
+      case "name":
+        comparison = leftProduct.name.localeCompare(rightProduct.name, "es", {
+          sensitivity: "base",
+        });
+        break;
+      case "price":
+        comparison = leftProduct.price - rightProduct.price;
+        break;
+      case "category":
+        comparison = leftProduct.category.localeCompare(rightProduct.category, "es", {
+          sensitivity: "base",
+        });
+        break;
+      case "lastSoldAt":
+        comparison =
+          getLastSoldAtSortValue(leftProduct) - getLastSoldAtSortValue(rightProduct);
+        break;
+    }
+
+    return sortState.direction === "asc" ? comparison : comparison * -1;
+  });
+}
+
 export function ProductsList({
   allSelectedOnPage,
   isMobile,
@@ -48,6 +115,47 @@ export function ProductsList({
   selectedProductIds,
   someSelectedOnPage,
 }: ProductsListProps) {
+  const [sortState, setSortState] = useState<SortState | null>({
+    column: "lastSoldAt",
+    direction: "desc",
+  });
+  const sortedProducts = useMemo(
+    () => sortProducts(products, sortState),
+    [products, sortState]
+  );
+
+  const toggleSort = (column: SortColumn) => {
+    setSortState((currentState) => {
+      if (!currentState || currentState.column !== column) {
+        return {
+          column,
+          direction: column === "lastSoldAt" ? "desc" : "asc",
+        };
+      }
+
+      if (currentState.direction === "asc") {
+        return {
+          column,
+          direction: "desc",
+        };
+      }
+
+      return null;
+    });
+  };
+
+  const getSortIcon = (column: SortColumn) => {
+    if (!sortState || sortState.column !== column) {
+      return <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />;
+    }
+
+    if (sortState.direction === "asc") {
+      return <ChevronUp className="h-4 w-4" />;
+    }
+
+    return <ChevronDown className="h-4 w-4" />;
+  };
+
   if (isMobile) {
     return (
       <div className="flex flex-col gap-3">
@@ -142,16 +250,66 @@ export function ProductsList({
                 aria-label="Seleccionar todos los productos de la pagina"
               />
             </TableHead>
-            <TableHead>Código</TableHead>
-            <TableHead>Nombre</TableHead>
-            <TableHead className="text-right">Precio de venta</TableHead>
-            <TableHead>Categoría</TableHead>
-            <TableHead>Última venta</TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 font-medium"
+                onClick={() => toggleSort("code")}
+              >
+                Código
+                {getSortIcon("code")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 font-medium"
+                onClick={() => toggleSort("name")}
+              >
+                Nombre
+                {getSortIcon("name")}
+              </Button>
+            </TableHead>
+            <TableHead className="text-right">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto w-full justify-end p-0 font-medium"
+                onClick={() => toggleSort("price")}
+              >
+                Precio de venta
+                {getSortIcon("price")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 font-medium"
+                onClick={() => toggleSort("category")}
+              >
+                Categoría
+                {getSortIcon("category")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 font-medium"
+                onClick={() => toggleSort("lastSoldAt")}
+              >
+                Última venta
+                {getSortIcon("lastSoldAt")}
+              </Button>
+            </TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product) => (
+          {sortedProducts.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
                 <Checkbox
