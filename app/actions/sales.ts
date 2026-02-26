@@ -73,6 +73,10 @@ async function getOrCreateOpenSession(tx: DbTransaction): Promise<string> {
     .orderBy(desc(salesSessions.openedAt))
     .limit(1);
 
+  if (!raced) {
+    throw new Error("Failed to create or retrieve open session");
+  }
+
   return raced.id;
 }
 
