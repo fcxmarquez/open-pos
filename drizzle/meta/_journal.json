@@ -36,6 +36,13 @@
       "when": 1772071518206,
       "tag": "0004_great_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1772135093974,
+      "tag": "0005_thick_shockwave",
+      "breakpoints": true
     }
   ]
 }
