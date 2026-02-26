@@ -114,9 +114,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
         <DialogHeader>
           <DialogTitle className="text-foreground">Cobrar</DialogTitle>
           <DialogDescription>
-            {total > 0
-              ? `Registra el pago de ${formatCurrency(total)} del cliente`
-              : "Registra el pago del cliente"}
+            Registra el pago del cliente
           </DialogDescription>
         </DialogHeader>
 
