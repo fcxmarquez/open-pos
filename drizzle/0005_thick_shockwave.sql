@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "last_sold_at" timestamp;
