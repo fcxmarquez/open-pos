@@ -6,10 +6,11 @@ This file provides guidance to AI agents when working with code in this reposito
 
 POS (Point of Sale) system for a stationery store ("Papelería Luna"). Built with Next.js App Router, TypeScript, and Zustand for state management.
 
-## Commands
+## Important Commands
 
 - **Dev server**: `bun run dev`
 - **Build**: `bun run build`
+- **Format**: `bun run format`
 - **Lint**: `bun run lint`
 - **Install deps**: `bun install --frozen-lockfile`
 
@@ -42,6 +43,13 @@ Components in `components/ui/` are shadcn/ui primitives (Radix UI + Tailwind CSS
 - Path alias: `@/*` maps to project root
 - Admin PIN is configured via `NEXT_PUBLIC_ADMIN_PIN` env variable (defaults to `"1234"`)
 
+#### Query Organization Conventions
+
+- Server-side database query modules live in `lib/server/queries/*` (not under `app/*`).
+- `app/actions/*` files are the server action boundary and can call `lib/server/queries/*`.
+- Global TanStack Query client/cache definitions live in `lib/query/`. Component-local queries live alongside the component as `query.ts` (e.g. `components/pos/sales-screen/query.ts`).
+- Keep UI components focused on rendering and interactions: extract query keys and query functions into the query files.
+
 ### Directory & File Naming Conventions
 
 - Each component lives in its own directory named with kebab-case: `component-name/index.tsx`.
@@ -49,13 +57,6 @@ Components in `components/ui/` are shadcn/ui primitives (Radix UI + Tailwind CSS
 - If a component has a TanStack Query used only by that component, place it inside the component directory as `query.ts`.
   - Example: `components/pos/sales-screen/query.ts`
 - Shared/global TanStack Query definitions (used by multiple components) live in `lib/query/`.
-
-### Query Organization Conventions
-
-- Server-side database query modules live in `lib/server/queries/*` (not under `app/*`).
-- `app/actions/*` files are the server action boundary and can call `lib/server/queries/*`.
-- Global TanStack Query client/cache definitions live in `lib/query/`. Component-local queries live alongside the component as `query.ts` (e.g. `components/pos/sales-screen/query.ts`).
-- Keep UI components focused on rendering and interactions: extract query keys and query functions into the query files.
 
 ### CI
 
@@ -75,9 +76,12 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
 ### Testing and Quality Checks
 
 - After each finished task, run:
+  - `bun run format`
   - `bun run lint`
   - `bunx tsc --noEmit`
   - `bun run build`
+
+- For testing the database. Very important to test over the development database. NEVER test over the production database.
 
 ### Automated Testing / Remote Agents
 
