@@ -113,7 +113,11 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">Cobrar</DialogTitle>
-          <DialogDescription>Registra el pago del cliente</DialogDescription>
+          <DialogDescription>
+            {total > 0
+              ? `Registra el pago de ${formatCurrency(total)} del cliente`
+              : "Registra el pago del cliente"}
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -152,7 +156,9 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
             />
 
             {payment && (
-              <div
+              <output
+                htmlFor="payment"
+                aria-live="polite"
                 className={`rounded-lg p-3 text-center text-lg font-semibold ${
                   change >= 0
                     ? "bg-accent/10 text-accent"
@@ -162,7 +168,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
                 {change >= 0
                   ? `Cambio: ${formatCurrency(change)}`
                   : `Falta: ${formatCurrency(Math.abs(change))}`}
-              </div>
+              </output>
             )}
 
             <Button
