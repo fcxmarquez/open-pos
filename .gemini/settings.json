@@ -1,8 +1,12 @@
 {
   "mcpServers": {
-    "neon": {
+    "Neon": {
       "type": "http",
       "url": "https://mcp.neon.tech/mcp"
+    },
+    "vercel": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://mcp.vercel.com"]
     }
   }
 }
