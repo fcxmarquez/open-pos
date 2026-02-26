@@ -124,20 +124,19 @@ export function ProductsList({
     [products, sortState]
   );
 
+  const getAriaSort = (column: SortColumn): "ascending" | "descending" | "none" => {
+    if (!sortState || sortState.column !== column) return "none";
+    return sortState.direction === "asc" ? "ascending" : "descending";
+  };
+
   const toggleSort = (column: SortColumn) => {
     setSortState((currentState) => {
       if (!currentState || currentState.column !== column) {
-        return {
-          column,
-          direction: column === "lastSoldAt" ? "desc" : "asc",
-        };
+        return { column, direction: "asc" };
       }
 
       if (currentState.direction === "asc") {
-        return {
-          column,
-          direction: "desc",
-        };
+        return { column, direction: "desc" };
       }
 
       return null;
@@ -250,7 +249,7 @@ export function ProductsList({
                 aria-label="Seleccionar todos los productos de la pagina"
               />
             </TableHead>
-            <TableHead>
+            <TableHead aria-sort={getAriaSort("code")}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -261,7 +260,7 @@ export function ProductsList({
                 {getSortIcon("code")}
               </Button>
             </TableHead>
-            <TableHead>
+            <TableHead aria-sort={getAriaSort("name")}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -272,7 +271,7 @@ export function ProductsList({
                 {getSortIcon("name")}
               </Button>
             </TableHead>
-            <TableHead className="text-right">
+            <TableHead className="text-right" aria-sort={getAriaSort("price")}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -283,7 +282,7 @@ export function ProductsList({
                 {getSortIcon("price")}
               </Button>
             </TableHead>
-            <TableHead>
+            <TableHead aria-sort={getAriaSort("category")}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -294,7 +293,7 @@ export function ProductsList({
                 {getSortIcon("category")}
               </Button>
             </TableHead>
-            <TableHead>
+            <TableHead aria-sort={getAriaSort("lastSoldAt")}>
               <Button
                 variant="ghost"
                 size="sm"
