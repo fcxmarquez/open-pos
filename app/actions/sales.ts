@@ -55,12 +55,25 @@ async function getOrCreateOpenSession(tx: DbTransaction): Promise<string> {
 
   const nextNumber = lastToday ? lastToday.sessionNumber + 1 : 1;
 
-  const [inserted] = await tx
+  const inserted = await tx
     .insert(salesSessions)
     .values({ sessionDate: today, sessionNumber: nextNumber, status: "open" })
+    .onConflictDoNothing()
     .returning({ id: salesSessions.id });
 
-  return inserted.id;
+  if (inserted.length > 0) {
+    return inserted[0].id;
+  }
+
+  // Another transaction won the race — read the session it created
+  const [raced] = await tx
+    .select({ id: salesSessions.id })
+    .from(salesSessions)
+    .where(eq(salesSessions.status, "open"))
+    .orderBy(desc(salesSessions.openedAt))
+    .limit(1);
+
+  return raced.id;
 }
 
 export async function completeSale(
