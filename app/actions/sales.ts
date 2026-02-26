@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
@@ -32,26 +32,35 @@ interface CompleteSaleResult {
 
 type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-async function getOrCreateTodaySession(tx: DbTransaction): Promise<string> {
-  const today = getTodayDateString();
-
-  const inserted = await tx
-    .insert(salesSessions)
-    .values({ sessionDate: today })
-    .onConflictDoNothing({ target: salesSessions.sessionDate })
-    .returning({ id: salesSessions.id });
-
-  if (inserted.length > 0) {
-    return inserted[0].id;
-  }
-
+async function getOrCreateOpenSession(tx: DbTransaction): Promise<string> {
   const [existing] = await tx
     .select({ id: salesSessions.id })
     .from(salesSessions)
-    .where(eq(salesSessions.sessionDate, today))
+    .where(eq(salesSessions.status, "open"))
+    .orderBy(desc(salesSessions.openedAt))
     .limit(1);
 
-  return existing.id;
+  if (existing) {
+    return existing.id;
+  }
+
+  const today = getTodayDateString();
+
+  const [lastToday] = await tx
+    .select({ sessionNumber: salesSessions.sessionNumber })
+    .from(salesSessions)
+    .where(eq(salesSessions.sessionDate, today))
+    .orderBy(desc(salesSessions.sessionNumber))
+    .limit(1);
+
+  const nextNumber = lastToday ? lastToday.sessionNumber + 1 : 1;
+
+  const [inserted] = await tx
+    .insert(salesSessions)
+    .values({ sessionDate: today, sessionNumber: nextNumber, status: "open" })
+    .returning({ id: salesSessions.id });
+
+  return inserted.id;
 }
 
 export async function completeSale(
@@ -79,7 +88,7 @@ export async function completeSale(
 
   try {
     const sale = await db.transaction(async (tx) => {
-      const sessionId = await getOrCreateTodaySession(tx);
+      const sessionId = await getOrCreateOpenSession(tx);
 
       const [newSale] = await tx
         .insert(sales)
