@@ -8,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -32,7 +33,8 @@ export const salesSessions = pgTable(
   "sales_sessions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    sessionDate: date("session_date").unique().notNull(),
+    sessionDate: date("session_date").notNull(),
+    sessionNumber: integer("session_number").default(1).notNull(),
     systemTotal: decimal("system_total", { precision: 10, scale: 2 }).default("0"),
     countedTotal: decimal("counted_total", { precision: 10, scale: 2 }),
     difference: decimal("difference", { precision: 10, scale: 2 }),
@@ -43,6 +45,13 @@ export const salesSessions = pgTable(
   (table) => [
     index("idx_sales_sessions_date").on(table.sessionDate),
     index("idx_sales_sessions_status").on(table.status),
+    uniqueIndex("idx_sales_sessions_one_open")
+      .on(table.status)
+      .where(sql`status = 'open'`),
+    uniqueIndex("idx_sales_sessions_date_number").on(
+      table.sessionDate,
+      table.sessionNumber
+    ),
   ]
 );
 

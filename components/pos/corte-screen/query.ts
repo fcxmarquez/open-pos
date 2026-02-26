@@ -1,25 +1,25 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
+  getOpenSession,
+  getOpenSessionSales,
   getSessionHistory,
-  getTodaySales,
-  getTodaySession,
 } from "@/app/actions/session-queries";
 
-export const todaySessionQueryKey = ["today-session"] as const;
-export const todaySalesQueryKey = ["today-sales"] as const;
+export const openSessionQueryKey = ["open-session"] as const;
+export const openSessionSalesQueryKey = ["open-session-sales"] as const;
 export const sessionHistoryQueryKey = ["session-history"] as const;
 
-export function todaySessionQueryOptions() {
+export function openSessionQueryOptions() {
   return queryOptions({
-    queryKey: todaySessionQueryKey,
-    queryFn: () => getTodaySession(),
+    queryKey: openSessionQueryKey,
+    queryFn: () => getOpenSession(),
   });
 }
 
-export function todaySalesQueryOptions() {
+export function openSessionSalesQueryOptions() {
   return queryOptions({
-    queryKey: todaySalesQueryKey,
-    queryFn: () => getTodaySales(),
+    queryKey: openSessionSalesQueryKey,
+    queryFn: () => getOpenSessionSales(),
   });
 }
 

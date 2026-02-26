@@ -1,19 +1,19 @@
 "use server";
 
-import { getTodaySales as queryTodaySales } from "@/lib/server/queries/sales";
+import { getOpenSessionSales as queryOpenSessionSales } from "@/lib/server/queries/sales";
 import {
+  getOpenSession as queryOpenSession,
   getSessionHistory as querySessionHistory,
-  getTodaySession as queryTodaySession,
 } from "@/lib/server/queries/sessions";
 
-export async function getTodaySession() {
-  return queryTodaySession();
+export async function getOpenSession() {
+  return queryOpenSession();
 }
 
 export async function getSessionHistory(limit?: number) {
   return querySessionHistory(limit);
 }
 
-export async function getTodaySales() {
-  return queryTodaySales();
+export async function getOpenSessionSales() {
+  return queryOpenSessionSales();
 }

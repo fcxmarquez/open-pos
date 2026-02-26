@@ -1,15 +1,13 @@
 import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { saleItems, sales, salesSessions } from "@/db/schema";
-import { getTodayDateString } from "@/lib/utils";
 
-export async function getTodaySales() {
-  const today = getTodayDateString();
-
+export async function getOpenSessionSales() {
   const [session] = await db
     .select({ id: salesSessions.id })
     .from(salesSessions)
-    .where(eq(salesSessions.sessionDate, today))
+    .where(eq(salesSessions.status, "open"))
+    .orderBy(desc(salesSessions.openedAt))
     .limit(1);
 
   if (!session) return [];

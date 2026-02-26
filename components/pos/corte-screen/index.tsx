@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  CircleDot,
   DollarSign,
   Info,
   Loader2,
@@ -50,14 +51,14 @@ import {
   corteFormDefaults,
   corteFormSchema,
 } from "@/lib/pos-form-schemas";
-import { formatCurrency, getTodayDateString } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import {
+  openSessionQueryKey,
+  openSessionQueryOptions,
+  openSessionSalesQueryKey,
+  openSessionSalesQueryOptions,
   sessionHistoryQueryKey,
   sessionHistoryQueryOptions,
-  todaySalesQueryKey,
-  todaySalesQueryOptions,
-  todaySessionQueryKey,
-  todaySessionQueryOptions,
 } from "./query";
 
 function formatTime(timestamp: Date): string {
@@ -91,6 +92,21 @@ function DiffBadge({ diff }: { diff: number }) {
   );
 }
 
+function StatusBadge({ status }: { status: string | null }) {
+  if (status === "open") {
+    return (
+      <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
+        Abierto
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="outline" className="text-muted-foreground border-muted-foreground/20">
+      Cerrado
+    </Badge>
+  );
+}
+
 export function CorteScreen() {
   const [showDetail, setShowDetail] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -102,20 +118,19 @@ export function CorteScreen() {
   const queryClient = useQueryClient();
 
   const { data: session, isLoading: isLoadingSession } = useQuery(
-    todaySessionQueryOptions()
+    openSessionQueryOptions()
   );
-  const { data: todaySales = [], isLoading: isLoadingSales } = useQuery(
-    todaySalesQueryOptions()
+  const { data: openSessionSales = [], isLoading: isLoadingSales } = useQuery(
+    openSessionSalesQueryOptions()
   );
   const { data: sessionHistory = [], isLoading: isLoadingHistory } = useQuery(
     sessionHistoryQueryOptions()
   );
 
   const isLoading = isLoadingSession || isLoadingSales;
-  const sessionIsClosed = session?.status === "closed";
 
   const systemTotal = Number(session?.systemTotal ?? 0);
-  const itemsSold = todaySales.reduce(
+  const itemsSold = openSessionSales.reduce(
     (sum, s) => sum + s.items.reduce((is, i) => is + i.quantity, 0),
     0
   );
@@ -124,25 +139,17 @@ export function CorteScreen() {
   const countedNum = parseFloat(countedCash) || 0;
   const difference = countedNum - systemTotal;
   const hasCount = countedCash !== "";
-
-  const todayDate = new Date().toLocaleDateString("es-MX", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const isValidCount = hasCount && countedNum >= 0;
 
   const handleCloseRegister = (values: CorteFormValues) => {
     if (!session) {
-      toast.error("No hay sesión activa para hoy");
+      toast.error("No hay sesión activa");
       return;
     }
 
     const countedTotal = Number.parseFloat(values.countedCash);
 
-    if (
-      window.confirm("Cerrar el corte de caja del dia? Esta accion no se puede deshacer.")
-    ) {
+    if (window.confirm("Cerrar el corte de caja? Esta accion no se puede deshacer.")) {
       startTransition(async () => {
         const result = await closeSession({
           sessionId: session.id,
@@ -152,8 +159,8 @@ export function CorteScreen() {
         if (result.success) {
           toast.success("Corte de caja registrado");
           form.reset(corteFormDefaults);
-          queryClient.invalidateQueries({ queryKey: todaySessionQueryKey });
-          queryClient.invalidateQueries({ queryKey: todaySalesQueryKey });
+          queryClient.invalidateQueries({ queryKey: openSessionQueryKey });
+          queryClient.invalidateQueries({ queryKey: openSessionSalesQueryKey });
           queryClient.invalidateQueries({ queryKey: sessionHistoryQueryKey });
         } else {
           toast.error(result.error);
@@ -162,11 +169,7 @@ export function CorteScreen() {
     }
   };
 
-  // History: closed sessions excluding today's (shown separately)
-  const todayStr = getTodayDateString();
-  const history = sessionHistory.filter(
-    (s) => s.status === "closed" && s.sessionDate !== todayStr
-  );
+  const history = sessionHistory;
 
   if (isLoading) {
     return (
@@ -179,10 +182,15 @@ export function CorteScreen() {
   return (
     <ScrollArea className="h-full">
       <div className="mx-auto max-w-4xl p-4 md:p-6">
-        {/* Today's date */}
-        <p className="mb-4 text-sm capitalize text-muted-foreground md:mb-6">
-          {todayDate}
-        </p>
+        {/* Active Session Info */}
+        <div className="mb-4 flex items-center justify-between md:mb-6">
+          <p className="text-sm capitalize text-muted-foreground">
+            {session
+              ? `Sesión actual: ${formatDateShort(session.sessionDate)} (Turno ${session.sessionNumber})`
+              : "No hay sesión activa"}
+          </p>
+          {session && <StatusBadge status={session.status} />}
+        </div>
 
         {/* Summary cards */}
         <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4 md:mb-6">
@@ -194,7 +202,9 @@ export function CorteScreen() {
               <Receipt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-foreground">{todaySales.length}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {openSessionSales.length}
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -229,16 +239,15 @@ export function CorteScreen() {
             <CardTitle className="text-foreground">Conteo de efectivo</CardTitle>
           </CardHeader>
           <CardContent>
-            {sessionIsClosed ? (
-              <div className="flex items-center gap-3 rounded-lg bg-accent/10 p-4">
-                <CheckCircle2 className="h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6" />
+            {!session ? (
+              <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-4">
+                <CircleDot className="h-5 w-5 shrink-0 text-muted-foreground sm:h-6 sm:w-6" />
                 <div>
-                  <span className="text-base font-semibold text-accent sm:text-lg">
-                    Corte ya registrado
+                  <span className="text-base font-medium text-muted-foreground sm:text-lg">
+                    No hay sesión activa
                   </span>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Contado: {formatCurrency(Number(session.countedTotal ?? 0))} &mdash;
-                    Diferencia: {formatCurrency(Number(session.difference ?? 0))}
+                    La próxima venta abrirá una nueva sesión automáticamente.
                   </p>
                 </div>
               </div>
@@ -272,7 +281,7 @@ export function CorteScreen() {
                     )}
                   />
 
-                  {hasCount && (
+                  {isValidCount && (
                     <div
                       className={`flex items-center gap-3 rounded-lg p-4 ${
                         difference === 0
@@ -310,7 +319,7 @@ export function CorteScreen() {
                   <Button
                     type="submit"
                     size="lg"
-                    disabled={!hasCount || !session || isPending}
+                    disabled={!isValidCount || !session || isPending}
                     className="w-full bg-primary text-primary-foreground text-base font-semibold"
                   >
                     {isPending ? (
@@ -329,99 +338,101 @@ export function CorteScreen() {
         </Card>
 
         {/* Today's sales detail */}
-        <Collapsible open={showDetail} onOpenChange={setShowDetail}>
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="outline"
-              className="mb-3 w-full justify-between bg-transparent"
-            >
-              <span>Detalle de ventas del dia ({todaySales.length})</span>
-              {showDetail ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <Card className="mb-4 md:mb-6">
-              <CardContent className="p-0">
-                {/* Mobile: stacked cards */}
-                <div className="divide-y md:hidden">
-                  {todaySales.length === 0 ? (
-                    <div className="py-6 text-center text-muted-foreground">
-                      No hay ventas registradas hoy
-                    </div>
-                  ) : (
-                    todaySales.map((sale) => (
-                      <div key={sale.id} className="px-4 py-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-foreground">
-                            {formatTime(sale.createdAt)}
-                          </span>
-                          <span className="font-semibold text-foreground">
-                            {formatCurrency(Number(sale.total))}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {sale.items
-                            .map((i) => `${i.productName} x${i.quantity}`)
-                            .join(", ")}
-                        </p>
+        {session && (
+          <Collapsible open={showDetail} onOpenChange={setShowDetail}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="mb-3 w-full justify-between bg-transparent"
+              >
+                <span>Detalle de ventas ({openSessionSales.length})</span>
+                {showDetail ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <Card className="mb-4 md:mb-6">
+                <CardContent className="p-0">
+                  {/* Mobile: stacked cards */}
+                  <div className="divide-y md:hidden">
+                    {openSessionSales.length === 0 ? (
+                      <div className="py-6 text-center text-muted-foreground">
+                        No hay ventas registradas
                       </div>
-                    ))
-                  )}
-                </div>
-                {/* Desktop: table */}
-                <div className="hidden md:block">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Hora</TableHead>
-                        <TableHead>Productos</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {todaySales.length === 0 ? (
-                        <TableRow>
-                          <TableCell
-                            colSpan={3}
-                            className="py-6 text-center text-muted-foreground"
-                          >
-                            No hay ventas registradas hoy
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        todaySales.map((sale) => (
-                          <TableRow key={sale.id}>
-                            <TableCell className="text-sm text-foreground">
+                    ) : (
+                      openSessionSales.map((sale) => (
+                        <div key={sale.id} className="px-4 py-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-foreground">
                               {formatTime(sale.createdAt)}
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {sale.items
-                                .map((i) => `${i.productName} x${i.quantity}`)
-                                .join(", ")}
-                            </TableCell>
-                            <TableCell className="text-right font-semibold text-foreground">
+                            </span>
+                            <span className="font-semibold text-foreground">
                               {formatCurrency(Number(sale.total))}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {sale.items
+                              .map((i) => `${i.productName} x${i.quantity}`)
+                              .join(", ")}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {/* Desktop: table */}
+                  <div className="hidden md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Hora</TableHead>
+                          <TableHead>Productos</TableHead>
+                          <TableHead className="text-right">Total</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {openSessionSales.length === 0 ? (
+                          <TableRow>
+                            <TableCell
+                              colSpan={3}
+                              className="py-6 text-center text-muted-foreground"
+                            >
+                              No hay ventas registradas
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </CollapsibleContent>
-        </Collapsible>
+                        ) : (
+                          openSessionSales.map((sale) => (
+                            <TableRow key={sale.id}>
+                              <TableCell className="text-sm text-foreground">
+                                {formatTime(sale.createdAt)}
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {sale.items
+                                  .map((i) => `${i.productName} x${i.quantity}`)
+                                  .join(", ")}
+                              </TableCell>
+                              <TableCell className="text-right font-semibold text-foreground">
+                                {formatCurrency(Number(sale.total))}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         {/* History */}
         {!isLoadingHistory && history.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-foreground">Historial de cortes</CardTitle>
+              <CardTitle className="text-foreground">Historial de sesiones</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {/* Mobile: stacked cards */}
@@ -430,19 +441,24 @@ export function CorteScreen() {
                   const diff = Number(rec.difference ?? 0);
                   return (
                     <div key={rec.id} className="px-4 py-3">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-foreground">
-                          {formatDateShort(rec.sessionDate)}
+                          {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
                         </span>
-                        <DiffBadge diff={diff} />
+                        <StatusBadge status={rec.status} />
                       </div>
-                      <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>
-                          Sistema: {formatCurrency(Number(rec.systemTotal ?? 0))}
-                        </span>
-                        <span>
-                          Contado: {formatCurrency(Number(rec.countedTotal ?? 0))}
-                        </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                          <span>
+                            Sistema: {formatCurrency(Number(rec.systemTotal ?? 0))}
+                          </span>
+                          {rec.status === "closed" && (
+                            <span>
+                              Contado: {formatCurrency(Number(rec.countedTotal ?? 0))}
+                            </span>
+                          )}
+                        </div>
+                        {rec.status === "closed" && <DiffBadge diff={diff} />}
                       </div>
                     </div>
                   );
@@ -454,6 +470,7 @@ export function CorteScreen() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Fecha</TableHead>
+                      <TableHead>Estado</TableHead>
                       <TableHead className="text-right">Total sistema</TableHead>
                       <TableHead className="text-right">Total contado</TableHead>
                       <TableHead className="text-right">Diferencia</TableHead>
@@ -465,16 +482,21 @@ export function CorteScreen() {
                       return (
                         <TableRow key={rec.id}>
                           <TableCell className="text-sm text-foreground">
-                            {formatDateShort(rec.sessionDate)}
+                            {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={rec.status} />
                           </TableCell>
                           <TableCell className="text-right text-sm text-foreground">
                             {formatCurrency(Number(rec.systemTotal ?? 0))}
                           </TableCell>
                           <TableCell className="text-right text-sm text-foreground">
-                            {formatCurrency(Number(rec.countedTotal ?? 0))}
+                            {rec.status === "closed"
+                              ? formatCurrency(Number(rec.countedTotal ?? 0))
+                              : "-"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <DiffBadge diff={diff} />
+                            {rec.status === "closed" ? <DiffBadge diff={diff} /> : "-"}
                           </TableCell>
                         </TableRow>
                       );

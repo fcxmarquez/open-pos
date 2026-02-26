@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "idx_sales_sessions_one_open" ON "sales_sessions" USING btree ("status") WHERE status = 'open';--> statement-breakpoint
+CREATE UNIQUE INDEX "idx_sales_sessions_date_number" ON "sales_sessions" USING btree ("session_date","session_number");
