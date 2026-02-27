@@ -39,6 +39,7 @@ import {
 import { useIsMobile } from "@/components/ui/use-mobile";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import type { Product } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import { ProductsList } from "./products-list";
 import { ProductsPagination } from "./products-pagination";
 import {
@@ -83,6 +84,7 @@ export function ProductosScreen() {
   const hasNextPage = productsPage?.hasNextPage ?? false;
   const pageSize = productsPage?.pageSize ?? PRODUCTS_PAGE_SIZE;
   const selectedCount = selectedProductIds.size;
+  const hasSelection = selectedCount > 0;
   const selectedOnPageCount = products.reduce(
     (count, product) => count + (selectedProductIds.has(product.id) ? 1 : 0),
     0
@@ -213,7 +215,7 @@ export function ProductosScreen() {
 
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <Button
           onClick={() => {
             setEditingProduct(null);
@@ -262,7 +264,7 @@ export function ProductosScreen() {
                 <FormItem className="flex-1 space-y-0 sm:w-[200px] sm:flex-none">
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger className="h-[50px] rounded-2xl border-[1.5px] border-foreground bg-white">
+                      <SelectTrigger className="sm:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-white">
                         <SelectValue placeholder="Categoria" />
                       </SelectTrigger>
                     </FormControl>
@@ -281,38 +283,61 @@ export function ProductosScreen() {
             {isMobile && products.length > 0 && (
               <Button
                 type="button"
-                variant="ghost"
-                size="sm"
-                className="shrink-0 text-xs text-muted-foreground hover:text-foreground"
+                variant="outline"
+                size="default"
+                className={
+                  allSelectedOnPage
+                    ? "shrink-0 rounded-2xl border-[1.5px] border-primary/20 bg-primary/[0.06] px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:border-primary/25 hover:bg-primary/[0.08] hover:text-foreground active:border-primary/30 active:bg-primary/[0.12] active:text-foreground"
+                    : "shrink-0 rounded-2xl border-[1.5px] border-foreground/15 bg-white px-4 text-sm font-medium text-foreground transition-colors duration-150 hover:border-foreground/20 hover:bg-muted/60 hover:text-foreground active:border-foreground/25 active:bg-muted active:text-foreground"
+                }
                 onClick={() => toggleSelectAllOnPage(!allSelectedOnPage)}
                 disabled={isPending}
               >
-                {allSelectedOnPage ? "Deseleccionar pagina" : "Seleccionar pagina"}
+                {allSelectedOnPage ? "Quitar seleccion" : "Seleccionar pagina"}
               </Button>
             )}
           </div>
         </Form>
       </div>
 
-      {selectedCount > 0 && (
-        <div className="mb-4 flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className={cn(
+          "overflow-hidden transition-[max-height,opacity,transform,margin] duration-200 ease-out",
+          hasSelection
+            ? "mb-4 max-h-40 translate-y-0 opacity-100"
+            : "pointer-events-none mb-0 max-h-0 -translate-y-2 opacity-0"
+        )}
+        aria-hidden={!hasSelection}
+      >
+        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
               {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
               {selectedCount === 1 ? "" : "s"}
             </p>
-            <p className="text-xs text-muted-foreground">Solo productos de esta pagina</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button type="button" size="sm" onClick={() => setShowBulkEditDialog(true)}>
+            <Button
+              type="button"
+              size="sm"
+              disabled={!hasSelection}
+              onClick={() => setShowBulkEditDialog(true)}
+            >
               Editar seleccionados
             </Button>
-            <Button type="button" size="sm" variant="ghost" onClick={clearSelection}>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={!hasSelection}
+              className="border-foreground/10 bg-white text-foreground hover:border-foreground/15 hover:bg-white hover:text-foreground active:border-foreground/20 active:bg-muted/70 active:text-foreground"
+              onClick={clearSelection}
+            >
               Limpiar seleccion
             </Button>
           </div>
         </div>
-      )}
+      </div>
 
       <ScrollArea className="flex-1">
         {products.length === 0 ? (
@@ -338,6 +363,7 @@ export function ProductosScreen() {
       <ProductsPagination
         hasNextPage={hasNextPage}
         hasPreviousPage={hasPreviousPage}
+        hideMobilePaginationRow={isMobile && hasSelection}
         isFetching={isFetching}
         onNext={() => setPage((currentPage) => currentPage + 1)}
         onPrevious={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
