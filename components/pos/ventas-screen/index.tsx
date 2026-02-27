@@ -448,7 +448,7 @@ export function VentasScreen() {
 
         {/* Frequent products grid */}
         <div className="flex-1 overflow-auto">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted-foreground">
             Productos frecuentes
           </h3>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
@@ -515,7 +515,7 @@ export function VentasScreen() {
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-foreground" />
-            <h3 className="text-base font-semibold text-foreground">Venta actual</h3>
+            <h3 className="text-base font-extrabold text-foreground">Venta actual</h3>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs">
@@ -540,7 +540,7 @@ export function VentasScreen() {
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-foreground" />
-            <h3 className="text-base font-semibold text-foreground">Venta actual</h3>
+            <h3 className="text-base font-extrabold text-foreground">Venta actual</h3>
           </div>
           <Badge variant="secondary" className="text-xs">
             {cartItemCount} {cartItemCount === 1 ? "articulo" : "articulos"}
