@@ -20,9 +20,17 @@ interface PinDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  title?: string;
+  description?: string;
 }
 
-export function PinDialog({ open, onOpenChange, onSuccess }: PinDialogProps) {
+export function PinDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+  title = "Acceso restringido",
+  description = "Ingresa el PIN de administrador para continuar",
+}: PinDialogProps) {
   const [digits, setDigits] = useState<string[]>(["", "", "", ""]);
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
@@ -110,10 +118,8 @@ export function PinDialog({ open, onOpenChange, onSuccess }: PinDialogProps) {
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Lock className="h-6 w-6 text-primary" />
           </div>
-          <DialogTitle className="text-foreground">Acceso restringido</DialogTitle>
-          <DialogDescription>
-            Ingresa el PIN de administrador para continuar
-          </DialogDescription>
+          <DialogTitle className="text-foreground">{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         <div
