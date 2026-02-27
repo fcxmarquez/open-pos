@@ -10,39 +10,39 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
+    --background: 220 14% 96%;
     --foreground: 220 20% 10%;
     --card: 0 0% 100%;
     --card-foreground: 220 20% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
-    --primary: 199 89% 38%;
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
     --secondary: 210 16% 93%;
     --secondary-foreground: 220 20% 10%;
     --muted: 210 14% 95%;
-    --muted-foreground: 220 10% 46%;
-    --accent: 160 84% 39%;
+    --muted-foreground: 240 5% 46%;
+    --accent: 0 0% 0%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 20% 89%;
-    --input: 214 20% 89%;
-    --ring: 199 89% 38%;
-    --chart-1: 199 89% 38%;
-    --chart-2: 160 84% 39%;
-    --chart-3: 43 96% 56%;
-    --chart-4: 0 72% 51%;
-    --chart-5: 262 52% 47%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 0 0% 0%;
+    --chart-1: 220 9% 46%;
+    --chart-2: 220 9% 60%;
+    --chart-3: 220 9% 72%;
+    --chart-4: 220 9% 32%;
+    --chart-5: 220 9% 20%;
     --radius: 0.5rem;
-    --sidebar-background: 220 20% 14%;
-    --sidebar-foreground: 210 16% 93%;
-    --sidebar-primary: 199 89% 48%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 18% 20%;
-    --sidebar-accent-foreground: 210 16% 93%;
-    --sidebar-border: 220 16% 22%;
-    --sidebar-ring: 199 89% 48%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 0 0% 0%;
   }
 }
 
@@ -65,13 +65,13 @@
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 hsl(199 89% 38% / 0.3);
+    box-shadow: 0 0 0 0 hsl(0 0% 0% / 0.3);
   }
   70% {
-    box-shadow: 0 0 0 6px hsl(199 89% 38% / 0);
+    box-shadow: 0 0 0 6px hsl(0 0% 0% / 0);
   }
   100% {
-    box-shadow: 0 0 0 0 hsl(199 89% 38% / 0);
+    box-shadow: 0 0 0 0 hsl(0 0% 0% / 0);
   }
 }
 
