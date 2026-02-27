@@ -1,6 +1,13 @@
 "use client";
 
-import { Calculator, LogOut, Package, ShoppingCart, Store } from "lucide-react";
+import {
+  Calculator,
+  CircleDot,
+  LogOut,
+  Package,
+  ShoppingCart,
+  Store,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
@@ -193,16 +200,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex items-center justify-between border-b bg-card px-4 py-3 md:px-6">
-          <div className="flex items-center gap-3">
-            <h2 className="text-base font-extrabold text-foreground md:text-lg">
-              {navItems.find((n) => n.id === activeScreen)?.label}
-            </h2>
+        <header className="flex h-14 items-center gap-3 px-3 md:px-3">
+          <h2 className="font-heading text-2xl font-extrabold text-[#09090B]">
+            {navItems.find((n) => n.id === activeScreen)?.label}
+          </h2>
+
+          <div className="flex-1" />
+
+          {/* Session badge */}
+          <div className="hidden items-center gap-1.5 rounded-[10px] border border-[#E4E4E7] bg-[#F4F4F5] px-3 h-8 sm:flex">
+            <CircleDot className="h-3.5 w-3.5 text-[#18181B]" />
+            <span className="font-body text-xs font-semibold text-[#18181B]">
+              Sesión abierta
+            </span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden text-sm capitalize text-muted-foreground sm:block">
-              {formatDate()}
-            </div>
+
+          {/* Date */}
+          <div className="hidden w-[190px] text-right font-body text-[11px] font-semibold text-black capitalize sm:block">
+            {formatDate()}
           </div>
         </header>
 
