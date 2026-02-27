@@ -223,8 +223,11 @@ export function VentasScreen() {
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
             <ShoppingBag className="mb-3 h-10 w-10 text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">
-              Escanea un producto para comenzar
+            <p className="text-xs font-semibold text-[#6B7280]">
+              Escanea o busca un producto para iniciar
+            </p>
+            <p className="mt-1 text-[11px] text-[#9CA3AF]">
+              Los artículos aparecerán aquí
             </p>
           </div>
         ) : (
@@ -330,28 +333,28 @@ export function VentasScreen() {
       </ScrollArea>
 
       {/* Cart footer */}
-      <div className="border-t bg-muted/30 px-5 py-4">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-base font-semibold text-foreground">Total</span>
-          <span className="text-2xl font-bold text-foreground">
+      <div className="px-5 py-4">
+        <div className="mb-3 flex items-center justify-between rounded-xl bg-[#F4F4F5] px-3 py-[10px]">
+          <span className="text-sm font-bold text-[#374151]">Total</span>
+          <span className="text-[34px] font-extrabold leading-none tracking-[-1px] text-[#09090B]">
             {formatCurrency(cartTotal)}
           </span>
         </div>
         <Button
           size="lg"
-          className="mb-2 w-full bg-accent text-accent-foreground text-base font-semibold hover:bg-accent/90"
+          className="mb-2 h-[52px] w-full rounded-2xl bg-black text-base font-extrabold text-white hover:bg-black/90"
           disabled={cart.length === 0}
           onClick={() => {
             setShowCheckout(true);
             setMobileCartOpen(false);
           }}
         >
-          Cobrar (F2)
+          Cobrar (F2) →
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          className="w-full text-muted-foreground hover:text-destructive"
+          className="w-full text-xs font-medium text-[#9CA3AF] hover:text-destructive"
           disabled={cart.length === 0}
           onClick={handleCancelSale}
         >
@@ -511,41 +514,45 @@ export function VentasScreen() {
         )}
       >
         {/* Cart header */}
-        <div className="flex items-center justify-between border-b px-5 py-3">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-foreground" />
-            <h3 className="text-base font-extrabold text-foreground">Venta actual</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {cartItemCount} {cartItemCount === 1 ? "articulo" : "articulos"}
-            </Badge>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setMobileCartOpen(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+        <div className="flex h-[60px] items-center border-b border-[#E5E7EB] px-[22px]">
+          <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-[#09090B]" />
+          <h3 className="ml-2 text-base font-extrabold text-[#09090B]">Venta actual</h3>
+          <div className="flex-1" />
+          <Badge
+            variant="outline"
+            className="rounded-xl border-black bg-[#FAF7F2] px-[10px] py-1 text-xs text-[#09090B] hover:bg-[#FAF7F2]"
+          >
+            {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
+          </Badge>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-2 h-8 w-8"
+            onClick={() => setMobileCartOpen(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
         {cartContent}
       </div>
 
       {/* Desktop cart sidebar - hidden on mobile */}
-      <div className="hidden w-[380px] flex-col bg-card lg:flex xl:w-[420px]">
-        {/* Cart header */}
-        <div className="flex items-center justify-between border-b px-5 py-3">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-foreground" />
-            <h3 className="text-base font-extrabold text-foreground">Venta actual</h3>
+      <div className="hidden py-3 lg:flex">
+        <div className="flex w-[380px] flex-col overflow-hidden rounded-[28px] border border-[#E5E7EB] bg-card">
+          {/* Cart header */}
+          <div className="flex h-[60px] items-center border-b border-[#E5E7EB] px-[22px]">
+            <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-[#09090B]" />
+            <h3 className="ml-2 text-base font-extrabold text-[#09090B]">Venta actual</h3>
+            <div className="flex-1" />
+            <Badge
+              variant="outline"
+              className="rounded-xl border-black bg-[#FAF7F2] px-[10px] py-1 text-xs text-[#09090B] hover:bg-[#FAF7F2]"
+            >
+              {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
+            </Badge>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            {cartItemCount} {cartItemCount === 1 ? "articulo" : "articulos"}
-          </Badge>
+          {cartContent}
         </div>
-        {cartContent}
       </div>
 
       {/* Unregistered product sheet */}
