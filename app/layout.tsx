@@ -52,9 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body
-        className={`${inter.variable} ${plusJakartaSans.variable} font-body antialiased`}
-      >
+      <body className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}>
         <IOSViewportFix />
         <QueryProvider>
           {children}
