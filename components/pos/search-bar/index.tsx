@@ -10,7 +10,7 @@ export function SearchBar({ children, animated, className }: SearchBarProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-2xl border-[1.5px] border-foreground bg-white px-4",
+        "flex items-center gap-2 rounded-2xl border-[1.5px] border bg-white px-4",
         animated && "animate-pulse-ring",
         className
       )}
