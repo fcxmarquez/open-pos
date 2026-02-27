@@ -24,38 +24,43 @@ export function ProductsPagination({
   totalPages,
   totalProducts,
 }: ProductsPaginationProps) {
+  const from = totalProducts === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = totalProducts === 0 ? 0 : Math.min(page * pageSize, totalProducts);
+
   return (
-    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>
-          Mostrando {totalProducts === 0 ? 0 : (page - 1) * pageSize + 1}
-          {" - "}
-          {totalProducts === 0 ? 0 : Math.min(page * pageSize, totalProducts)}
-          {" de "}
-          {totalProducts}
+    <div className="mt-3 flex flex-col gap-0">
+      {/* Badge bar */}
+      <div className="flex items-center gap-3">
+        <span className="rounded-[20px] bg-[#F4F4F5] px-3 py-1 text-xs font-semibold text-[#09090B]">
+          {totalProducts} productos
         </span>
-        {isFetching && <Loader2 className="h-4 w-4 animate-spin" />}
-      </div>
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPrevious}
-          disabled={!hasPreviousPage || isFetching}
-        >
-          Anterior
-        </Button>
-        <span className="min-w-28 text-center text-sm text-muted-foreground">
+        <span className="rounded-[20px] border border-[#E4E4E7] px-3 py-1 text-xs text-[#71717A]">
           Página {page} de {totalPages}
         </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNext}
-          disabled={!hasNextPage || isFetching}
-        >
-          Siguiente
-        </Button>
+        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      </div>
+
+      {/* Pagination row */}
+      <div className="flex items-center justify-between py-4">
+        <span className="text-[13px] text-[#71717A]">
+          Mostrando {from} a {to} de {totalProducts} resultados
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            className="rounded-lg border border-[#E4E4E7] bg-background px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted"
+            onClick={onPrevious}
+            disabled={!hasPreviousPage || isFetching}
+          >
+            Anterior
+          </Button>
+          <Button
+            className="rounded-lg border border-[#E4E4E7] bg-background px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted"
+            onClick={onNext}
+            disabled={!hasNextPage || isFetching}
+          >
+            Siguiente
+          </Button>
+        </div>
       </div>
     </div>
   );

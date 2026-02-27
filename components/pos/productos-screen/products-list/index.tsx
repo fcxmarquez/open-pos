@@ -24,7 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Product } from "@/lib/store";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return "Nunca";
@@ -106,6 +106,9 @@ function sortProducts(products: Product[], sortState: SortState | null): Product
     return sortState.direction === "asc" ? comparison : comparison * -1;
   });
 }
+
+const SORT_BTN_CLS =
+  "h-auto p-0 text-xs font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground";
 
 export function ProductsList({
   allSelectedOnPage,
@@ -195,7 +198,7 @@ export function ProductsList({
                       <p>PLU: {product.pluCode ?? "—"}</p>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge className="rounded-xl border-0 bg-[#E4E4E7] px-2 py-0.5 text-xs text-foreground">
                         {product.category}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
@@ -240,11 +243,11 @@ export function ProductsList({
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-10">
+          <TableRow className="bg-[#F9FAFB] hover:bg-[#F9FAFB]">
+            <TableHead className="h-12 w-10 px-5">
               <Checkbox
                 checked={
                   allSelectedOnPage ? true : someSelectedOnPage ? "indeterminate" : false
@@ -254,68 +257,76 @@ export function ProductsList({
                 aria-label="Seleccionar todos los productos de la pagina"
               />
             </TableHead>
-            <TableHead aria-sort={getAriaSort("code")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("code")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("code")}
               >
                 Código
                 {getSortIcon("code")}
               </Button>
             </TableHead>
-            <TableHead aria-sort={getAriaSort("name")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("name")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("name")}
               >
                 Nombre
                 {getSortIcon("name")}
               </Button>
             </TableHead>
-            <TableHead className="text-right" aria-sort={getAriaSort("price")}>
+            <TableHead className="h-12 px-5 text-right" aria-sort={getAriaSort("price")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto w-full justify-end p-0 font-medium"
+                className={cn(SORT_BTN_CLS, "w-full justify-end")}
                 onClick={() => toggleSort("price")}
               >
                 Precio de venta
                 {getSortIcon("price")}
               </Button>
             </TableHead>
-            <TableHead aria-sort={getAriaSort("category")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("category")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("category")}
               >
                 Categoría
                 {getSortIcon("category")}
               </Button>
             </TableHead>
-            <TableHead aria-sort={getAriaSort("lastSoldAt")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("lastSoldAt")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("lastSoldAt")}
               >
                 Última venta
                 {getSortIcon("lastSoldAt")}
               </Button>
             </TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
+            <TableHead className="h-12 px-5 text-right text-xs font-semibold text-muted-foreground">
+              Acciones
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedProducts.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>
+            <TableRow
+              key={product.id}
+              className={cn(
+                "h-16 border-b border-[#F3F4F6]",
+                selectedProductIds.has(product.id) && "bg-[#F4F4F5]"
+              )}
+            >
+              <TableCell className="px-5">
                 <Checkbox
                   checked={selectedProductIds.has(product.id)}
                   onCheckedChange={() => onToggleProductSelection(product.id)}
@@ -323,7 +334,7 @@ export function ProductsList({
                   aria-label={`Seleccionar ${product.name}`}
                 />
               </TableCell>
-              <TableCell className="font-mono text-sm">
+              <TableCell className="px-5 font-mono text-sm">
                 <div className="flex flex-col gap-0.5">
                   {product.barcode ? (
                     <span>{product.barcode}</span>
@@ -335,7 +346,7 @@ export function ProductsList({
                   </span>
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="px-5">
                 {product.name === "Sin nombre" ? (
                   <span className="text-amber-600">
                     <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
@@ -345,23 +356,23 @@ export function ProductsList({
                   <span className="font-medium text-foreground">{product.name}</span>
                 )}
               </TableCell>
-              <TableCell className="text-right font-semibold text-foreground">
+              <TableCell className="px-5 text-right font-semibold text-foreground">
                 {formatCurrency(product.price)}
               </TableCell>
-              <TableCell>
-                <Badge variant="secondary" className="text-xs">
+              <TableCell className="px-5">
+                <Badge className="rounded-xl border-0 bg-[#E4E4E7] px-2 py-0.5 text-xs text-foreground">
                   {product.category}
                 </Badge>
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
+              <TableCell className="px-5 text-sm text-muted-foreground">
                 {formatDate(product.lastSoldAt)}
               </TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-1">
+              <TableCell className="px-5 text-right">
+                <div className="flex items-center justify-end gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 text-foreground"
                     onClick={() => onEdit(product)}
                     disabled={isPending}
                   >
@@ -371,7 +382,7 @@ export function ProductsList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    className="h-8 w-8 text-[#EF4444] hover:bg-red-50 hover:text-[#EF4444]"
                     onClick={() => onDelete(product)}
                     disabled={isPending}
                   >

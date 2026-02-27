@@ -13,6 +13,7 @@ import {
   type BulkProductUpdatesPayload,
 } from "@/components/pos/bulk-edit-dialog";
 import { ProductFormDialog } from "@/components/pos/product-form-dialog";
+import { SearchBar } from "@/components/pos/search-bar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -213,33 +214,24 @@ export function ProductosScreen() {
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="text-sm">
-            {totalProducts} productos
-          </Badge>
-          <Badge variant="outline" className="text-sm">
-            Página {page} de {totalPages}
-          </Badge>
-          {pendingCount > 0 && (
-            <Badge
-              variant="outline"
-              className="border-amber-300 bg-amber-50 text-amber-700"
-            >
-              <AlertTriangle className="mr-1 h-3 w-3" />
-              {pendingCount} sin nombre
-            </Badge>
-          )}
-        </div>
         <Button
           onClick={() => {
             setEditingProduct(null);
             setShowForm(true);
           }}
-          className="bg-primary text-primary-foreground"
+          className="h-10 rounded-[10px] bg-foreground px-4 text-[13px] font-semibold text-background hover:bg-foreground/90"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Agregar producto
         </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {pendingCount > 0 && (
+            <Badge className="h-6 gap-1 rounded-[6px] border border-[#FDE68A] bg-[#FEF3C7] py-1 px-2.5 text-xs font-medium text-amber-700">
+              <AlertTriangle className="h-3 w-3 text-amber-700" />
+              {pendingCount} sin nombre
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -248,15 +240,17 @@ export function ProductosScreen() {
             control={filtersForm.control}
             name="searchQuery"
             render={({ field }) => (
-              <FormItem className="relative flex-1 space-y-0">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <FormControl>
-                  <Input
-                    placeholder="Buscar por nombre, codigo o PLU..."
-                    className="pl-9"
-                    {...field}
-                  />
-                </FormControl>
+              <FormItem className="flex-1 space-y-0">
+                <SearchBar className="h-[50px]">
+                  <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
+                  <FormControl>
+                    <Input
+                      placeholder="Buscar por nombre, codigo o PLU..."
+                      className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      {...field}
+                    />
+                  </FormControl>
+                </SearchBar>
               </FormItem>
             )}
           />
@@ -264,10 +258,10 @@ export function ProductosScreen() {
             control={filtersForm.control}
             name="categoryFilter"
             render={({ field }) => (
-              <FormItem className="w-full space-y-0 sm:w-48">
+              <FormItem className="w-full space-y-0 sm:w-[200px]">
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-[50px] rounded-2xl border-[1.5px] border-foreground bg-white">
                       <SelectValue placeholder="Categoria" />
                     </SelectTrigger>
                   </FormControl>
