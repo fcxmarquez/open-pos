@@ -375,25 +375,37 @@ export function VentasScreen() {
                 const { ref, ...fieldProps } = field;
 
                 return (
-                  <FormItem className="relative space-y-0">
-                    {isSubmitting ? (
-                      <Loader2 className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 animate-spin text-muted-foreground" />
-                    ) : (
-                      <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    )}
-                    <FormControl>
-                      <Input
-                        ref={(element) => {
-                          ref(element);
-                          inputRef.current = element;
-                        }}
-                        placeholder="Escanear codigo, PLU o buscar..."
-                        className="animate-pulse-ring h-12 pl-10 text-base"
-                        autoFocus
-                        disabled={isSubmitting}
-                        {...fieldProps}
-                      />
-                    </FormControl>
+                  <FormItem className="space-y-0">
+                    <div className="animate-pulse-ring flex h-12 items-center gap-2 rounded-2xl border-[1.5px] border-black bg-white px-4">
+                      {isSubmitting ? (
+                        <Loader2 className="h-[18px] w-[18px] shrink-0 animate-spin text-black" />
+                      ) : (
+                        <Search className="h-[18px] w-[18px] shrink-0 text-black" />
+                      )}
+                      <FormControl>
+                        <Input
+                          ref={(element) => {
+                            ref(element);
+                            inputRef.current = element;
+                          }}
+                          placeholder="Busca o escanea un producto..."
+                          className="h-full flex-1 border-0 bg-transparent p-0 text-sm font-medium shadow-none placeholder:font-medium placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                          autoFocus
+                          disabled={isSubmitting}
+                          {...fieldProps}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        onClick={() => setShowQuickSale(true)}
+                        className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-black px-3.5 text-white hover:bg-black/90"
+                      >
+                        <Zap className="h-3.5 w-3.5" />
+                        <span className="hidden text-xs font-semibold sm:inline">
+                          Venta rápida (F4)
+                        </span>
+                      </Button>
+                    </div>
                   </FormItem>
                 );
               }}
@@ -432,19 +444,6 @@ export function VentasScreen() {
             ))}
           </div>
         )}
-
-        {/* Quick sale button */}
-        <div className="mb-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowQuickSale(true)}
-            className="bg-transparent text-sm"
-          >
-            <Zap className="mr-1.5 h-4 w-4" />
-            Venta rapida (F4)
-          </Button>
-        </div>
 
         {/* Frequent products grid */}
         <div className="flex-1 overflow-auto">
