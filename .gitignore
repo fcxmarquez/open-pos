@@ -14,3 +14,4 @@ node_modules/
 .DS_Store
 ignore/
 .playwright-mcp/
+.codex/environments/

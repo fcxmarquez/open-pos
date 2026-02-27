@@ -143,7 +143,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <Store className="h-6 w-6 text-sidebar-primary" />
             <div>
-              <h1 className="text-sm font-bold text-sidebar-foreground">
+              <h1 className="text-sm font-extrabold text-sidebar-foreground">
                 Papeleria Luna
               </h1>
               <p className="text-xs text-sidebar-foreground/60">Punto de Venta</p>
@@ -212,7 +212,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Menu className="h-5 w-5" />
               <span className="sr-only">Abrir menu</span>
             </Button>
-            <h2 className="text-base font-semibold text-foreground md:text-lg">
+            <h2 className="text-base font-extrabold text-foreground md:text-lg">
               {navItems.find((n) => n.id === activeScreen)?.label}
             </h2>
           </div>
