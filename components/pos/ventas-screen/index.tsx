@@ -223,10 +223,10 @@ export function VentasScreen() {
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
             <ShoppingBag className="mb-3 h-10 w-10 text-muted-foreground/40" />
-            <p className="text-xs font-semibold text-[#6B7280]">
+            <p className="text-xs font-semibold text-muted-foreground">
               Escanea o busca un producto para iniciar
             </p>
-            <p className="mt-1 text-[11px] text-[#9CA3AF]">
+            <p className="mt-1 text-[11px] text-muted-foreground/70">
               Los artículos aparecerán aquí
             </p>
           </div>
@@ -334,15 +334,15 @@ export function VentasScreen() {
 
       {/* Cart footer */}
       <div className="px-5 py-4">
-        <div className="mb-3 flex items-center justify-between rounded-xl bg-[#F4F4F5] px-3 py-[10px]">
-          <span className="text-sm font-bold text-[#374151]">Total</span>
-          <span className="text-[34px] font-extrabold leading-none tracking-[-1px] text-[#09090B]">
+        <div className="mb-3 flex items-center justify-between rounded-xl bg-muted px-3 py-2.5">
+          <span className="text-sm font-bold text-foreground">Total</span>
+          <span className="text-[34px] font-extrabold leading-none tracking-[-1px] text-foreground">
             {formatCurrency(cartTotal)}
           </span>
         </div>
         <Button
           size="lg"
-          className="mb-2 h-[52px] w-full rounded-2xl bg-black text-base font-extrabold text-white hover:bg-black/90"
+          className="mb-2 h-[52px] w-full rounded-2xl bg-foreground text-base font-extrabold text-background hover:bg-foreground/90"
           disabled={cart.length === 0}
           onClick={() => {
             setShowCheckout(true);
@@ -354,7 +354,7 @@ export function VentasScreen() {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full text-xs font-medium text-[#9CA3AF] hover:text-destructive"
+          className="w-full rounded-2xl text-xs font-medium text-muted-foreground hover:bg-muted hover:text-destructive"
           disabled={cart.length === 0}
           onClick={handleCancelSale}
         >
@@ -367,7 +367,7 @@ export function VentasScreen() {
   return (
     <div className="flex h-full flex-col lg:flex-row">
       {/* Left column - Product entry */}
-      <div className="flex flex-1 flex-col overflow-hidden border-b p-4 lg:border-b-0 lg:border-r lg:p-5">
+      <div className="flex flex-1 flex-col overflow-hidden border-b p-4 lg:border-b-0 lg:p-5">
         {/* Barcode input */}
         <Form {...searchForm}>
           <form onSubmit={searchForm.handleSubmit(handleSubmit)} className="mb-4">
@@ -379,11 +379,11 @@ export function VentasScreen() {
 
                 return (
                   <FormItem className="space-y-0">
-                    <div className="animate-pulse-ring flex h-12 items-center gap-2 rounded-2xl border-[1.5px] border-black bg-white px-4">
+                    <div className="animate-pulse-ring flex h-12 items-center gap-2 rounded-2xl border-[1.5px] border-foreground bg-background px-4">
                       {isSubmitting ? (
-                        <Loader2 className="h-[18px] w-[18px] shrink-0 animate-spin text-black" />
+                        <Loader2 className="h-[18px] w-[18px] shrink-0 animate-spin text-foreground" />
                       ) : (
-                        <Search className="h-[18px] w-[18px] shrink-0 text-black" />
+                        <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
                       )}
                       <FormControl>
                         <Input
@@ -401,7 +401,7 @@ export function VentasScreen() {
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
-                        className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-black px-3.5 text-white hover:bg-black/90"
+                        className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-foreground px-3.5 text-background hover:bg-foreground/90"
                       >
                         <Zap className="h-3.5 w-3.5" />
                         <span className="hidden text-xs font-semibold sm:inline">
@@ -514,13 +514,13 @@ export function VentasScreen() {
         )}
       >
         {/* Cart header */}
-        <div className="flex h-[60px] items-center border-b border-[#E5E7EB] px-[22px]">
-          <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-[#09090B]" />
-          <h3 className="ml-2 text-base font-extrabold text-[#09090B]">Venta actual</h3>
+        <div className="flex h-[60px] items-center border-b px-[22px]">
+          <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-foreground" />
+          <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
           <div className="flex-1" />
           <Badge
             variant="outline"
-            className="rounded-xl border-black bg-[#FAF7F2] px-[10px] py-1 text-xs text-[#09090B] hover:bg-[#FAF7F2]"
+            className="rounded-xl border-foreground bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted"
           >
             {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
           </Badge>
@@ -538,15 +538,17 @@ export function VentasScreen() {
 
       {/* Desktop cart sidebar - hidden on mobile */}
       <div className="hidden py-3 lg:flex">
-        <div className="flex w-[380px] flex-col overflow-hidden rounded-[28px] border border-[#E5E7EB] bg-card">
+        <div className="flex w-[380px] flex-col overflow-hidden rounded-[28px] border bg-card">
           {/* Cart header */}
-          <div className="flex h-[60px] items-center border-b border-[#E5E7EB] px-[22px]">
-            <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-[#09090B]" />
-            <h3 className="ml-2 text-base font-extrabold text-[#09090B]">Venta actual</h3>
+          <div className="flex h-[60px] items-center border-b px-[22px]">
+            <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-foreground" />
+            <h3 className="ml-2 text-base font-extrabold text-foreground">
+              Venta actual
+            </h3>
             <div className="flex-1" />
             <Badge
               variant="outline"
-              className="rounded-xl border-black bg-[#FAF7F2] px-[10px] py-1 text-xs text-[#09090B] hover:bg-[#FAF7F2]"
+              className="rounded-xl border-foreground bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted"
             >
               {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
             </Badge>
