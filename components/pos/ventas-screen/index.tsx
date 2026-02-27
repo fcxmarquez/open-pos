@@ -38,6 +38,40 @@ import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query"
 
 const PLU_CODE_REGEX = /^\d{4}$/;
 
+function CartHeader({
+  cartItemCount,
+  onClose,
+}: {
+  cartItemCount: number;
+  onClose?: () => void;
+}) {
+  return (
+    <div className="flex h-[60px] items-center border-b px-[22px]">
+      <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-foreground" />
+      <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
+      <div className="flex-1" />
+      <Badge
+        variant="outline"
+        className="rounded-xl border-foreground bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted"
+      >
+        {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
+      </Badge>
+      {onClose && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-2 h-8 w-8"
+          onClick={onClose}
+          aria-label="Cerrar carrito"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+          <span className="sr-only">Cerrar carrito</span>
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export function VentasScreen() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [showUnregistered, setShowUnregistered] = useState(false);
@@ -514,46 +548,17 @@ export function VentasScreen() {
           mobileCartOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
-        {/* Cart header */}
-        <div className="flex h-[60px] items-center border-b px-[22px]">
-          <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-foreground" />
-          <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
-          <div className="flex-1" />
-          <Badge
-            variant="outline"
-            className="rounded-xl border-foreground bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted"
-          >
-            {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
-          </Badge>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-2 h-8 w-8"
-            onClick={() => setMobileCartOpen(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <CartHeader
+          cartItemCount={cartItemCount}
+          onClose={() => setMobileCartOpen(false)}
+        />
         {cartContent}
       </div>
 
       {/* Desktop cart sidebar - hidden on mobile */}
       <div className="hidden py-3 lg:flex">
         <div className="flex w-[380px] flex-col overflow-hidden rounded-[28px] border bg-card">
-          {/* Cart header */}
-          <div className="flex h-[60px] items-center border-b px-[22px]">
-            <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-foreground" />
-            <h3 className="ml-2 text-base font-extrabold text-foreground">
-              Venta actual
-            </h3>
-            <div className="flex-1" />
-            <Badge
-              variant="outline"
-              className="rounded-xl border-foreground bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted"
-            >
-              {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
-            </Badge>
-          </div>
+          <CartHeader cartItemCount={cartItemCount} />
           {cartContent}
         </div>
       </div>
