@@ -239,7 +239,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={requestLogout}
-              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors text-[#9CA3AF] hover:bg-[#F8FAFC] hover:text-[#6B7280]"
+              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors hover:bg-[#CBD5E1] text-[#9CA3AF] "
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
             >
