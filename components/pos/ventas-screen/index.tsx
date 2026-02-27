@@ -23,6 +23,7 @@ import {
 } from "@/app/actions/product-queries";
 import { CheckoutDialog } from "@/components/pos/checkout-dialog";
 import { QuickSaleDialog } from "@/components/pos/quick-sale-dialog";
+import { SearchBar } from "@/components/pos/search-bar";
 import { UnregisteredProductSheet } from "@/components/pos/unregistered-product-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -379,7 +380,7 @@ export function VentasScreen() {
 
                 return (
                   <FormItem className="space-y-0">
-                    <div className="animate-pulse-ring flex h-12 items-center gap-2 rounded-2xl border-[1.5px] border-foreground bg-background px-4">
+                    <SearchBar animated className="h-12">
                       {isSubmitting ? (
                         <Loader2 className="h-[18px] w-[18px] shrink-0 animate-spin text-foreground" />
                       ) : (
@@ -408,7 +409,7 @@ export function VentasScreen() {
                           Venta rápida (F4)
                         </span>
                       </Button>
-                    </div>
+                    </SearchBar>
                   </FormItem>
                 );
               }}
