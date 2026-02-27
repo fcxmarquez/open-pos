@@ -1,6 +1,13 @@
 "use client";
 
-import { Calculator, LogOut, Package, ShoppingCart, Store } from "lucide-react";
+import {
+  Calculator,
+  CircleDot,
+  LogOut,
+  Package,
+  ShoppingCart,
+  Store,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
@@ -138,13 +145,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
       {/* Sidebar */}
-      <aside className="hidden w-[72px] flex-col border-r border-[#E5E7EB] bg-white px-2 pb-[14px] pt-3 md:flex">
+      <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-[14px] pt-3 md:flex">
         <div className="flex flex-col items-center gap-3">
           <div className="flex h-10 w-full items-center justify-center">
-            <Store className="h-[22px] w-[22px] text-black" />
+            <Store className="h-[22px] w-[22px] text-sidebar-foreground" />
             <span className="sr-only">Papeleria Luna</span>
           </div>
-          <div className="h-px w-6 bg-[#F1F5F9]" />
+          <div className="h-px w-6 bg-border" />
         </div>
         <nav className="mt-3 flex flex-col items-center gap-3">
           {navItems.map((item) => {
@@ -158,10 +165,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 title={item.label}
                 aria-label={item.label}
                 className={cn(
-                  "flex h-10 w-[46px] items-center justify-center rounded-[12px] border text-[#9CA3AF] transition-colors",
+                  "flex h-10 w-[46px] items-center justify-center rounded-[12px] border text-muted-foreground transition-colors",
                   isActive
-                    ? "border-[#E4E4E7] bg-[#F4F4F5] text-black"
-                    : "border-transparent bg-transparent hover:bg-[#F8FAFC] hover:text-[#6B7280]"
+                    ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "border-transparent bg-transparent hover:bg-sidebar-accent hover:text-foreground"
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -181,7 +188,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               onClick={requestLogout}
               title="Cerrar sesión"
               aria-label="Cerrar sesión"
-              className="flex h-10 w-[46px] items-center justify-center rounded-[12px] border border-transparent text-[#9CA3AF] transition-colors hover:bg-[#F8FAFC] hover:text-[#6B7280]"
+              className="flex h-10 w-[46px] items-center justify-center rounded-[12px] border border-transparent text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
               <span className="sr-only">Cerrar sesión</span>
@@ -193,16 +200,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex items-center justify-between border-b bg-card px-4 py-3 md:px-6">
-          <div className="flex items-center gap-3">
-            <h2 className="text-base font-extrabold text-foreground md:text-lg">
-              {navItems.find((n) => n.id === activeScreen)?.label}
-            </h2>
+        <header className="flex h-14 items-center gap-3 px-3 md:px-3">
+          <h2 className="font-heading text-2xl font-extrabold text-foreground">
+            {navItems.find((n) => n.id === activeScreen)?.label}
+          </h2>
+
+          <div className="flex-1" />
+
+          {/* Session badge */}
+          <div className="hidden items-center gap-1.5 rounded-[10px] border border-border bg-muted px-3 h-8 sm:flex">
+            <CircleDot className="h-3.5 w-3.5 text-foreground" />
+            <span className="font-body text-xs font-semibold text-foreground">
+              Sesión abierta
+            </span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden text-sm capitalize text-muted-foreground sm:block">
-              {formatDate()}
-            </div>
+
+          {/* Date */}
+          <div className="hidden w-[190px] text-right font-body text-[11px] font-semibold text-foreground capitalize sm:block">
+            {formatDate()}
           </div>
         </header>
 
@@ -211,7 +226,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Mobile bottom navigation */}
-      <nav className="border-t border-[#E5E7EB] bg-white p-2 md:hidden">
+      <nav className="border-t border-border bg-card p-2 md:hidden">
         <div className="flex items-center gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -224,8 +239,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium transition-colors",
                   isActive
-                    ? "bg-[#F4F4F5] text-black"
-                    : "text-[#9CA3AF] hover:bg-[#F8FAFC] hover:text-[#6B7280]"
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
                 aria-label={item.label}
               >
@@ -239,7 +254,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={requestLogout}
-              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors text-[#9CA3AF] hover:bg-[#F8FAFC] hover:text-[#6B7280]"
+              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors hover:bg-secondary text-muted-foreground"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
             >
