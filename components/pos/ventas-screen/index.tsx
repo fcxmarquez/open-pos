@@ -376,7 +376,7 @@ export function VentasScreen() {
 
                 return (
                   <FormItem className="space-y-0">
-                    <div className="animate-pulse-ring flex h-[50px] items-center gap-2 rounded-2xl border-[1.5px] border-black bg-white px-4">
+                    <div className="animate-pulse-ring flex h-12 items-center gap-2 rounded-2xl border-[1.5px] border-black bg-white px-4">
                       {isSubmitting ? (
                         <Loader2 className="h-[18px] w-[18px] shrink-0 animate-spin text-black" />
                       ) : (
@@ -389,7 +389,7 @@ export function VentasScreen() {
                             inputRef.current = element;
                           }}
                           placeholder="Busca o escanea un producto..."
-                          className="h-full flex-1 border-0 bg-transparent p-0 text-sm font-medium shadow-none placeholder:font-medium placeholder:text-[#71717A] focus-visible:ring-0 focus-visible:ring-offset-0"
+                          className="h-full flex-1 border-0 bg-transparent p-0 text-sm font-medium shadow-none placeholder:font-medium placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                           autoFocus
                           disabled={isSubmitting}
                           {...fieldProps}
@@ -398,9 +398,9 @@ export function VentasScreen() {
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
-                        className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-black px-[14px] text-white hover:bg-black/90"
+                        className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-black px-3.5 text-white hover:bg-black/90"
                       >
-                        <Zap className="h-[14px] w-[14px]" />
+                        <Zap className="h-3.5 w-3.5" />
                         <span className="hidden text-xs font-semibold sm:inline">
                           Venta rápida (F4)
                         </span>
