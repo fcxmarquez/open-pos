@@ -18,6 +18,30 @@ const screenPaths: Record<Screen, string> = {
 
 const SESSION_KEY = "pos-admin-unlocked";
 
+const navItems = [
+  {
+    id: "ventas" as const,
+    label: "Ventas",
+    mobileLabel: "Ventas",
+    icon: ShoppingCart,
+    locked: false,
+  },
+  {
+    id: "productos" as const,
+    label: "Productos",
+    mobileLabel: "Productos",
+    icon: Package,
+    locked: true,
+  },
+  {
+    id: "corte" as const,
+    label: "Corte de Caja",
+    mobileLabel: "Corte",
+    icon: Calculator,
+    locked: true,
+  },
+];
+
 function formatDate(): string {
   return new Date().toLocaleDateString("es-MX", {
     weekday: "long",
@@ -65,30 +89,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       setPinDialogOpen(true);
     }
   }, [mounted, activeScreen, adminUnlocked]);
-
-  const navItems = [
-    {
-      id: "ventas" as const,
-      label: "Ventas",
-      mobileLabel: "Ventas",
-      icon: ShoppingCart,
-      locked: false,
-    },
-    {
-      id: "productos" as const,
-      label: "Productos",
-      mobileLabel: "Productos",
-      icon: Package,
-      locked: true,
-    },
-    {
-      id: "corte" as const,
-      label: "Corte de Caja",
-      mobileLabel: "Corte",
-      icon: Calculator,
-      locked: true,
-    },
-  ];
 
   const handleNavClick = (id: Screen) => {
     const item = navItems.find((n) => n.id === id);
@@ -239,7 +239,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={requestLogout}
-              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors hover:bg-[#CBD5E1] text-[#9CA3AF] "
+              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors text-[#9CA3AF] hover:bg-[#F8FAFC] hover:text-[#6B7280]"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
             >
