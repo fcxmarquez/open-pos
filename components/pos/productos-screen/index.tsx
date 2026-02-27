@@ -254,45 +254,45 @@ export function ProductosScreen() {
               </FormItem>
             )}
           />
-          <FormField
-            control={filtersForm.control}
-            name="categoryFilter"
-            render={({ field }) => (
-              <FormItem className="w-full space-y-0 sm:w-[200px]">
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger className="h-[50px] rounded-2xl border-[1.5px] border-foreground bg-white">
-                      <SelectValue placeholder="Categoria" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="all">Todas las categorias</SelectItem>
-                    {CATEGORY_OPTIONS.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
+          <div className="flex items-center gap-2">
+            <FormField
+              control={filtersForm.control}
+              name="categoryFilter"
+              render={({ field }) => (
+                <FormItem className="flex-1 space-y-0 sm:w-[200px] sm:flex-none">
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="h-[50px] rounded-2xl border-[1.5px] border-foreground bg-white">
+                        <SelectValue placeholder="Categoria" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="all">Todas las categorias</SelectItem>
+                      {CATEGORY_OPTIONS.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            {isMobile && products.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="shrink-0 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => toggleSelectAllOnPage(!allSelectedOnPage)}
+                disabled={isPending}
+              >
+                {allSelectedOnPage ? "Deseleccionar pagina" : "Seleccionar pagina"}
+              </Button>
             )}
-          />
+          </div>
         </Form>
       </div>
-
-      {isMobile && products.length > 0 && (
-        <div className="mb-3 flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => toggleSelectAllOnPage(!allSelectedOnPage)}
-            disabled={isPending}
-          >
-            {allSelectedOnPage ? "Deseleccionar pagina" : "Seleccionar pagina"}
-          </Button>
-        </div>
-      )}
 
       {selectedCount > 0 && (
         <div className="mb-4 flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
