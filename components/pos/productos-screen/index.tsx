@@ -13,6 +13,7 @@ import {
   type BulkProductUpdatesPayload,
 } from "@/components/pos/bulk-edit-dialog";
 import { ProductFormDialog } from "@/components/pos/product-form-dialog";
+import { SearchBar } from "@/components/pos/search-bar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,7 @@ import {
 import { useIsMobile } from "@/components/ui/use-mobile";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import type { Product } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import { ProductsList } from "./products-list";
 import { ProductsPagination } from "./products-pagination";
 import {
@@ -48,6 +50,11 @@ import {
   productsQueryOptions,
 } from "./query";
 import { useProductosRouteFilters } from "./use-productos-route-filters";
+
+const SELECT_PAGE_BTN_BASE_CLS =
+  "shrink-0 rounded-2xl border-[1.5px] px-4 text-sm font-medium text-foreground transition-colors duration-150";
+const SELECT_PAGE_BTN_SELECTED_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-primary/20 bg-primary/[0.06] hover:border-primary/25 hover:bg-primary/[0.08] hover:text-foreground active:border-primary/30 active:bg-primary/[0.12] active:text-foreground`;
+const SELECT_PAGE_BTN_DEFAULT_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-foreground/15 bg-white hover:border-foreground/20 hover:bg-muted/60 hover:text-foreground active:border-foreground/25 active:bg-muted active:text-foreground`;
 
 export function ProductosScreen() {
   const isMobile = useIsMobile();
@@ -82,6 +89,7 @@ export function ProductosScreen() {
   const hasNextPage = productsPage?.hasNextPage ?? false;
   const pageSize = productsPage?.pageSize ?? PRODUCTS_PAGE_SIZE;
   const selectedCount = selectedProductIds.size;
+  const hasSelection = selectedCount > 0;
   const selectedOnPageCount = products.reduce(
     (count, product) => count + (selectedProductIds.has(product.id) ? 1 : 0),
     0
@@ -212,34 +220,25 @@ export function ProductosScreen() {
 
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="text-sm">
-            {totalProducts} productos
-          </Badge>
-          <Badge variant="outline" className="text-sm">
-            Página {page} de {totalPages}
-          </Badge>
-          {pendingCount > 0 && (
-            <Badge
-              variant="outline"
-              className="border-amber-300 bg-amber-50 text-amber-700"
-            >
-              <AlertTriangle className="mr-1 h-3 w-3" />
-              {pendingCount} sin nombre
-            </Badge>
-          )}
-        </div>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <Button
           onClick={() => {
             setEditingProduct(null);
             setShowForm(true);
           }}
-          className="bg-primary text-primary-foreground"
+          className="h-10 rounded-[10px] bg-foreground px-4 text-[13px] font-semibold text-background hover:bg-foreground/90"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Agregar producto
         </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {pendingCount > 0 && (
+            <Badge className="h-6 gap-1 rounded-[6px] border border-[#FDE68A] bg-[#FEF3C7] py-1 px-2.5 text-xs font-medium text-amber-700">
+              <AlertTriangle className="h-3 w-3 text-amber-700" />
+              {pendingCount} sin nombre
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -248,77 +247,102 @@ export function ProductosScreen() {
             control={filtersForm.control}
             name="searchQuery"
             render={({ field }) => (
-              <FormItem className="relative flex-1 space-y-0">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <FormControl>
-                  <Input
-                    placeholder="Buscar por nombre, codigo o PLU..."
-                    className="pl-9"
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={filtersForm.control}
-            name="categoryFilter"
-            render={({ field }) => (
-              <FormItem className="w-full space-y-0 sm:w-48">
-                <Select value={field.value} onValueChange={field.onChange}>
+              <FormItem className="flex-1 space-y-0">
+                <SearchBar className="h-[50px]">
+                  <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Categoria" />
-                    </SelectTrigger>
+                    <Input
+                      placeholder="Buscar por nombre, codigo o PLU..."
+                      className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      {...field}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="all">Todas las categorias</SelectItem>
-                    {CATEGORY_OPTIONS.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                </SearchBar>
               </FormItem>
             )}
           />
+          <div className="flex items-center gap-2">
+            <FormField
+              control={filtersForm.control}
+              name="categoryFilter"
+              render={({ field }) => (
+                <FormItem className="flex-1 space-y-0 sm:w-[200px] sm:flex-none">
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="sm:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-white">
+                        <SelectValue placeholder="Categoria" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="all">Todas las categorias</SelectItem>
+                      {CATEGORY_OPTIONS.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            {isMobile && products.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="default"
+                className={
+                  allSelectedOnPage
+                    ? SELECT_PAGE_BTN_SELECTED_CLS
+                    : SELECT_PAGE_BTN_DEFAULT_CLS
+                }
+                onClick={() => toggleSelectAllOnPage(!allSelectedOnPage)}
+                disabled={isPending}
+              >
+                {allSelectedOnPage ? "Quitar seleccion" : "Seleccionar pagina"}
+              </Button>
+            )}
+          </div>
         </Form>
       </div>
 
-      {isMobile && products.length > 0 && (
-        <div className="mb-3 flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => toggleSelectAllOnPage(!allSelectedOnPage)}
-            disabled={isPending}
-          >
-            {allSelectedOnPage ? "Deseleccionar pagina" : "Seleccionar pagina"}
-          </Button>
-        </div>
-      )}
-
-      {selectedCount > 0 && (
-        <div className="mb-4 flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className={cn(
+          "overflow-hidden transition-[max-height,opacity,transform,margin] duration-200 ease-out",
+          hasSelection
+            ? "mb-4 max-h-40 translate-y-0 opacity-100"
+            : "pointer-events-none mb-0 max-h-0 -translate-y-2 opacity-0"
+        )}
+        aria-hidden={!hasSelection}
+      >
+        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
               {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
               {selectedCount === 1 ? "" : "s"}
             </p>
-            <p className="text-xs text-muted-foreground">Solo productos de esta pagina</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button type="button" size="sm" onClick={() => setShowBulkEditDialog(true)}>
+            <Button
+              type="button"
+              size="sm"
+              disabled={!hasSelection}
+              onClick={() => setShowBulkEditDialog(true)}
+            >
               Editar seleccionados
             </Button>
-            <Button type="button" size="sm" variant="ghost" onClick={clearSelection}>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={!hasSelection}
+              className="border-foreground/10 bg-white text-foreground hover:border-foreground/15 hover:bg-white hover:text-foreground active:border-foreground/20 active:bg-muted/70 active:text-foreground"
+              onClick={clearSelection}
+            >
               Limpiar seleccion
             </Button>
           </div>
         </div>
-      )}
+      </div>
 
       <ScrollArea className="flex-1">
         {products.length === 0 ? (
@@ -344,6 +368,7 @@ export function ProductosScreen() {
       <ProductsPagination
         hasNextPage={hasNextPage}
         hasPreviousPage={hasPreviousPage}
+        hideMobilePaginationRow={isMobile && hasSelection}
         isFetching={isFetching}
         onNext={() => setPage((currentPage) => currentPage + 1)}
         onPrevious={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
