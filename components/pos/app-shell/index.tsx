@@ -145,10 +145,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
       {/* Sidebar */}
-      <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-[14px] pt-3 md:flex">
+      <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-3.5 pt-3 md:flex">
         <div className="flex flex-col items-center gap-3">
           <div className="flex h-10 w-full items-center justify-center">
-            <Store className="h-[22px] w-[22px] text-sidebar-foreground" />
+            <Store className="h-5 w-5 text-sidebar-foreground" />
             <span className="sr-only">Papeleria Luna</span>
           </div>
           <div className="h-px w-6 bg-border" />

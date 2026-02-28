@@ -37,8 +37,8 @@ function CartHeader({
   onClose?: () => void;
 }) {
   return (
-    <div className="flex h-[60px] items-center border-b px-[22px]">
-      <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-foreground" />
+    <div className="flex h-14 items-center border-b px-5">
+      <ShoppingBag className="h-5 w-5 shrink-0 text-foreground" />
       <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
       <div className="flex-1" />
       <Badge
@@ -368,7 +368,7 @@ export function VentasScreen() {
         </div>
         <Button
           size="lg"
-          className="mb-2 h-[52px] w-full rounded-2xl bg-foreground text-base font-extrabold text-background hover:bg-foreground/90"
+          className="mb-2 h-12 w-full rounded-2xl bg-foreground text-base font-extrabold text-background hover:bg-foreground/90"
           disabled={cart.length === 0}
           onClick={() => {
             setShowCheckout(true);
@@ -407,9 +407,9 @@ export function VentasScreen() {
                   <FormItem className="space-y-0">
                     <SearchBar animated className="h-12">
                       {isSubmitting ? (
-                        <Spinner className="h-[18px] w-[18px] shrink-0 text-foreground" />
+                        <Spinner className="h-5 w-5 shrink-0 text-foreground" />
                       ) : (
-                        <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
+                        <Search className="h-5 w-5 shrink-0 text-foreground" />
                       )}
                       <FormControl>
                         <Input
@@ -427,7 +427,7 @@ export function VentasScreen() {
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
-                        className="h-[34px] shrink-0 gap-1.5 rounded-xl bg-foreground px-3.5 text-background hover:bg-foreground/90"
+                        className="h-8 shrink-0 gap-1.5 rounded-xl bg-foreground px-3.5 text-background hover:bg-foreground/90"
                       >
                         <Zap className="h-3.5 w-3.5" />
                         <span className="hidden text-xs font-semibold md:inline">

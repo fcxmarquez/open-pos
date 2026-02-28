@@ -229,7 +229,7 @@ export function CorteScreen() {
           />
         </div>
 
-        <div className={cn(surfaceCardClass, "p-[14px]")}>
+        <div className={cn(surfaceCardClass, "p-3.5")}>
           {!session ? (
             <div className="rounded-2xl bg-muted/50 px-4 py-5">
               <div className="flex items-start gap-3">
@@ -248,7 +248,7 @@ export function CorteScreen() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleCloseRegister)}
-                className="flex flex-col gap-[10px]"
+                className="flex flex-col gap-2.5"
               >
                 <h3 className="font-heading text-lg font-bold text-foreground">
                   Conteo de efectivo
@@ -271,7 +271,7 @@ export function CorteScreen() {
                             step="0.01"
                             min="0"
                             placeholder="Ingresa la cantidad contada en caja"
-                            className="h-[46px] rounded-xl border-[1.5px] border-foreground bg-card pl-[42px] pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-12 rounded-xl border-[1.5px] border-foreground bg-card pl-10 pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
                         </div>
@@ -318,7 +318,7 @@ export function CorteScreen() {
                 <Button
                   type="submit"
                   disabled={!isValidCount || !session || isPending}
-                  className="h-[42px] w-full rounded-xl bg-foreground text-sm font-bold text-background hover:bg-foreground/90"
+                  className="h-10 w-full rounded-xl bg-foreground text-sm font-bold text-background hover:bg-foreground/90"
                 >
                   {isPending ? (
                     <>
@@ -339,7 +339,7 @@ export function CorteScreen() {
             <CollapsibleTrigger asChild>
               <Button
                 variant="outline"
-                className="h-[38px] w-full justify-between rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted/40 hover:text-foreground"
+                className="h-10 w-full justify-between rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted/40 hover:text-foreground"
               >
                 <span>Detalle de ventas ({openSessionSales.length})</span>
                 {showDetail ? (
@@ -383,7 +383,7 @@ export function CorteScreen() {
                 <div className="hidden md:block">
                   <Table>
                     <TableHeader>
-                      <TableRow className="h-[42px] border-b border-border bg-muted/40 hover:bg-muted/40">
+                      <TableRow className="h-10 border-b border-border bg-muted/40 hover:bg-muted/40">
                         <TableHead className={cn(tableHeadClass, "w-[120px] px-4")}>
                           Hora
                         </TableHead>
@@ -399,7 +399,7 @@ export function CorteScreen() {
                     </TableHeader>
                     <TableBody>
                       {openSessionSales.length === 0 ? (
-                        <TableRow className="h-[46px] hover:bg-card">
+                        <TableRow className="h-12 hover:bg-card">
                           <TableCell
                             colSpan={3}
                             className="px-4 py-6 text-center text-sm text-muted-foreground"
@@ -411,7 +411,7 @@ export function CorteScreen() {
                         openSessionSales.map((sale) => (
                           <TableRow
                             key={sale.id}
-                            className="h-[46px] border-b border-border/60 hover:bg-card"
+                            className="h-12 border-b border-border/60 hover:bg-card"
                           >
                             <TableCell className="w-[120px] px-4 py-3 text-sm font-medium text-foreground">
                               {formatTime(sale.createdAt)}
@@ -436,7 +436,7 @@ export function CorteScreen() {
         )}
 
         <div className={surfaceCardClass}>
-          <div className="flex h-14 items-center border-b border-border px-[18px]">
+          <div className="flex h-14 items-center border-b border-border px-5">
             <h3 className="font-heading text-lg font-bold text-foreground">
               Historial de sesiones
             </h3>
@@ -487,25 +487,25 @@ export function CorteScreen() {
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
-                    <TableRow className="h-[42px] border-b border-border bg-muted/40 hover:bg-muted/40">
-                      <TableHead className={cn(tableHeadClass, "w-[180px] px-[18px]")}>
+                    <TableRow className="h-10 border-b border-border bg-muted/40 hover:bg-muted/40">
+                      <TableHead className={cn(tableHeadClass, "w-[180px] px-5")}>
                         Fecha
                       </TableHead>
-                      <TableHead className={cn(tableHeadClass, "w-[130px] px-[18px]")}>
+                      <TableHead className={cn(tableHeadClass, "w-[130px] px-5")}>
                         Estado
                       </TableHead>
                       <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
                       >
                         Sistema
                       </TableHead>
                       <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
                       >
                         Contado
                       </TableHead>
                       <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
                       >
                         Diferencia
                       </TableHead>
@@ -519,21 +519,21 @@ export function CorteScreen() {
                           key={rec.id}
                           className="h-12 border-b border-border/60 hover:bg-card"
                         >
-                          <TableCell className="w-[180px] px-[18px] py-3 text-sm font-medium text-foreground">
+                          <TableCell className="w-[180px] px-5 py-3 text-sm font-medium text-foreground">
                             {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
                           </TableCell>
-                          <TableCell className="w-[130px] px-[18px] py-3">
+                          <TableCell className="w-[130px] px-5 py-3">
                             <StatusBadge status={rec.status} />
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-sm font-medium text-foreground">
+                          <TableCell className="w-[120px] px-5 py-3 text-right text-sm font-medium text-foreground">
                             {formatCurrency(Number(rec.systemTotal ?? 0))}
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-sm font-medium text-muted-foreground">
+                          <TableCell className="w-[120px] px-5 py-3 text-right text-sm font-medium text-muted-foreground">
                             {rec.status === "closed"
                               ? formatCurrency(Number(rec.countedTotal ?? 0))
                               : "-"}
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right">
+                          <TableCell className="w-[120px] px-5 py-3 text-right">
                             {rec.status === "closed" ? <DiffBadge diff={diff} /> : "-"}
                           </TableCell>
                         </TableRow>

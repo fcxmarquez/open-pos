@@ -249,8 +249,8 @@ export function ProductosScreen() {
             name="searchQuery"
             render={({ field }) => (
               <FormItem className="flex-1 space-y-0">
-                <SearchBar className="h-[50px]">
-                  <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
+                <SearchBar className="h-12">
+                  <Search className="h-5 w-5 shrink-0 text-foreground" />
                   <FormControl>
                     <Input
                       placeholder="Buscar por nombre, codigo o PLU..."
@@ -270,7 +270,7 @@ export function ProductosScreen() {
                 <FormItem className="flex-1 space-y-0 md:w-[200px] md:flex-none">
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger className="md:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-card">
+                      <SelectTrigger className="md:h-12 rounded-2xl border-[1.5px] border-foreground bg-card">
                         <SelectValue placeholder="Categoria" />
                       </SelectTrigger>
                     </FormControl>
