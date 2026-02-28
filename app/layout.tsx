@@ -2,7 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type React from "react";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { IOSViewportFix } from "@/components/ios-viewport-fix";
 import { QueryProvider } from "@/components/query-provider";
 
@@ -56,7 +56,7 @@ export default function RootLayout({
         <IOSViewportFix />
         <QueryProvider>
           {children}
-          <Toaster position="top-right" richColors closeButton />
+          <Toaster position="top-right" closeButton />
         </QueryProvider>
         <Analytics />
       </body>
