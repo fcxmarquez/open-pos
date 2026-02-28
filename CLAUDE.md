@@ -95,7 +95,9 @@ This mode is enabled via an environment variable in `.env.local`. Check `.env.ex
 ## UI guidelines
 
 - Always use the design tokens for the colors previously defined in the app/globals.css file.
-- Always use the tailwind font sizes instead of hardcoded values.
+- Always use the tailwind font sizes, radius and spacing instead of hardcoded values
+- Always use only md breakpoint for responsive classes. Avoid using sm breakpoint or any other breakpoint.
+- For more information not mentioned here, refer to storybook documentation.
 
 ## Cursor Cloud specific instructions
 
