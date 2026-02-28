@@ -167,12 +167,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
               </output>
             )}
 
-            <Button
-              type="submit"
-              size="lg"
-              disabled={!canConfirm}
-              className="w-full bg-accent text-accent-foreground text-base font-semibold hover:bg-accent/90"
-            >
+            <Button type="submit" size="lg" disabled={!canConfirm} className="w-full">
               {isProcessing ? (
                 <>
                   <Spinner className="mr-2" />

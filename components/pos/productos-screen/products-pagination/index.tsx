@@ -59,14 +59,16 @@ export function ProductsPagination({
           </span>
           <div className="flex items-center gap-2">
             <Button
-              className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              variant="outline"
+              size="sm"
               onClick={onPrevious}
               disabled={hideMobilePaginationRow || !hasPreviousPage || isFetching}
             >
               Anterior
             </Button>
             <Button
-              className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              variant="outline"
+              size="sm"
               onClick={onNext}
               disabled={hideMobilePaginationRow || !hasNextPage || isFetching}
             >

@@ -123,7 +123,7 @@ export default async function LoginPage({
                 await signIn("google", { redirectTo: "/ventas" });
               }}
             >
-              <Button type="submit" variant="outline" className="w-full gap-3 py-5">
+              <Button type="submit" variant="outline" size="lg" className="w-full gap-3">
                 <GoogleIcon />
                 Continuar con Google
               </Button>

@@ -296,11 +296,7 @@ export function ProductFormDialog({
               )}
             />
 
-            <Button
-              type="submit"
-              className="mt-1 w-full bg-primary text-primary-foreground"
-              disabled={isPending}
-            >
+            <Button type="submit" className="mt-1 w-full" disabled={isPending}>
               {isPending ? (
                 <>
                   <Spinner className="mr-2" />

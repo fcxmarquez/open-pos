@@ -227,7 +227,6 @@ export function ProductosScreen() {
             setEditingProduct(null);
             setShowForm(true);
           }}
-          className="h-10 rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/90"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Agregar producto
@@ -336,7 +335,6 @@ export function ProductosScreen() {
               size="sm"
               variant="outline"
               disabled={!hasSelection}
-              className="border-foreground/10 bg-card text-foreground hover:border-foreground/15 hover:bg-card hover:text-foreground active:border-foreground/20 active:bg-muted/70 active:text-foreground"
               onClick={clearSelection}
             >
               Limpiar seleccion

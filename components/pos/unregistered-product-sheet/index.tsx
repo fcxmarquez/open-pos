@@ -221,11 +221,7 @@ export function UnregisteredProductSheet({
             />
 
             <div className="mt-2 flex flex-col gap-2">
-              <Button
-                type="submit"
-                className="w-full bg-primary text-primary-foreground"
-                disabled={isRegistering}
-              >
+              <Button type="submit" className="w-full" disabled={isRegistering}>
                 {isRegistering ? (
                   <>
                     <Spinner className="mr-2" />
@@ -238,7 +234,7 @@ export function UnregisteredProductSheet({
               <Button
                 type="button"
                 variant="outline"
-                className="w-full bg-transparent"
+                className="w-full"
                 onClick={form.handleSubmit(handleAddOnlyToSale)}
                 disabled={isRegistering}
               >

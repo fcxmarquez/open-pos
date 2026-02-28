@@ -128,7 +128,7 @@ export function QuickSaleDialog({
               )}
             />
 
-            <Button type="submit" className="w-full bg-primary text-primary-foreground">
+            <Button type="submit" className="w-full">
               Agregar a venta
             </Button>
           </form>

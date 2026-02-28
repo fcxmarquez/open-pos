@@ -159,12 +159,7 @@ export function PinDialog({
         )}
 
         <div className="flex justify-center pt-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
         </div>

@@ -368,7 +368,7 @@ export function VentasScreen() {
         </div>
         <Button
           size="lg"
-          className="mb-2 h-12 w-full rounded-2xl bg-foreground text-base font-extrabold text-background hover:bg-foreground/90"
+          className="mb-2 w-full"
           disabled={cart.length === 0}
           onClick={() => {
             setShowCheckout(true);
@@ -380,7 +380,7 @@ export function VentasScreen() {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full rounded-2xl text-xs font-medium text-muted-foreground hover:bg-muted hover:text-destructive"
+          className="w-full"
           disabled={cart.length === 0}
           onClick={handleCancelSale}
         >
@@ -427,7 +427,8 @@ export function VentasScreen() {
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
-                        className="h-8 shrink-0 gap-1.5 rounded-xl bg-foreground px-3.5 text-background hover:bg-foreground/90"
+                        size="sm"
+                        className="shrink-0"
                       >
                         <Zap className="h-3.5 w-3.5" />
                         <span className="hidden text-xs font-semibold md:inline">
@@ -501,10 +502,7 @@ export function VentasScreen() {
 
       {/* Mobile cart toggle button - fixed at bottom on small screens */}
       <div className="border-t bg-card p-3 md:hidden">
-        <Button
-          className="w-full bg-primary text-primary-foreground"
-          onClick={() => setMobileCartOpen(true)}
-        >
+        <Button className="w-full" onClick={() => setMobileCartOpen(true)}>
           <ShoppingBag className="mr-2 h-4 w-4" />
           Ver carrito
           {cartItemCount > 0 && (

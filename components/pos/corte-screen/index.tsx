@@ -318,7 +318,7 @@ export function CorteScreen() {
                 <Button
                   type="submit"
                   disabled={!isValidCount || !session || isPending}
-                  className="h-10 w-full rounded-xl bg-foreground text-sm font-bold text-background hover:bg-foreground/90"
+                  className="w-full"
                 >
                   {isPending ? (
                     <>
@@ -337,10 +337,7 @@ export function CorteScreen() {
         {session && (
           <Collapsible open={showDetail} onOpenChange={setShowDetail}>
             <CollapsibleTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-10 w-full justify-between rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted/40 hover:text-foreground"
-              >
+              <Button variant="outline" className="w-full justify-between">
                 <span>Detalle de ventas ({openSessionSales.length})</span>
                 {showDetail ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
