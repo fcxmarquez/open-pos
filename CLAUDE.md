@@ -92,6 +92,11 @@ The app supports an alternative login mode for automated testing and CI environm
 
 This mode is enabled via an environment variable in `.env.local`. Check `.env.example` for the variable name and usage instructions.
 
+## UI guidelines
+
+- Always use the design tokens for the colors previously defined in the app/globals.css file.
+- Always use the tailwind font sizes instead of hardcoded values.
+
 ## Cursor Cloud specific instructions
 
 ### Environment
