@@ -233,8 +233,8 @@ export function ProductosScreen() {
         </Button>
         <div className="flex flex-wrap items-center gap-2">
           {pendingCount > 0 && (
-            <Badge className="h-6 gap-1 rounded-[6px] border border-amber-200 bg-amber-50 py-1 px-2.5 text-xs font-medium text-amber-700">
-              <AlertTriangle className="h-3 w-3 text-amber-700" />
+            <Badge className="h-6 gap-1 rounded-[6px] border border-warning-border bg-warning py-1 px-2.5 text-xs font-medium text-warning-foreground">
+              <AlertTriangle className="h-3 w-3 text-warning-foreground" />
               {pendingCount} sin nombre
             </Badge>
           )}

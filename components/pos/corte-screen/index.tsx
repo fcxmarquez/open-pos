@@ -82,13 +82,13 @@ function DiffBadge({ diff }: { diff: number }) {
   }
   if (diff > 0) {
     return (
-      <span className="inline-flex h-7 items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-600">
+      <span className="inline-flex h-7 items-center rounded-full border border-info-border bg-info px-2.5 text-xs font-semibold text-info-foreground">
         +{formatCurrency(diff)}
       </span>
     );
   }
   return (
-    <span className="inline-flex h-7 items-center rounded-full border border-amber-300 bg-amber-50 px-2.5 text-xs font-semibold text-amber-600">
+    <span className="inline-flex h-7 items-center rounded-full border border-warning-border bg-warning px-2.5 text-xs font-semibold text-warning-foreground">
       -{formatCurrency(Math.abs(diff))}
     </span>
   );
@@ -97,7 +97,7 @@ function DiffBadge({ diff }: { diff: number }) {
 function StatusBadge({ status }: { status: string | null }) {
   if (status === "open") {
     return (
-      <span className="inline-flex h-7 items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-600">
+      <span className="inline-flex h-7 items-center rounded-full border border-info-border bg-info px-2.5 text-xs font-semibold text-info-foreground">
         Abierto
       </span>
     );
@@ -297,9 +297,10 @@ export function CorteScreen() {
                     className={cn(
                       "flex items-center gap-3 rounded-2xl border px-4 py-3",
                       difference === 0 &&
-                        "border-emerald-200 bg-emerald-50 text-emerald-700",
-                      difference > 0 && "border-blue-200 bg-blue-50 text-blue-600",
-                      difference < 0 && "border-amber-300 bg-amber-50 text-amber-600"
+                        "border-success-border bg-success text-success-foreground",
+                      difference > 0 && "border-info-border bg-info text-info-foreground",
+                      difference < 0 &&
+                        "border-warning-border bg-warning text-warning-foreground"
                     )}
                   >
                     {difference === 0 ? (
