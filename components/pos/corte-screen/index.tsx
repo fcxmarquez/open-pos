@@ -18,6 +18,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { closeSession } from "@/app/actions/sessions";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -64,37 +65,33 @@ const tableHeadClass = "h-12 px-5 font-body text-xs font-semibold text-muted-for
 function DiffBadge({ diff }: { diff: number }) {
   if (diff === 0) {
     return (
-      <span className="inline-flex h-7 items-center rounded-full border border-border bg-muted/40 px-2.5 text-xs font-semibold text-foreground">
+      <Badge variant="success" size="pill">
         Cuadra
-      </span>
+      </Badge>
     );
   }
   if (diff > 0) {
     return (
-      <span className="inline-flex h-7 items-center rounded-full border border-info-border bg-info px-2.5 text-xs font-semibold text-info-foreground">
+      <Badge variant="info" size="pill">
         +{formatCurrency(diff)}
-      </span>
+      </Badge>
     );
   }
   return (
-    <span className="inline-flex h-7 items-center rounded-full border border-warning-border bg-warning px-2.5 text-xs font-semibold text-warning-foreground">
+    <Badge variant="warning" size="pill">
       -{formatCurrency(Math.abs(diff))}
-    </span>
+    </Badge>
   );
 }
 
 function StatusBadge({ status }: { status: string | null }) {
   if (status === "open") {
-    return (
-      <span className="inline-flex h-7 items-center rounded-full border border-info-border bg-info px-2.5 text-xs font-semibold text-info-foreground">
-        Abierto
-      </span>
-    );
+    return <Badge size="pill">Abierto</Badge>;
   }
   return (
-    <span className="inline-flex h-7 items-center rounded-full border border-border bg-muted/40 px-2.5 text-xs font-semibold text-muted-foreground">
+    <Badge variant="muted" size="pill">
       Cerrado
-    </span>
+    </Badge>
   );
 }
 

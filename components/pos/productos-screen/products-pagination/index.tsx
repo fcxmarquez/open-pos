@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
@@ -34,12 +35,20 @@ export function ProductsPagination({
     <div className="mt-3 flex flex-col gap-0">
       {/* Badge bar */}
       <div className="flex items-center gap-3">
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+        <Badge
+          variant="muted"
+          size="chip"
+          className="rounded-full px-3 py-1 font-semibold"
+        >
           {totalProducts} productos
-        </span>
-        <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+        </Badge>
+        <Badge
+          variant="outline"
+          size="chip"
+          className="rounded-full px-3 py-1 font-normal"
+        >
           Página {page} de {totalPages}
-        </span>
+        </Badge>
         {isFetching && <Spinner />}
       </div>
 

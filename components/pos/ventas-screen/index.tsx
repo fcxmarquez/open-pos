@@ -41,10 +41,7 @@ function CartHeader({
       <ShoppingBag className="h-5 w-5 shrink-0 text-foreground" />
       <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
       <div className="flex-1" />
-      <Badge
-        variant="outline"
-        className="rounded-xl border-foreground bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted"
-      >
+      <Badge variant="muted" size="chip" className="border-foreground px-2.5 py-1">
         {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
       </Badge>
       {onClose && (
@@ -506,10 +503,7 @@ export function VentasScreen() {
           <ShoppingBag className="mr-2 h-4 w-4" />
           Ver carrito
           {cartItemCount > 0 && (
-            <Badge
-              variant="secondary"
-              className="ml-2 bg-primary-foreground/20 text-primary-foreground"
-            >
+            <Badge variant="inverted" size="chip" className="ml-2 rounded-full">
               {cartItemCount}
             </Badge>
           )}
