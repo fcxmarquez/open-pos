@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Loader2, Plus, Search } from "lucide-react";
+import { AlertTriangle, Plus, Search } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/components/ui/use-mobile";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import type { Product } from "@/lib/store";
@@ -213,7 +214,7 @@ export function ProductosScreen() {
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -426,7 +427,7 @@ export function ProductosScreen() {
                 }
               }}
             >
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPending && <Spinner className="mr-2" />}
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

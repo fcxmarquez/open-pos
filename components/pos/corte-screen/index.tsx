@@ -2,8 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -12,7 +10,6 @@ import {
   CircleDot,
   DollarSign,
   Info,
-  Loader2,
   Package,
   Receipt,
   Wallet,
@@ -37,6 +34,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -50,7 +48,7 @@ import {
   corteFormDefaults,
   corteFormSchema,
 } from "@/lib/pos-form-schemas";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, formatDateShort, formatTime } from "@/lib/utils";
 import {
   openSessionQueryKey,
   openSessionQueryOptions,
@@ -59,15 +57,6 @@ import {
   sessionHistoryQueryKey,
   sessionHistoryQueryOptions,
 } from "./query";
-
-function formatTime(timestamp: Date): string {
-  const d = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  return format(d, "HH:mm", { locale: es });
-}
-
-function formatDateShort(dateStr: string): string {
-  return format(new Date(`${dateStr}T12:00:00`), "dd MMM yyyy", { locale: es });
-}
 
 const surfaceCardClass = "overflow-hidden rounded-2xl border border-border bg-card";
 const tableHeadClass = "h-12 px-5 font-body text-xs font-semibold text-muted-foreground";
@@ -207,7 +196,7 @@ export function CorteScreen() {
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -333,7 +322,7 @@ export function CorteScreen() {
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Spinner />
                       Cerrando...
                     </>
                   ) : (
@@ -455,7 +444,7 @@ export function CorteScreen() {
 
           {isLoadingHistory ? (
             <div className="flex items-center justify-center px-6 py-10">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <Spinner size="md" />
             </div>
           ) : history.length === 0 ? (
             <div className="flex min-h-[160px] flex-col items-center justify-center gap-2 px-6 py-10 text-center">

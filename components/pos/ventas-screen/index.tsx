@@ -2,17 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Loader2,
-  Minus,
-  Pencil,
-  Plus,
-  Search,
-  ShoppingBag,
-  Trash2,
-  X,
-  Zap,
-} from "lucide-react";
+import { Minus, Pencil, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -30,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
 import { dbProductToStoreProduct } from "@/lib/mappers";
 import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
@@ -416,7 +407,7 @@ export function VentasScreen() {
                   <FormItem className="space-y-0">
                     <SearchBar animated className="h-12">
                       {isSubmitting ? (
-                        <Loader2 className="h-[18px] w-[18px] shrink-0 animate-spin text-foreground" />
+                        <Spinner className="h-[18px] w-[18px] shrink-0 text-foreground" />
                       ) : (
                         <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
                       )}
@@ -456,7 +447,7 @@ export function VentasScreen() {
           <div className="mb-4 max-h-48 overflow-auto rounded-md border bg-card shadow-md">
             {isSearching && (
               <div className="flex items-center justify-center py-2">
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <Spinner />
               </div>
             )}
             {searchResults.map((p) => (

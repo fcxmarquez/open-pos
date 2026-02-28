@@ -1,5 +1,5 @@
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 interface ProductsPaginationProps {
@@ -40,7 +40,7 @@ export function ProductsPagination({
         <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
           Página {page} de {totalPages}
         </span>
-        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        {isFetching && <Spinner />}
       </div>
 
       {/* Pagination row */}

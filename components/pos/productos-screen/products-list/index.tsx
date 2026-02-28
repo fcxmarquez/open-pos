@@ -1,7 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
-import { es as esMX } from "date-fns/locale";
 import {
   AlertTriangle,
   ChevronDown,
@@ -24,12 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Product } from "@/lib/store";
-import { cn, formatCurrency } from "@/lib/utils";
-
-function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return "Nunca";
-  return format(new Date(dateStr), "dd MMM yyyy", { locale: esMX });
-}
+import { cn, formatCurrency, formatDateLabel } from "@/lib/utils";
 
 interface ProductsListProps {
   allSelectedOnPage: boolean;
@@ -202,7 +195,7 @@ export function ProductsList({
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       <Badge className={CATEGORY_BADGE_CLASS}>{product.category}</Badge>
                       <span className="text-xs text-muted-foreground">
-                        Venta: {formatDate(product.lastSoldAt)}
+                        Venta: {formatDateLabel(product.lastSoldAt)}
                       </span>
                     </div>
                   </div>
@@ -363,7 +356,7 @@ export function ProductsList({
                 <Badge className={CATEGORY_BADGE_CLASS}>{product.category}</Badge>
               </TableCell>
               <TableCell className="px-5 text-sm text-muted-foreground">
-                {formatDate(product.lastSoldAt)}
+                {formatDateLabel(product.lastSoldAt)}
               </TableCell>
               <TableCell className="px-5 text-right">
                 <div className="flex items-center justify-end gap-3">
