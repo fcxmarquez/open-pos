@@ -15,14 +15,13 @@ import {
   Loader2,
   Package,
   Receipt,
+  Wallet,
 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { closeSession } from "@/app/actions/sessions";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
@@ -51,7 +50,7 @@ import {
   corteFormDefaults,
   corteFormSchema,
 } from "@/lib/pos-form-schemas";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import {
   openSessionQueryKey,
   openSessionQueryOptions,
@@ -70,40 +69,74 @@ function formatDateShort(dateStr: string): string {
   return format(new Date(`${dateStr}T12:00:00`), "dd MMM yyyy", { locale: es });
 }
 
+const surfaceCardClass = "overflow-hidden rounded-2xl border border-border bg-card";
+const tableHeadClass = "h-12 px-5 font-body text-xs font-semibold text-muted-foreground";
+
 function DiffBadge({ diff }: { diff: number }) {
   if (diff === 0) {
     return (
-      <Badge variant="secondary" className="bg-accent/10 text-accent">
+      <span className="inline-flex h-7 items-center rounded-full border border-border bg-muted/40 px-2.5 text-xs font-semibold text-foreground">
         Cuadra
-      </Badge>
+      </span>
     );
   }
   if (diff > 0) {
     return (
-      <Badge variant="secondary" className="bg-blue-50 text-blue-600">
+      <span className="inline-flex h-7 items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-600">
         +{formatCurrency(diff)}
-      </Badge>
+      </span>
     );
   }
   return (
-    <Badge variant="secondary" className="bg-amber-50 text-amber-600">
-      {formatCurrency(diff)}
-    </Badge>
+    <span className="inline-flex h-7 items-center rounded-full border border-amber-300 bg-amber-50 px-2.5 text-xs font-semibold text-amber-600">
+      -{formatCurrency(Math.abs(diff))}
+    </span>
   );
 }
 
 function StatusBadge({ status }: { status: string | null }) {
   if (status === "open") {
     return (
-      <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
+      <span className="inline-flex h-7 items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-600">
         Abierto
-      </Badge>
+      </span>
     );
   }
   return (
-    <Badge variant="outline" className="text-muted-foreground border-muted-foreground/20">
+    <span className="inline-flex h-7 items-center rounded-full border border-border bg-muted/40 px-2.5 text-xs font-semibold text-muted-foreground">
       Cerrado
-    </Badge>
+    </span>
+  );
+}
+
+function SummaryCard({
+  icon: Icon,
+  label,
+  value,
+  isCurrency = false,
+}: {
+  icon: typeof Receipt;
+  label: string;
+  value: string;
+  isCurrency?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <span className="font-body text-xs font-medium text-muted-foreground">
+          {label}
+        </span>
+        <Icon className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+      </div>
+      <p
+        className={cn(
+          "mt-2 font-heading font-extrabold leading-none tracking-[-0.03em] text-foreground tabular-nums",
+          isCurrency ? "text-[24px]" : "text-[28px]"
+        )}
+      >
+        {value}
+      </p>
+    </div>
   );
 }
 
@@ -181,10 +214,9 @@ export function CorteScreen() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="mx-auto max-w-4xl p-4 md:p-6">
-        {/* Active Session Info */}
-        <div className="mb-4 flex items-center justify-between md:mb-6">
-          <p className="text-sm capitalize text-muted-foreground">
+      <div className="mx-auto flex max-w-[980px] flex-col gap-3 px-4 py-4 md:px-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-body text-xs font-medium text-muted-foreground">
             {session
               ? `Sesión actual: ${formatDateShort(session.sessionDate)} (Turno ${session.sessionNumber})`
               : "No hay sesión activa"}
@@ -192,310 +224,329 @@ export function CorteScreen() {
           {session && <StatusBadge status={session.status} />}
         </div>
 
-        {/* Summary cards */}
-        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4 md:mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Ventas realizadas
-              </CardTitle>
-              <Receipt className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-foreground">
-                {openSessionSales.length}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total registrado
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-foreground">
-                {formatCurrency(systemTotal)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Articulos vendidos
-              </CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-foreground">{itemsSold}</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+          <SummaryCard
+            icon={Receipt}
+            label="Ventas realizadas"
+            value={String(openSessionSales.length)}
+          />
+          <SummaryCard
+            icon={DollarSign}
+            isCurrency
+            label="Total registrado"
+            value={formatCurrency(systemTotal)}
+          />
+          <SummaryCard
+            icon={Package}
+            label="Artículos vendidos"
+            value={String(itemsSold)}
+          />
         </div>
 
-        {/* Cash count section */}
-        <Card className="mb-4 md:mb-6">
-          <CardHeader>
-            <CardTitle className="text-foreground">Conteo de efectivo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!session ? (
-              <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-4">
-                <CircleDot className="h-5 w-5 shrink-0 text-muted-foreground sm:h-6 sm:w-6" />
+        <div className={cn(surfaceCardClass, "p-[14px]")}>
+          {!session ? (
+            <div className="rounded-2xl bg-muted/50 px-4 py-5">
+              <div className="flex items-start gap-3">
+                <CircleDot className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                 <div>
-                  <span className="text-base font-medium text-muted-foreground sm:text-lg">
+                  <p className="text-sm font-semibold text-foreground">
                     No hay sesión activa
-                  </span>
+                  </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     La próxima venta abrirá una nueva sesión automáticamente.
                   </p>
                 </div>
               </div>
-            ) : (
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(handleCloseRegister)}
-                  className="flex flex-col gap-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="countedCash"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base text-foreground">
-                          Efectivo contado
-                        </FormLabel>
-                        <FormControl>
+            </div>
+          ) : (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleCloseRegister)}
+                className="flex flex-col gap-[10px]"
+              >
+                <h3 className="font-heading text-[18px] font-bold text-foreground">
+                  Conteo de efectivo
+                </h3>
+
+                <FormField
+                  control={form.control}
+                  name="countedCash"
+                  render={({ field }) => (
+                    <FormItem className="space-y-[10px]">
+                      <FormLabel className="font-body text-sm font-semibold text-foreground">
+                        Efectivo contado
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Wallet className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                           <Input
                             id="counted"
                             type="number"
                             step="0.01"
                             min="0"
                             placeholder="Ingresa la cantidad contada en caja"
-                            className="mt-2 h-12 text-lg font-semibold text-foreground"
+                            className="h-[46px] rounded-[14px] border-[1.5px] border-foreground bg-card pl-[42px] pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {isValidCount && (
-                    <div
-                      className={`flex items-center gap-3 rounded-lg p-4 ${
-                        difference === 0
-                          ? "bg-accent/10"
-                          : difference > 0
-                            ? "bg-blue-50"
-                            : "bg-amber-50"
-                      }`}
-                    >
-                      {difference === 0 ? (
-                        <>
-                          <CheckCircle2 className="h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6" />
-                          <span className="text-base font-semibold text-accent sm:text-lg">
-                            Cuadra perfecto
-                          </span>
-                        </>
-                      ) : difference > 0 ? (
-                        <>
-                          <Info className="h-5 w-5 shrink-0 text-blue-600 sm:h-6 sm:w-6" />
-                          <span className="text-base font-semibold text-blue-600 sm:text-lg">
-                            Sobrante: {formatCurrency(difference)}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 sm:h-6 sm:w-6" />
-                          <span className="text-base font-semibold text-amber-600 sm:text-lg">
-                            Faltante: {formatCurrency(Math.abs(difference))}
-                          </span>
-                        </>
-                      )}
-                    </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
+                />
 
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={!isValidCount || !session || isPending}
-                    className="w-full bg-primary text-primary-foreground text-base font-semibold"
+                {isValidCount && (
+                  <div
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border px-4 py-3",
+                      difference === 0 &&
+                        "border-emerald-200 bg-emerald-50 text-emerald-700",
+                      difference > 0 && "border-blue-200 bg-blue-50 text-blue-600",
+                      difference < 0 && "border-amber-300 bg-amber-50 text-amber-600"
+                    )}
                   >
-                    {isPending ? (
+                    {difference === 0 ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Cerrando...
+                        <CheckCircle2 className="h-5 w-5 shrink-0" />
+                        <span className="text-sm font-semibold">Cuadra perfecto</span>
+                      </>
+                    ) : difference > 0 ? (
+                      <>
+                        <Info className="h-5 w-5 shrink-0" />
+                        <span className="text-sm font-semibold">
+                          Sobrante: {formatCurrency(difference)}
+                        </span>
                       </>
                     ) : (
-                      "Cerrar corte"
+                      <>
+                        <AlertTriangle className="h-5 w-5 shrink-0" />
+                        <span className="text-sm font-semibold">
+                          Faltante: {formatCurrency(Math.abs(difference))}
+                        </span>
+                      </>
                     )}
-                  </Button>
-                </form>
-              </Form>
-            )}
-          </CardContent>
-        </Card>
+                  </div>
+                )}
 
-        {/* Today's sales detail */}
+                <Button
+                  type="submit"
+                  disabled={!isValidCount || !session || isPending}
+                  className="h-[42px] w-full rounded-xl bg-foreground text-sm font-bold text-background hover:bg-foreground/90"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Cerrando...
+                    </>
+                  ) : (
+                    "Cerrar corte"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          )}
+        </div>
+
         {session && (
           <Collapsible open={showDetail} onOpenChange={setShowDetail}>
             <CollapsibleTrigger asChild>
               <Button
                 variant="outline"
-                className="mb-3 w-full justify-between bg-transparent"
+                className="h-[38px] w-full justify-between rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted/40 hover:text-foreground"
               >
                 <span>Detalle de ventas ({openSessionSales.length})</span>
                 {showDetail ? (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent>
-              <Card className="mb-4 md:mb-6">
-                <CardContent className="p-0">
-                  {/* Mobile: stacked cards */}
-                  <div className="divide-y md:hidden">
-                    {openSessionSales.length === 0 ? (
-                      <div className="py-6 text-center text-muted-foreground">
+            <CollapsibleContent className="pt-3">
+              <div className={surfaceCardClass}>
+                <div className="divide-y md:hidden">
+                  {openSessionSales.length === 0 ? (
+                    <div className="flex min-h-[90px] flex-col items-center justify-center gap-2 px-6 py-8 text-center">
+                      <Receipt className="h-5 w-5 text-muted-foreground" />
+                      <p className="text-sm font-medium text-foreground">
                         No hay ventas registradas
-                      </div>
-                    ) : (
-                      openSessionSales.map((sale) => (
-                        <div key={sale.id} className="px-4 py-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-foreground">
-                              {formatTime(sale.createdAt)}
-                            </span>
-                            <span className="font-semibold text-foreground">
-                              {formatCurrency(Number(sale.total))}
-                            </span>
-                          </div>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {sale.items
-                              .map((i) => `${i.productName} x${i.quantity}`)
-                              .join(", ")}
-                          </p>
+                      </p>
+                    </div>
+                  ) : (
+                    openSessionSales.map((sale) => (
+                      <div key={sale.id} className="px-4 py-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-sm font-medium text-foreground">
+                            {formatTime(sale.createdAt)}
+                          </span>
+                          <span className="text-sm font-bold text-foreground">
+                            {formatCurrency(Number(sale.total))}
+                          </span>
                         </div>
-                      ))
-                    )}
-                  </div>
-                  {/* Desktop: table */}
-                  <div className="hidden md:block">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Hora</TableHead>
-                          <TableHead>Productos</TableHead>
-                          <TableHead className="text-right">Total</TableHead>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {sale.items
+                            .map((i) => `${i.productName} x${i.quantity}`)
+                            .join(", ")}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="h-[42px] border-b border-border bg-muted/40 hover:bg-muted/40">
+                        <TableHead className={cn(tableHeadClass, "w-[120px] px-4")}>
+                          Hora
+                        </TableHead>
+                        <TableHead className={cn(tableHeadClass, "px-4")}>
+                          Productos
+                        </TableHead>
+                        <TableHead
+                          className={cn(tableHeadClass, "w-[100px] px-4 text-right")}
+                        >
+                          Total
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {openSessionSales.length === 0 ? (
+                        <TableRow className="h-[46px] hover:bg-card">
+                          <TableCell
+                            colSpan={3}
+                            className="px-4 py-6 text-center text-sm text-muted-foreground"
+                          >
+                            No hay ventas registradas
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {openSessionSales.length === 0 ? (
-                          <TableRow>
-                            <TableCell
-                              colSpan={3}
-                              className="py-6 text-center text-muted-foreground"
-                            >
-                              No hay ventas registradas
+                      ) : (
+                        openSessionSales.map((sale) => (
+                          <TableRow
+                            key={sale.id}
+                            className="h-[46px] border-b border-border/60 hover:bg-card"
+                          >
+                            <TableCell className="w-[120px] px-4 py-3 text-[13px] font-medium text-foreground">
+                              {formatTime(sale.createdAt)}
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-[13px] text-muted-foreground">
+                              {sale.items
+                                .map((i) => `${i.productName} x${i.quantity}`)
+                                .join(", ")}
+                            </TableCell>
+                            <TableCell className="w-[100px] px-4 py-3 text-right text-[13px] font-bold text-foreground">
+                              {formatCurrency(Number(sale.total))}
                             </TableCell>
                           </TableRow>
-                        ) : (
-                          openSessionSales.map((sale) => (
-                            <TableRow key={sale.id}>
-                              <TableCell className="text-sm text-foreground">
-                                {formatTime(sale.createdAt)}
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                {sale.items
-                                  .map((i) => `${i.productName} x${i.quantity}`)
-                                  .join(", ")}
-                              </TableCell>
-                              <TableCell className="text-right font-semibold text-foreground">
-                                {formatCurrency(Number(sale.total))}
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </CollapsibleContent>
           </Collapsible>
         )}
 
-        {/* History */}
-        {!isLoadingHistory && history.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-foreground">Historial de sesiones</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {/* Mobile: stacked cards */}
+        <div className={surfaceCardClass}>
+          <div className="flex h-14 items-center border-b border-border px-[18px]">
+            <h3 className="font-heading text-[18px] font-bold text-foreground">
+              Historial de sesiones
+            </h3>
+          </div>
+
+          {isLoadingHistory ? (
+            <div className="flex items-center justify-center px-6 py-10">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : history.length === 0 ? (
+            <div className="flex min-h-[160px] flex-col items-center justify-center gap-2 px-6 py-10 text-center">
+              <Receipt className="h-5 w-5 text-muted-foreground" />
+              <p className="text-sm font-medium text-foreground">
+                Aún no hay cortes anteriores
+              </p>
+            </div>
+          ) : (
+            <>
               <div className="divide-y md:hidden">
                 {history.map((rec) => {
                   const diff = Number(rec.difference ?? 0);
                   return (
-                    <div key={rec.id} className="px-4 py-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-foreground">
-                          {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
-                        </span>
+                    <div key={rec.id} className="px-4 py-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Sistema: {formatCurrency(Number(rec.systemTotal ?? 0))}
+                          </p>
+                        </div>
                         <StatusBadge status={rec.status} />
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                          <span>
-                            Sistema: {formatCurrency(Number(rec.systemTotal ?? 0))}
-                          </span>
-                          {rec.status === "closed" && (
-                            <span>
-                              Contado: {formatCurrency(Number(rec.countedTotal ?? 0))}
-                            </span>
-                          )}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm text-muted-foreground">
+                          {rec.status === "closed"
+                            ? `Contado: ${formatCurrency(Number(rec.countedTotal ?? 0))}`
+                            : "Pendiente de cierre"}
                         </div>
-                        {rec.status === "closed" && <DiffBadge diff={diff} />}
+                        {rec.status === "closed" ? <DiffBadge diff={diff} /> : null}
                       </div>
                     </div>
                   );
                 })}
               </div>
-              {/* Desktop: table */}
+
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead className="text-right">Total sistema</TableHead>
-                      <TableHead className="text-right">Total contado</TableHead>
-                      <TableHead className="text-right">Diferencia</TableHead>
+                    <TableRow className="h-[42px] border-b border-border bg-muted/40 hover:bg-muted/40">
+                      <TableHead className={cn(tableHeadClass, "w-[180px] px-[18px]")}>
+                        Fecha
+                      </TableHead>
+                      <TableHead className={cn(tableHeadClass, "w-[130px] px-[18px]")}>
+                        Estado
+                      </TableHead>
+                      <TableHead
+                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                      >
+                        Sistema
+                      </TableHead>
+                      <TableHead
+                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                      >
+                        Contado
+                      </TableHead>
+                      <TableHead
+                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                      >
+                        Diferencia
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {history.map((rec) => {
                       const diff = Number(rec.difference ?? 0);
                       return (
-                        <TableRow key={rec.id}>
-                          <TableCell className="text-sm text-foreground">
+                        <TableRow
+                          key={rec.id}
+                          className="h-12 border-b border-border/60 hover:bg-card"
+                        >
+                          <TableCell className="w-[180px] px-[18px] py-3 text-[13px] font-medium text-foreground">
                             {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="w-[130px] px-[18px] py-3">
                             <StatusBadge status={rec.status} />
                           </TableCell>
-                          <TableCell className="text-right text-sm text-foreground">
+                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-[13px] font-medium text-foreground">
                             {formatCurrency(Number(rec.systemTotal ?? 0))}
                           </TableCell>
-                          <TableCell className="text-right text-sm text-foreground">
+                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-[13px] font-medium text-muted-foreground">
                             {rec.status === "closed"
                               ? formatCurrency(Number(rec.countedTotal ?? 0))
                               : "-"}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="w-[120px] px-[18px] py-3 text-right">
                             {rec.status === "closed" ? <DiffBadge diff={diff} /> : "-"}
                           </TableCell>
                         </TableRow>
@@ -504,9 +555,9 @@ export function CorteScreen() {
                   </TableBody>
                 </Table>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </ScrollArea>
   );
