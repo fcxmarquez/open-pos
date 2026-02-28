@@ -215,14 +215,11 @@ export function CorteScreen() {
   return (
     <ScrollArea className="h-full">
       <div className="mx-auto flex max-w-[980px] flex-col gap-3 px-4 py-4 md:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-body text-xs font-medium text-muted-foreground">
-            {session
-              ? `Sesión actual: ${formatDateShort(session.sessionDate)} (Turno ${session.sessionNumber})`
-              : "No hay sesión activa"}
-          </p>
-          {session && <StatusBadge status={session.status} />}
-        </div>
+        <p className="font-body text-xs font-medium text-muted-foreground">
+          {session
+            ? `Sesión actual: ${formatDateShort(session.sessionDate)} (Turno ${session.sessionNumber})`
+            : "No hay sesión activa"}
+        </p>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           <SummaryCard
