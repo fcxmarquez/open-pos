@@ -400,9 +400,9 @@ export function VentasScreen() {
   );
 
   return (
-    <div className="flex h-full flex-col lg:flex-row">
+    <div className="flex h-full flex-col md:flex-row">
       {/* Left column - Product entry */}
-      <div className="flex flex-1 flex-col overflow-hidden border-b p-4 lg:border-b-0 lg:p-5">
+      <div className="flex flex-1 flex-col overflow-hidden border-b p-4 md:border-b-0 md:p-5">
         {/* Barcode input */}
         <Form {...searchForm}>
           <form onSubmit={searchForm.handleSubmit(handleSubmit)} className="mb-4">
@@ -439,7 +439,7 @@ export function VentasScreen() {
                         className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-foreground px-3.5 text-background hover:bg-foreground/90"
                       >
                         <Zap className="h-3.5 w-3.5" />
-                        <span className="hidden text-xs font-semibold sm:inline">
+                        <span className="hidden text-xs font-semibold md:inline">
                           Venta rápida (F4)
                         </span>
                       </Button>
@@ -488,18 +488,18 @@ export function VentasScreen() {
           <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted-foreground">
             Productos frecuentes
           </h3>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 xl:grid-cols-4">
             {frequentProducts.map((product) => (
               <button
                 type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
-                className="flex flex-col items-start rounded-lg border bg-card p-2.5 text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98] sm:p-3"
+                className="flex flex-col items-start rounded-lg border bg-card p-2.5 text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98] md:p-3"
               >
-                <span className="text-xs font-medium leading-snug text-foreground sm:text-sm">
+                <span className="text-xs font-medium leading-snug text-foreground md:text-sm">
                   {product.name}
                 </span>
-                <span className="mt-auto pt-1.5 text-sm font-bold text-primary sm:pt-2 sm:text-base">
+                <span className="mt-auto pt-1.5 text-sm font-bold text-primary md:pt-2 md:text-base">
                   {formatCurrency(product.price)}
                 </span>
               </button>
@@ -509,7 +509,7 @@ export function VentasScreen() {
       </div>
 
       {/* Mobile cart toggle button - fixed at bottom on small screens */}
-      <div className="border-t bg-card p-3 lg:hidden">
+      <div className="border-t bg-card p-3 md:hidden">
         <Button
           className="w-full bg-primary text-primary-foreground"
           onClick={() => setMobileCartOpen(true)}
@@ -532,7 +532,7 @@ export function VentasScreen() {
       {mobileCartOpen && (
         <button
           type="button"
-          className="fixed inset-0 z-30 bg-foreground/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-foreground/40 md:hidden"
           onClick={() => setMobileCartOpen(false)}
           onKeyDown={(e) => {
             if (e.key === "Escape") setMobileCartOpen(false);
@@ -544,7 +544,7 @@ export function VentasScreen() {
       {/* Mobile cart drawer (slides up from bottom) */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-xl bg-card shadow-xl transition-transform duration-300 lg:hidden",
+          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-xl bg-card shadow-xl transition-transform duration-300 md:hidden",
           mobileCartOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
@@ -556,7 +556,7 @@ export function VentasScreen() {
       </div>
 
       {/* Desktop cart sidebar - hidden on mobile */}
-      <div className="hidden py-3 lg:flex">
+      <div className="hidden py-3 md:flex">
         <div className="flex w-[380px] flex-col overflow-hidden rounded-[28px] border bg-card">
           <CartHeader cartItemCount={cartItemCount} />
           {cartContent}

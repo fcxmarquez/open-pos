@@ -208,7 +208,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex-1" />
 
           {/* Session badge */}
-          <div className="hidden items-center gap-1.5 rounded-[10px] border border-border bg-muted px-3 h-8 sm:flex">
+          <div className="hidden items-center gap-1.5 rounded-[10px] border border-border bg-muted px-3 h-8 md:flex">
             <CircleDot className="h-3.5 w-3.5 text-foreground" />
             <span className="font-body text-xs font-semibold text-foreground">
               Sesión abierta
@@ -216,7 +216,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Date */}
-          <div className="hidden w-[190px] text-right font-body text-xs font-semibold text-foreground capitalize sm:block">
+          <div className="hidden w-[190px] text-right font-body text-xs font-semibold text-foreground capitalize md:block">
             {formatDate()}
           </div>
         </header>

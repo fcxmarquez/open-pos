@@ -46,10 +46,10 @@ export function ProductsPagination({
       {/* Pagination row */}
       <div
         className={cn(
-          "overflow-hidden transition-[max-height,opacity,transform,padding] duration-200 ease-out sm:overflow-visible sm:transition-none",
+          "overflow-hidden transition-[max-height,opacity,transform,padding] duration-200 ease-out md:overflow-visible md:transition-none",
           hideMobilePaginationRow
             ? "pointer-events-none max-h-0 translate-y-[-8px] px-3 pt-0 opacity-0"
-            : "max-h-24 translate-y-0 px-3 pt-3 opacity-100 sm:max-h-none sm:py-4"
+            : "max-h-24 translate-y-0 px-3 pt-3 opacity-100 md:max-h-none md:py-4"
         )}
         aria-hidden={hideMobilePaginationRow}
       >

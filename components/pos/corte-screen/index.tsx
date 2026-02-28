@@ -221,7 +221,7 @@ export function CorteScreen() {
             : "No hay sesión activa"}
         </p>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
           <SummaryCard
             icon={Receipt}
             label="Ventas realizadas"

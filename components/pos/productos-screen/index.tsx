@@ -220,7 +220,7 @@ export function ProductosScreen() {
 
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
         <Button
           onClick={() => {
             setEditingProduct(null);
@@ -241,7 +241,7 @@ export function ProductosScreen() {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center">
         <Form {...filtersForm}>
           <FormField
             control={filtersForm.control}
@@ -266,10 +266,10 @@ export function ProductosScreen() {
               control={filtersForm.control}
               name="categoryFilter"
               render={({ field }) => (
-                <FormItem className="flex-1 space-y-0 sm:w-[200px] sm:flex-none">
+                <FormItem className="flex-1 space-y-0 md:w-[200px] md:flex-none">
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger className="sm:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-card">
+                      <SelectTrigger className="md:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-card">
                         <SelectValue placeholder="Categoria" />
                       </SelectTrigger>
                     </FormControl>
@@ -314,7 +314,7 @@ export function ProductosScreen() {
         )}
         aria-hidden={!hasSelection}
       >
-        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
               {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
