@@ -282,7 +282,7 @@ export function CorteScreen() {
                             step="0.01"
                             min="0"
                             placeholder="Ingresa la cantidad contada en caja"
-                            className="h-[46px] rounded-[14px] border-[1.5px] border-foreground bg-card pl-[42px] pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-[46px] rounded-xl border-[1.5px] border-foreground bg-card pl-[42px] pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
                         </div>

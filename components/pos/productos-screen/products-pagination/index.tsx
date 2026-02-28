@@ -34,10 +34,10 @@ export function ProductsPagination({
     <div className="mt-3 flex flex-col gap-0">
       {/* Badge bar */}
       <div className="flex items-center gap-3">
-        <span className="rounded-[20px] bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+        <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
           {totalProducts} productos
         </span>
-        <span className="rounded-[20px] border border-border px-3 py-1 text-xs text-muted-foreground">
+        <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
           Página {page} de {totalPages}
         </span>
         {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}

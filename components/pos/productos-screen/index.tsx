@@ -226,14 +226,14 @@ export function ProductosScreen() {
             setEditingProduct(null);
             setShowForm(true);
           }}
-          className="h-10 rounded-[10px] bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/90"
+          className="h-10 rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/90"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Agregar producto
         </Button>
         <div className="flex flex-wrap items-center gap-2">
           {pendingCount > 0 && (
-            <Badge className="h-6 gap-1 rounded-[6px] border border-warning-border bg-warning py-1 px-2.5 text-xs font-medium text-warning-foreground">
+            <Badge className="h-6 gap-1 rounded-md border border-warning-border bg-warning py-1 px-2.5 text-xs font-medium text-warning-foreground">
               <AlertTriangle className="h-3 w-3 text-warning-foreground" />
               {pendingCount} sin nombre
             </Badge>

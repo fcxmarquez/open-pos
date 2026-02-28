@@ -436,7 +436,7 @@ export function VentasScreen() {
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
-                        className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-foreground px-3.5 text-background hover:bg-foreground/90"
+                        className="h-[34px] shrink-0 gap-1.5 rounded-xl bg-foreground px-3.5 text-background hover:bg-foreground/90"
                       >
                         <Zap className="h-3.5 w-3.5" />
                         <span className="hidden text-xs font-semibold md:inline">
@@ -557,7 +557,7 @@ export function VentasScreen() {
 
       {/* Desktop cart sidebar - hidden on mobile */}
       <div className="hidden py-3 md:flex">
-        <div className="flex w-[380px] flex-col overflow-hidden rounded-[28px] border bg-card">
+        <div className="flex w-[380px] flex-col overflow-hidden rounded-3xl border bg-card">
           <CartHeader cartItemCount={cartItemCount} />
           {cartContent}
         </div>
