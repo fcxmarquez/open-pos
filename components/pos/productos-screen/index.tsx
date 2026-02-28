@@ -54,7 +54,7 @@ import { useProductosRouteFilters } from "./use-productos-route-filters";
 const SELECT_PAGE_BTN_BASE_CLS =
   "shrink-0 rounded-2xl border-[1.5px] px-4 text-sm font-medium text-foreground transition-colors duration-150";
 const SELECT_PAGE_BTN_SELECTED_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-primary/20 bg-primary/[0.06] hover:border-primary/25 hover:bg-primary/[0.08] hover:text-foreground active:border-primary/30 active:bg-primary/[0.12] active:text-foreground`;
-const SELECT_PAGE_BTN_DEFAULT_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-foreground/15 bg-white hover:border-foreground/20 hover:bg-muted/60 hover:text-foreground active:border-foreground/25 active:bg-muted active:text-foreground`;
+const SELECT_PAGE_BTN_DEFAULT_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-foreground/15 bg-card hover:border-foreground/20 hover:bg-muted/60 hover:text-foreground active:border-foreground/25 active:bg-muted active:text-foreground`;
 
 export function ProductosScreen() {
   const isMobile = useIsMobile();
@@ -233,7 +233,7 @@ export function ProductosScreen() {
         </Button>
         <div className="flex flex-wrap items-center gap-2">
           {pendingCount > 0 && (
-            <Badge className="h-6 gap-1 rounded-[6px] border border-[#FDE68A] bg-[#FEF3C7] py-1 px-2.5 text-xs font-medium text-amber-700">
+            <Badge className="h-6 gap-1 rounded-[6px] border border-amber-200 bg-amber-50 py-1 px-2.5 text-xs font-medium text-amber-700">
               <AlertTriangle className="h-3 w-3 text-amber-700" />
               {pendingCount} sin nombre
             </Badge>
@@ -269,7 +269,7 @@ export function ProductosScreen() {
                 <FormItem className="flex-1 space-y-0 sm:w-[200px] sm:flex-none">
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger className="sm:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-white">
+                      <SelectTrigger className="sm:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-card">
                         <SelectValue placeholder="Categoria" />
                       </SelectTrigger>
                     </FormControl>
@@ -335,7 +335,7 @@ export function ProductosScreen() {
               size="sm"
               variant="outline"
               disabled={!hasSelection}
-              className="border-foreground/10 bg-white text-foreground hover:border-foreground/15 hover:bg-white hover:text-foreground active:border-foreground/20 active:bg-muted/70 active:text-foreground"
+              className="border-foreground/10 bg-card text-foreground hover:border-foreground/15 hover:bg-card hover:text-foreground active:border-foreground/20 active:bg-muted/70 active:text-foreground"
               onClick={clearSelection}
             >
               Limpiar seleccion

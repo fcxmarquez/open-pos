@@ -109,6 +109,8 @@ function sortProducts(products: Product[], sortState: SortState | null): Product
 
 const SORT_BTN_CLS =
   "h-auto p-0 text-xs font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground";
+const CATEGORY_BADGE_CLASS =
+  "rounded-xl border-0 bg-muted px-2 py-0.5 text-xs text-foreground";
 
 export function ProductsList({
   allSelectedOnPage,
@@ -198,9 +200,7 @@ export function ProductsList({
                       <p>PLU: {product.pluCode ?? "—"}</p>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                      <Badge className="rounded-xl border-0 bg-muted px-2 py-0.5 text-xs text-foreground">
-                        {product.category}
-                      </Badge>
+                      <Badge className={CATEGORY_BADGE_CLASS}>{product.category}</Badge>
                       <span className="text-xs text-muted-foreground">
                         Venta: {formatDate(product.lastSoldAt)}
                       </span>
@@ -360,9 +360,7 @@ export function ProductsList({
                 {formatCurrency(product.price)}
               </TableCell>
               <TableCell className="px-5">
-                <Badge className="rounded-xl border-0 bg-muted px-2 py-0.5 text-xs text-foreground">
-                  {product.category}
-                </Badge>
+                <Badge className={CATEGORY_BADGE_CLASS}>{product.category}</Badge>
               </TableCell>
               <TableCell className="px-5 text-sm text-muted-foreground">
                 {formatDate(product.lastSoldAt)}
