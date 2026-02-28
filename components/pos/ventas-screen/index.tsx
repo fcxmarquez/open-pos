@@ -261,7 +261,7 @@ export function VentasScreen() {
             <p className="text-xs font-semibold text-muted-foreground">
               Escanea o busca un producto para iniciar
             </p>
-            <p className="mt-1 text-[11px] text-muted-foreground/70">
+            <p className="mt-1 text-xs text-muted-foreground/70">
               Los artículos aparecerán aquí
             </p>
           </div>
@@ -371,7 +371,7 @@ export function VentasScreen() {
       <div className="px-5 py-4">
         <div className="mb-3 flex items-center justify-between rounded-xl bg-muted px-3 py-2.5">
           <span className="text-sm font-bold text-foreground">Total</span>
-          <span className="text-[34px] font-extrabold leading-none tracking-[-1px] text-foreground">
+          <span className="text-4xl font-extrabold leading-none tracking-[-1px] text-foreground">
             {formatCurrency(cartTotal)}
           </span>
         </div>

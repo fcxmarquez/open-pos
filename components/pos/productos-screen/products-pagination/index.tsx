@@ -54,19 +54,19 @@ export function ProductsPagination({
         aria-hidden={hideMobilePaginationRow}
       >
         <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             Mostrando {from} a {to} de {totalProducts} resultados
           </span>
           <div className="flex items-center gap-2">
             <Button
-              className="rounded-lg border border-border bg-background px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
               onClick={onPrevious}
               disabled={hideMobilePaginationRow || !hasPreviousPage || isFetching}
             >
               Anterior
             </Button>
             <Button
-              className="rounded-lg border border-border bg-background px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
               onClick={onNext}
               disabled={hideMobilePaginationRow || !hasNextPage || isFetching}
             >

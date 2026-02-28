@@ -131,7 +131,7 @@ function SummaryCard({
       <p
         className={cn(
           "mt-2 font-heading font-extrabold leading-none tracking-[-0.03em] text-foreground tabular-nums",
-          isCurrency ? "text-[24px]" : "text-[28px]"
+          isCurrency ? "text-2xl" : "text-3xl"
         )}
       >
         {value}
@@ -261,7 +261,7 @@ export function CorteScreen() {
                 onSubmit={form.handleSubmit(handleCloseRegister)}
                 className="flex flex-col gap-[10px]"
               >
-                <h3 className="font-heading text-[18px] font-bold text-foreground">
+                <h3 className="font-heading text-lg font-bold text-foreground">
                   Conteo de efectivo
                 </h3>
 
@@ -424,15 +424,15 @@ export function CorteScreen() {
                             key={sale.id}
                             className="h-[46px] border-b border-border/60 hover:bg-card"
                           >
-                            <TableCell className="w-[120px] px-4 py-3 text-[13px] font-medium text-foreground">
+                            <TableCell className="w-[120px] px-4 py-3 text-sm font-medium text-foreground">
                               {formatTime(sale.createdAt)}
                             </TableCell>
-                            <TableCell className="px-4 py-3 text-[13px] text-muted-foreground">
+                            <TableCell className="px-4 py-3 text-sm text-muted-foreground">
                               {sale.items
                                 .map((i) => `${i.productName} x${i.quantity}`)
                                 .join(", ")}
                             </TableCell>
-                            <TableCell className="w-[100px] px-4 py-3 text-right text-[13px] font-bold text-foreground">
+                            <TableCell className="w-[100px] px-4 py-3 text-right text-sm font-bold text-foreground">
                               {formatCurrency(Number(sale.total))}
                             </TableCell>
                           </TableRow>
@@ -448,7 +448,7 @@ export function CorteScreen() {
 
         <div className={surfaceCardClass}>
           <div className="flex h-14 items-center border-b border-border px-[18px]">
-            <h3 className="font-heading text-[18px] font-bold text-foreground">
+            <h3 className="font-heading text-lg font-bold text-foreground">
               Historial de sesiones
             </h3>
           </div>
@@ -530,16 +530,16 @@ export function CorteScreen() {
                           key={rec.id}
                           className="h-12 border-b border-border/60 hover:bg-card"
                         >
-                          <TableCell className="w-[180px] px-[18px] py-3 text-[13px] font-medium text-foreground">
+                          <TableCell className="w-[180px] px-[18px] py-3 text-sm font-medium text-foreground">
                             {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
                           </TableCell>
                           <TableCell className="w-[130px] px-[18px] py-3">
                             <StatusBadge status={rec.status} />
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-[13px] font-medium text-foreground">
+                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-sm font-medium text-foreground">
                             {formatCurrency(Number(rec.systemTotal ?? 0))}
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-[13px] font-medium text-muted-foreground">
+                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-sm font-medium text-muted-foreground">
                             {rec.status === "closed"
                               ? formatCurrency(Number(rec.countedTotal ?? 0))
                               : "-"}

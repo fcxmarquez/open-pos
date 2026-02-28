@@ -216,7 +216,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Date */}
-          <div className="hidden w-[190px] text-right font-body text-[11px] font-semibold text-foreground capitalize sm:block">
+          <div className="hidden w-[190px] text-right font-body text-xs font-semibold text-foreground capitalize sm:block">
             {formatDate()}
           </div>
         </header>
@@ -237,7 +237,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={cn(
-                  "flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium transition-colors",
+                  "flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium transition-colors",
                   isActive
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -254,7 +254,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={requestLogout}
-              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors hover:bg-secondary text-muted-foreground"
+              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-xs font-medium transition-colors hover:bg-secondary text-muted-foreground"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
             >

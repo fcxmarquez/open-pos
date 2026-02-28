@@ -226,7 +226,7 @@ export function ProductosScreen() {
             setEditingProduct(null);
             setShowForm(true);
           }}
-          className="h-10 rounded-[10px] bg-foreground px-4 text-[13px] font-semibold text-background hover:bg-foreground/90"
+          className="h-10 rounded-[10px] bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/90"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Agregar producto
