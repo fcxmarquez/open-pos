@@ -198,7 +198,7 @@ export function ProductsList({
                       <p>PLU: {product.pluCode ?? "—"}</p>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                      <Badge className="rounded-xl border-0 bg-[#E4E4E7] px-2 py-0.5 text-xs text-foreground">
+                      <Badge className="rounded-xl border-0 bg-muted px-2 py-0.5 text-xs text-foreground">
                         {product.category}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
@@ -243,10 +243,10 @@ export function ProductsList({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white">
+    <div className="overflow-hidden rounded-2xl border border-border bg-background">
       <Table>
         <TableHeader>
-          <TableRow className="bg-[#F9FAFB] hover:bg-[#F9FAFB]">
+          <TableRow className="bg-muted/40 hover:bg-muted/40">
             <TableHead className="h-12 w-10 px-5">
               <Checkbox
                 checked={
@@ -322,8 +322,8 @@ export function ProductsList({
             <TableRow
               key={product.id}
               className={cn(
-                "h-16 border-b border-[#F3F4F6]",
-                selectedProductIds.has(product.id) && "bg-[#F4F4F5]"
+                "h-16 border-b border-border/60",
+                selectedProductIds.has(product.id) && "bg-muted/60"
               )}
             >
               <TableCell className="px-5">
@@ -360,7 +360,7 @@ export function ProductsList({
                 {formatCurrency(product.price)}
               </TableCell>
               <TableCell className="px-5">
-                <Badge className="rounded-xl border-0 bg-[#E4E4E7] px-2 py-0.5 text-xs text-foreground">
+                <Badge className="rounded-xl border-0 bg-muted px-2 py-0.5 text-xs text-foreground">
                   {product.category}
                 </Badge>
               </TableCell>
@@ -382,7 +382,7 @@ export function ProductsList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-[#EF4444] hover:bg-red-50 hover:text-[#EF4444]"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => onDelete(product)}
                     disabled={isPending}
                   >
