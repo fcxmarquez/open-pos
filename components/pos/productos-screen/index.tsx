@@ -425,7 +425,7 @@ export function ProductosScreen() {
                 }
               }}
             >
-              {isPending && <Spinner className="mr-2" />}
+              {isPending && <Spinner className="mr-2 text-destructive-foreground" />}
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

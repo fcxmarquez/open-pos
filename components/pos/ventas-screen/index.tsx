@@ -426,6 +426,7 @@ export function VentasScreen() {
                         onClick={() => setShowQuickSale(true)}
                         size="sm"
                         className="shrink-0"
+                        aria-label="Venta rápida"
                       >
                         <Zap className="h-3.5 w-3.5" />
                         <span className="hidden text-xs font-semibold md:inline">
