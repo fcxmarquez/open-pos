@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import {
   type CheckoutFormValues,
   checkoutFormDefaults,
@@ -123,7 +123,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
           >
             <div className="rounded-lg bg-muted p-4 text-center">
               <p className="text-sm text-muted-foreground">Total a cobrar</p>
-              <p className="text-3xl font-bold text-foreground">
+              <p className="font-heading text-3xl font-bold text-foreground">
                 {formatCurrency(total)}
               </p>
             </div>
@@ -158,7 +158,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
                 aria-live="polite"
                 className={`rounded-lg p-3 text-center text-lg font-semibold ${
                   change >= 0
-                    ? "bg-accent/10 text-accent"
+                    ? "bg-muted text-success-foreground"
                     : "bg-destructive/10 text-destructive"
                 }`}
               >
@@ -168,15 +168,10 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
               </output>
             )}
 
-            <Button
-              type="submit"
-              size="lg"
-              disabled={!canConfirm}
-              className="w-full bg-accent text-accent-foreground text-base font-semibold hover:bg-accent/90"
-            >
+            <Button type="submit" size="lg" disabled={!canConfirm} className="w-full">
               {isProcessing ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Spinner className="mr-2" />
                   Procesando...
                 </>
               ) : (

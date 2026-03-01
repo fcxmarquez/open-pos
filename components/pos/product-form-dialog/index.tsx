@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -33,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import {
   CATEGORY_OPTIONS,
   type ProductFormValues,
@@ -296,14 +296,10 @@ export function ProductFormDialog({
               )}
             />
 
-            <Button
-              type="submit"
-              className="mt-1 w-full bg-primary text-primary-foreground"
-              disabled={isPending}
-            >
+            <Button type="submit" className="mt-1 w-full" disabled={isPending}>
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Spinner className="mr-2" />
                   Guardando...
                 </>
               ) : product ? (

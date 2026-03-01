@@ -1,9 +1,12 @@
-import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 
 interface ProductsPaginationProps {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  hideMobilePaginationRow?: boolean;
   isFetching: boolean;
   onNext: () => void;
   onPrevious: () => void;
@@ -16,6 +19,7 @@ interface ProductsPaginationProps {
 export function ProductsPagination({
   hasNextPage,
   hasPreviousPage,
+  hideMobilePaginationRow = false,
   isFetching,
   onNext,
   onPrevious,
@@ -24,38 +28,64 @@ export function ProductsPagination({
   totalPages,
   totalProducts,
 }: ProductsPaginationProps) {
+  const safePage = totalProducts === 0 ? 1 : Math.min(page, Math.max(totalPages, 1));
+  const from = totalProducts === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const to = totalProducts === 0 ? 0 : Math.min(safePage * pageSize, totalProducts);
+
   return (
-    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>
-          Mostrando {totalProducts === 0 ? 0 : (page - 1) * pageSize + 1}
-          {" - "}
-          {totalProducts === 0 ? 0 : Math.min(page * pageSize, totalProducts)}
-          {" de "}
-          {totalProducts}
-        </span>
-        {isFetching && <Loader2 className="h-4 w-4 animate-spin" />}
-      </div>
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPrevious}
-          disabled={!hasPreviousPage || isFetching}
+    <div className="mt-3 flex flex-col gap-0">
+      {/* Badge bar */}
+      <div className="flex items-center gap-3">
+        <Badge
+          variant="muted"
+          size="chip"
+          className="rounded-full px-3 py-1 font-semibold"
         >
-          Anterior
-        </Button>
-        <span className="min-w-28 text-center text-sm text-muted-foreground">
+          {totalProducts} productos
+        </Badge>
+        <Badge
+          variant="outline"
+          size="chip"
+          className="rounded-full px-3 py-1 font-normal"
+        >
           Página {page} de {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNext}
-          disabled={!hasNextPage || isFetching}
-        >
-          Siguiente
-        </Button>
+        </Badge>
+        {isFetching && <Spinner />}
+      </div>
+
+      {/* Pagination row */}
+      <div
+        className={cn(
+          "overflow-hidden transition-[max-height,opacity,transform,padding] duration-200 ease-out md:overflow-visible md:transition-none",
+          hideMobilePaginationRow
+            ? "pointer-events-none max-h-0 translate-y-[-8px] px-3 pt-0 opacity-0"
+            : "max-h-24 translate-y-0 px-3 pt-3 opacity-100 md:max-h-none md:py-4"
+        )}
+        aria-hidden={hideMobilePaginationRow}
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            Mostrando {from} a {to} de {totalProducts} resultados
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPrevious}
+              disabled={hideMobilePaginationRow || !hasPreviousPage || isFetching}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNext}
+              disabled={hideMobilePaginationRow || !hasNextPage || isFetching}
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
