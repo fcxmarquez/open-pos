@@ -78,7 +78,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [pinIntent, setPinIntent] = useState<PinIntent>("unlock");
   const isLoggingOut = useRef(false);
 
-  const { data: openSession } = useQuery(openSessionQueryOptions());
+  const { data: openSession, isPending: isSessionPending } = useQuery(
+    openSessionQueryOptions()
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -216,7 +218,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-1.5 rounded-xl border border-border bg-muted px-3 h-8">
               <CircleDot className="h-3.5 w-3.5 text-foreground" />
               <span className="font-body text-xs font-semibold text-foreground">
-                {openSession ? "Sesión abierta" : "Sin sesión"}
+                {isSessionPending ? "..." : openSession ? "Sesión abierta" : "Sin sesión"}
               </span>
             </div>
 
