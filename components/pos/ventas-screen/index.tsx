@@ -21,6 +21,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
+import { CATEGORY_COLOR_MAP } from "@/lib/category-colors";
 import { dbProductToStoreProduct } from "@/lib/mappers";
 import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
@@ -475,23 +476,29 @@ export function VentasScreen() {
 
         {/* Frequent products grid */}
         <div className="flex-1 overflow-auto">
-          <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted-foreground">
+          <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.8px] text-foreground">
             Productos frecuentes
           </h3>
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-[10px] md:grid-cols-4">
             {frequentProducts.map((product) => (
               <button
                 type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
-                className="flex flex-col items-start rounded-lg border bg-card p-2.5 text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98] md:p-3"
+                className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all active:scale-[0.98]"
               >
-                <span className="text-xs font-medium leading-snug text-foreground md:text-sm">
-                  {product.name}
-                </span>
-                <span className="mt-auto pt-1.5 text-sm font-bold text-primary md:pt-2 md:text-base">
-                  {formatCurrency(product.price)}
-                </span>
+                <div
+                  className="w-1.5 shrink-0"
+                  style={{ background: CATEGORY_COLOR_MAP[product.category] }}
+                />
+                <div className="flex flex-1 flex-col justify-between gap-2 p-3.5">
+                  <span className="line-clamp-2 text-[13px] font-semibold uppercase leading-tight text-product-title">
+                    {product.name}
+                  </span>
+                  <span className="text-xl font-extrabold tracking-[-0.5px] text-foreground">
+                    {formatCurrency(product.price)}
+                  </span>
+                </div>
               </button>
             ))}
           </div>
