@@ -103,6 +103,7 @@ function sortProducts(products: Product[], sortState: SortState | null): Product
 const SORT_BTN_CLS =
   "h-auto p-0 text-xs font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground";
 const CATEGORY_BADGE_CLASS = "border-transparent bg-muted";
+
 export function ProductsList({
   allSelectedOnPage,
   isMobile,
