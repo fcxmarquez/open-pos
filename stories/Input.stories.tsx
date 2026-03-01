@@ -36,6 +36,7 @@ export const Disabled: Story = {
 
 export const ReadOnly: Story = {
   args: {
+    // biome-ignore lint/security/noSecrets: fake barcode for story demo
     defaultValue: "750123456789",
     readOnly: true,
     className: "bg-muted font-mono",
