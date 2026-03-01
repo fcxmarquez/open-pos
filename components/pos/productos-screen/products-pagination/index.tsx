@@ -28,8 +28,9 @@ export function ProductsPagination({
   totalPages,
   totalProducts,
 }: ProductsPaginationProps) {
-  const from = totalProducts === 0 ? 0 : (page - 1) * pageSize + 1;
-  const to = totalProducts === 0 ? 0 : Math.min(page * pageSize, totalProducts);
+  const safePage = totalProducts === 0 ? 1 : Math.min(page, Math.max(totalPages, 1));
+  const from = totalProducts === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const to = totalProducts === 0 ? 0 : Math.min(safePage * pageSize, totalProducts);
 
   return (
     <div className="mt-3 flex flex-col gap-0">
