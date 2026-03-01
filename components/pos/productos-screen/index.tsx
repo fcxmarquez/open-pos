@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Loader2, Plus, Search } from "lucide-react";
+import { AlertTriangle, Plus, Search } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/components/ui/use-mobile";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import type { Product } from "@/lib/store";
@@ -213,43 +214,42 @@ export function ProductosScreen() {
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Spinner size="lg" />
       </div>
     );
   }
 
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
         <Button
           onClick={() => {
             setEditingProduct(null);
             setShowForm(true);
           }}
-          className="h-10 rounded-[10px] bg-foreground px-4 text-[13px] font-semibold text-background hover:bg-foreground/90"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Agregar producto
         </Button>
         <div className="flex flex-wrap items-center gap-2">
           {pendingCount > 0 && (
-            <Badge className="h-6 gap-1 rounded-[6px] border border-amber-200 bg-amber-50 py-1 px-2.5 text-xs font-medium text-amber-700">
-              <AlertTriangle className="h-3 w-3 text-amber-700" />
+            <Badge variant="warning" size="compact">
+              <AlertTriangle className="h-3 w-3" />
               {pendingCount} sin nombre
             </Badge>
           )}
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center">
         <Form {...filtersForm}>
           <FormField
             control={filtersForm.control}
             name="searchQuery"
             render={({ field }) => (
               <FormItem className="flex-1 space-y-0">
-                <SearchBar className="h-[50px]">
-                  <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
+                <SearchBar className="h-12">
+                  <Search className="h-5 w-5 shrink-0 text-foreground" />
                   <FormControl>
                     <Input
                       placeholder="Buscar por nombre, codigo o PLU..."
@@ -266,10 +266,10 @@ export function ProductosScreen() {
               control={filtersForm.control}
               name="categoryFilter"
               render={({ field }) => (
-                <FormItem className="flex-1 space-y-0 sm:w-[200px] sm:flex-none">
+                <FormItem className="flex-1 space-y-0 md:w-[200px] md:flex-none">
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger className="sm:h-[47px] rounded-2xl border-[1.5px] border-foreground bg-card">
+                      <SelectTrigger className="md:h-12 rounded-2xl border-[1.5px] border-foreground bg-card">
                         <SelectValue placeholder="Categoria" />
                       </SelectTrigger>
                     </FormControl>
@@ -314,7 +314,7 @@ export function ProductosScreen() {
         )}
         aria-hidden={!hasSelection}
       >
-        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
               {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
@@ -335,7 +335,6 @@ export function ProductosScreen() {
               size="sm"
               variant="outline"
               disabled={!hasSelection}
-              className="border-foreground/10 bg-card text-foreground hover:border-foreground/15 hover:bg-card hover:text-foreground active:border-foreground/20 active:bg-muted/70 active:text-foreground"
               onClick={clearSelection}
             >
               Limpiar seleccion
@@ -426,7 +425,7 @@ export function ProductosScreen() {
                 }
               }}
             >
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPending && <Spinner className="mr-2 text-destructive-foreground" />}
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

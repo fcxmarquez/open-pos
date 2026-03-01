@@ -145,10 +145,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
       {/* Sidebar */}
-      <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-[14px] pt-3 md:flex">
+      <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-3.5 pt-3 md:flex">
         <div className="flex flex-col items-center gap-3">
           <div className="flex h-10 w-full items-center justify-center">
-            <Store className="h-[22px] w-[22px] text-sidebar-foreground" />
+            <Store className="h-5 w-5 text-sidebar-foreground" />
             <span className="sr-only">Papeleria Luna</span>
           </div>
           <div className="h-px w-6 bg-border" />
@@ -165,7 +165,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 title={item.label}
                 aria-label={item.label}
                 className={cn(
-                  "flex h-10 w-[46px] items-center justify-center rounded-[12px] border text-muted-foreground transition-colors",
+                  "flex h-10 w-[46px] items-center justify-center rounded-xl border text-muted-foreground transition-colors",
                   isActive
                     ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
                     : "border-transparent bg-transparent hover:bg-sidebar-accent hover:text-foreground"
@@ -188,7 +188,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               onClick={requestLogout}
               title="Cerrar sesión"
               aria-label="Cerrar sesión"
-              className="flex h-10 w-[46px] items-center justify-center rounded-[12px] border border-transparent text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+              className="flex h-10 w-[46px] items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
               <span className="sr-only">Cerrar sesión</span>
@@ -208,7 +208,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex-1" />
 
           {/* Session badge */}
-          <div className="hidden items-center gap-1.5 rounded-[10px] border border-border bg-muted px-3 h-8 sm:flex">
+          <div className="hidden items-center gap-1.5 rounded-xl border border-border bg-muted px-3 h-8 md:flex">
             <CircleDot className="h-3.5 w-3.5 text-foreground" />
             <span className="font-body text-xs font-semibold text-foreground">
               Sesión abierta
@@ -216,7 +216,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Date */}
-          <div className="hidden w-[190px] text-right font-body text-[11px] font-semibold text-foreground capitalize sm:block">
+          <div className="hidden w-[190px] text-right font-body text-xs font-semibold text-foreground capitalize md:block">
             {formatDate()}
           </div>
         </header>
@@ -237,7 +237,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={cn(
-                  "flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium transition-colors",
+                  "flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium transition-colors",
                   isActive
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -254,7 +254,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={requestLogout}
-              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-[11px] font-medium transition-colors hover:bg-secondary text-muted-foreground"
+              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-xs font-medium transition-colors hover:bg-secondary text-muted-foreground"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
             >

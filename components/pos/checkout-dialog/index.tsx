@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import {
   type CheckoutFormValues,
   checkoutFormDefaults,
@@ -167,15 +167,10 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
               </output>
             )}
 
-            <Button
-              type="submit"
-              size="lg"
-              disabled={!canConfirm}
-              className="w-full bg-accent text-accent-foreground text-base font-semibold hover:bg-accent/90"
-            >
+            <Button type="submit" size="lg" disabled={!canConfirm} className="w-full">
               {isProcessing ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Spinner className="mr-2" />
                   Procesando...
                 </>
               ) : (

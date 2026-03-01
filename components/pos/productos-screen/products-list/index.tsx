@@ -1,7 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
-import { es as esMX } from "date-fns/locale";
 import {
   AlertTriangle,
   ChevronDown,
@@ -24,12 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Product } from "@/lib/store";
-import { cn, formatCurrency } from "@/lib/utils";
-
-function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return "Nunca";
-  return format(new Date(dateStr), "dd MMM yyyy", { locale: esMX });
-}
+import { cn, formatCurrency, formatDateLabel } from "@/lib/utils";
 
 interface ProductsListProps {
   allSelectedOnPage: boolean;
@@ -109,8 +102,7 @@ function sortProducts(products: Product[], sortState: SortState | null): Product
 
 const SORT_BTN_CLS =
   "h-auto p-0 text-xs font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground";
-const CATEGORY_BADGE_CLASS =
-  "rounded-xl border-0 bg-muted px-2 py-0.5 text-xs text-foreground";
+const CATEGORY_BADGE_CLASS = "border-transparent bg-muted";
 
 export function ProductsList({
   allSelectedOnPage,
@@ -182,7 +174,7 @@ export function ProductsList({
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     {product.name === "Sin nombre" ? (
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-warning-foreground">
                         <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
                         Sin nombre - requiere registro
                       </p>
@@ -200,9 +192,11 @@ export function ProductsList({
                       <p>PLU: {product.pluCode ?? "—"}</p>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                      <Badge className={CATEGORY_BADGE_CLASS}>{product.category}</Badge>
+                      <Badge variant="muted" size="chip" className={CATEGORY_BADGE_CLASS}>
+                        {product.category}
+                      </Badge>
                       <span className="text-xs text-muted-foreground">
-                        Venta: {formatDate(product.lastSoldAt)}
+                        Venta: {formatDateLabel(product.lastSoldAt)}
                       </span>
                     </div>
                   </div>
@@ -348,7 +342,7 @@ export function ProductsList({
               </TableCell>
               <TableCell className="px-5">
                 {product.name === "Sin nombre" ? (
-                  <span className="text-amber-600">
+                  <span className="text-warning-foreground">
                     <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
                     Sin nombre - requiere registro
                   </span>
@@ -360,10 +354,12 @@ export function ProductsList({
                 {formatCurrency(product.price)}
               </TableCell>
               <TableCell className="px-5">
-                <Badge className={CATEGORY_BADGE_CLASS}>{product.category}</Badge>
+                <Badge variant="muted" size="chip" className={CATEGORY_BADGE_CLASS}>
+                  {product.category}
+                </Badge>
               </TableCell>
               <TableCell className="px-5 text-sm text-muted-foreground">
-                {formatDate(product.lastSoldAt)}
+                {formatDateLabel(product.lastSoldAt)}
               </TableCell>
               <TableCell className="px-5 text-right">
                 <div className="flex items-center justify-end gap-3">

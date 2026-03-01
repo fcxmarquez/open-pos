@@ -15,3 +15,4 @@ node_modules/
 ignore/
 .playwright-mcp/
 .codex/environments/
+storybook-static/

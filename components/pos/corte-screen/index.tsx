@@ -2,8 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -12,7 +10,6 @@ import {
   CircleDot,
   DollarSign,
   Info,
-  Loader2,
   Package,
   Receipt,
   Wallet,
@@ -21,6 +18,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { closeSession } from "@/app/actions/sessions";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -37,6 +35,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -50,7 +49,7 @@ import {
   corteFormDefaults,
   corteFormSchema,
 } from "@/lib/pos-form-schemas";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, formatDateShort, formatTime } from "@/lib/utils";
 import {
   openSessionQueryKey,
   openSessionQueryOptions,
@@ -60,52 +59,39 @@ import {
   sessionHistoryQueryOptions,
 } from "./query";
 
-function formatTime(timestamp: Date): string {
-  const d = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  return format(d, "HH:mm", { locale: es });
-}
-
-function formatDateShort(dateStr: string): string {
-  return format(new Date(`${dateStr}T12:00:00`), "dd MMM yyyy", { locale: es });
-}
-
 const surfaceCardClass = "overflow-hidden rounded-2xl border border-border bg-card";
 const tableHeadClass = "h-12 px-5 font-body text-xs font-semibold text-muted-foreground";
 
 function DiffBadge({ diff }: { diff: number }) {
   if (diff === 0) {
     return (
-      <span className="inline-flex h-7 items-center rounded-full border border-border bg-muted/40 px-2.5 text-xs font-semibold text-foreground">
+      <Badge variant="success" size="pill">
         Cuadra
-      </span>
+      </Badge>
     );
   }
   if (diff > 0) {
     return (
-      <span className="inline-flex h-7 items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-600">
+      <Badge variant="info" size="pill">
         +{formatCurrency(diff)}
-      </span>
+      </Badge>
     );
   }
   return (
-    <span className="inline-flex h-7 items-center rounded-full border border-amber-300 bg-amber-50 px-2.5 text-xs font-semibold text-amber-600">
+    <Badge variant="warning" size="pill">
       -{formatCurrency(Math.abs(diff))}
-    </span>
+    </Badge>
   );
 }
 
 function StatusBadge({ status }: { status: string | null }) {
   if (status === "open") {
-    return (
-      <span className="inline-flex h-7 items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-600">
-        Abierto
-      </span>
-    );
+    return <Badge size="pill">Abierto</Badge>;
   }
   return (
-    <span className="inline-flex h-7 items-center rounded-full border border-border bg-muted/40 px-2.5 text-xs font-semibold text-muted-foreground">
+    <Badge variant="muted" size="pill">
       Cerrado
-    </span>
+    </Badge>
   );
 }
 
@@ -131,7 +117,7 @@ function SummaryCard({
       <p
         className={cn(
           "mt-2 font-heading font-extrabold leading-none tracking-[-0.03em] text-foreground tabular-nums",
-          isCurrency ? "text-[24px]" : "text-[28px]"
+          isCurrency ? "text-2xl" : "text-3xl"
         )}
       >
         {value}
@@ -207,7 +193,7 @@ export function CorteScreen() {
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -215,16 +201,13 @@ export function CorteScreen() {
   return (
     <ScrollArea className="h-full">
       <div className="mx-auto flex max-w-[980px] flex-col gap-3 px-4 py-4 md:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-body text-xs font-medium text-muted-foreground">
-            {session
-              ? `Sesión actual: ${formatDateShort(session.sessionDate)} (Turno ${session.sessionNumber})`
-              : "No hay sesión activa"}
-          </p>
-          {session && <StatusBadge status={session.status} />}
-        </div>
+        <p className="font-body text-xs font-medium text-muted-foreground">
+          {session
+            ? `Sesión actual: ${formatDateShort(session.sessionDate)} (Turno ${session.sessionNumber})`
+            : "No hay sesión activa"}
+        </p>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
           <SummaryCard
             icon={Receipt}
             label="Ventas realizadas"
@@ -243,7 +226,7 @@ export function CorteScreen() {
           />
         </div>
 
-        <div className={cn(surfaceCardClass, "p-[14px]")}>
+        <div className={cn(surfaceCardClass, "p-3.5")}>
           {!session ? (
             <div className="rounded-2xl bg-muted/50 px-4 py-5">
               <div className="flex items-start gap-3">
@@ -262,9 +245,9 @@ export function CorteScreen() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleCloseRegister)}
-                className="flex flex-col gap-[10px]"
+                className="flex flex-col gap-2.5"
               >
-                <h3 className="font-heading text-[18px] font-bold text-foreground">
+                <h3 className="font-heading text-lg font-bold text-foreground">
                   Conteo de efectivo
                 </h3>
 
@@ -285,7 +268,7 @@ export function CorteScreen() {
                             step="0.01"
                             min="0"
                             placeholder="Ingresa la cantidad contada en caja"
-                            className="h-[46px] rounded-[14px] border-[1.5px] border-foreground bg-card pl-[42px] pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-12 rounded-xl border-[1.5px] border-foreground bg-card pl-10 pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
                         </div>
@@ -300,9 +283,10 @@ export function CorteScreen() {
                     className={cn(
                       "flex items-center gap-3 rounded-2xl border px-4 py-3",
                       difference === 0 &&
-                        "border-emerald-200 bg-emerald-50 text-emerald-700",
-                      difference > 0 && "border-blue-200 bg-blue-50 text-blue-600",
-                      difference < 0 && "border-amber-300 bg-amber-50 text-amber-600"
+                        "border-success-border bg-success text-success-foreground",
+                      difference > 0 && "border-info-border bg-info text-info-foreground",
+                      difference < 0 &&
+                        "border-warning-border bg-warning text-warning-foreground"
                     )}
                   >
                     {difference === 0 ? (
@@ -331,11 +315,11 @@ export function CorteScreen() {
                 <Button
                   type="submit"
                   disabled={!isValidCount || !session || isPending}
-                  className="h-[42px] w-full rounded-xl bg-foreground text-sm font-bold text-background hover:bg-foreground/90"
+                  className="w-full"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Spinner />
                       Cerrando...
                     </>
                   ) : (
@@ -350,10 +334,7 @@ export function CorteScreen() {
         {session && (
           <Collapsible open={showDetail} onOpenChange={setShowDetail}>
             <CollapsibleTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-[38px] w-full justify-between rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted/40 hover:text-foreground"
-              >
+              <Button variant="outline" className="w-full justify-between">
                 <span>Detalle de ventas ({openSessionSales.length})</span>
                 {showDetail ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -396,7 +377,7 @@ export function CorteScreen() {
                 <div className="hidden md:block">
                   <Table>
                     <TableHeader>
-                      <TableRow className="h-[42px] border-b border-border bg-muted/40 hover:bg-muted/40">
+                      <TableRow className="h-10 border-b border-border bg-muted/40 hover:bg-muted/40">
                         <TableHead className={cn(tableHeadClass, "w-[120px] px-4")}>
                           Hora
                         </TableHead>
@@ -412,7 +393,7 @@ export function CorteScreen() {
                     </TableHeader>
                     <TableBody>
                       {openSessionSales.length === 0 ? (
-                        <TableRow className="h-[46px] hover:bg-card">
+                        <TableRow className="h-12 hover:bg-card">
                           <TableCell
                             colSpan={3}
                             className="px-4 py-6 text-center text-sm text-muted-foreground"
@@ -424,17 +405,17 @@ export function CorteScreen() {
                         openSessionSales.map((sale) => (
                           <TableRow
                             key={sale.id}
-                            className="h-[46px] border-b border-border/60 hover:bg-card"
+                            className="h-12 border-b border-border/60 hover:bg-card"
                           >
-                            <TableCell className="w-[120px] px-4 py-3 text-[13px] font-medium text-foreground">
+                            <TableCell className="w-[120px] px-4 py-3 text-sm font-medium text-foreground">
                               {formatTime(sale.createdAt)}
                             </TableCell>
-                            <TableCell className="px-4 py-3 text-[13px] text-muted-foreground">
+                            <TableCell className="px-4 py-3 text-sm text-muted-foreground">
                               {sale.items
                                 .map((i) => `${i.productName} x${i.quantity}`)
                                 .join(", ")}
                             </TableCell>
-                            <TableCell className="w-[100px] px-4 py-3 text-right text-[13px] font-bold text-foreground">
+                            <TableCell className="w-[100px] px-4 py-3 text-right text-sm font-bold text-foreground">
                               {formatCurrency(Number(sale.total))}
                             </TableCell>
                           </TableRow>
@@ -449,15 +430,15 @@ export function CorteScreen() {
         )}
 
         <div className={surfaceCardClass}>
-          <div className="flex h-14 items-center border-b border-border px-[18px]">
-            <h3 className="font-heading text-[18px] font-bold text-foreground">
+          <div className="flex h-14 items-center border-b border-border px-5">
+            <h3 className="font-heading text-lg font-bold text-foreground">
               Historial de sesiones
             </h3>
           </div>
 
           {isLoadingHistory ? (
             <div className="flex items-center justify-center px-6 py-10">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <Spinner size="md" />
             </div>
           ) : history.length === 0 ? (
             <div className="flex min-h-[160px] flex-col items-center justify-center gap-2 px-6 py-10 text-center">
@@ -500,25 +481,25 @@ export function CorteScreen() {
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
-                    <TableRow className="h-[42px] border-b border-border bg-muted/40 hover:bg-muted/40">
-                      <TableHead className={cn(tableHeadClass, "w-[180px] px-[18px]")}>
+                    <TableRow className="h-10 border-b border-border bg-muted/40 hover:bg-muted/40">
+                      <TableHead className={cn(tableHeadClass, "w-[180px] px-5")}>
                         Fecha
                       </TableHead>
-                      <TableHead className={cn(tableHeadClass, "w-[130px] px-[18px]")}>
+                      <TableHead className={cn(tableHeadClass, "w-[130px] px-5")}>
                         Estado
                       </TableHead>
                       <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
                       >
                         Sistema
                       </TableHead>
                       <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
                       >
                         Contado
                       </TableHead>
                       <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-[18px] text-right")}
+                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
                       >
                         Diferencia
                       </TableHead>
@@ -532,21 +513,21 @@ export function CorteScreen() {
                           key={rec.id}
                           className="h-12 border-b border-border/60 hover:bg-card"
                         >
-                          <TableCell className="w-[180px] px-[18px] py-3 text-[13px] font-medium text-foreground">
+                          <TableCell className="w-[180px] px-5 py-3 text-sm font-medium text-foreground">
                             {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
                           </TableCell>
-                          <TableCell className="w-[130px] px-[18px] py-3">
+                          <TableCell className="w-[130px] px-5 py-3">
                             <StatusBadge status={rec.status} />
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-[13px] font-medium text-foreground">
+                          <TableCell className="w-[120px] px-5 py-3 text-right text-sm font-medium text-foreground">
                             {formatCurrency(Number(rec.systemTotal ?? 0))}
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right text-[13px] font-medium text-muted-foreground">
+                          <TableCell className="w-[120px] px-5 py-3 text-right text-sm font-medium text-muted-foreground">
                             {rec.status === "closed"
                               ? formatCurrency(Number(rec.countedTotal ?? 0))
                               : "-"}
                           </TableCell>
-                          <TableCell className="w-[120px] px-[18px] py-3 text-right">
+                          <TableCell className="w-[120px] px-5 py-3 text-right">
                             {rec.status === "closed" ? <DiffBadge diff={diff} /> : "-"}
                           </TableCell>
                         </TableRow>

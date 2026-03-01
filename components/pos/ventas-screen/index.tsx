@@ -2,17 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Loader2,
-  Minus,
-  Pencil,
-  Plus,
-  Search,
-  ShoppingBag,
-  Trash2,
-  X,
-  Zap,
-} from "lucide-react";
+import { Minus, Pencil, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -30,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
 import { dbProductToStoreProduct } from "@/lib/mappers";
 import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
@@ -46,14 +37,11 @@ function CartHeader({
   onClose?: () => void;
 }) {
   return (
-    <div className="flex h-[60px] items-center border-b px-[22px]">
-      <ShoppingBag className="h-[18px] w-[18px] shrink-0 text-foreground" />
+    <div className="flex h-14 items-center border-b px-5">
+      <ShoppingBag className="h-5 w-5 shrink-0 text-foreground" />
       <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
       <div className="flex-1" />
-      <Badge
-        variant="outline"
-        className="rounded-xl border-foreground bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted"
-      >
+      <Badge variant="muted" size="chip" className="border-foreground px-2.5 py-1">
         {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
       </Badge>
       {onClose && (
@@ -261,7 +249,7 @@ export function VentasScreen() {
             <p className="text-xs font-semibold text-muted-foreground">
               Escanea o busca un producto para iniciar
             </p>
-            <p className="mt-1 text-[11px] text-muted-foreground/70">
+            <p className="mt-1 text-xs text-muted-foreground/70">
               Los artículos aparecerán aquí
             </p>
           </div>
@@ -371,13 +359,13 @@ export function VentasScreen() {
       <div className="px-5 py-4">
         <div className="mb-3 flex items-center justify-between rounded-xl bg-muted px-3 py-2.5">
           <span className="text-sm font-bold text-foreground">Total</span>
-          <span className="text-[34px] font-extrabold leading-none tracking-[-1px] text-foreground">
+          <span className="text-4xl font-extrabold leading-none tracking-[-1px] text-foreground">
             {formatCurrency(cartTotal)}
           </span>
         </div>
         <Button
           size="lg"
-          className="mb-2 h-[52px] w-full rounded-2xl bg-foreground text-base font-extrabold text-background hover:bg-foreground/90"
+          className="mb-2 w-full"
           disabled={cart.length === 0}
           onClick={() => {
             setShowCheckout(true);
@@ -389,7 +377,7 @@ export function VentasScreen() {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full rounded-2xl text-xs font-medium text-muted-foreground hover:bg-muted hover:text-destructive"
+          className="w-full"
           disabled={cart.length === 0}
           onClick={handleCancelSale}
         >
@@ -400,9 +388,9 @@ export function VentasScreen() {
   );
 
   return (
-    <div className="flex h-full flex-col lg:flex-row">
+    <div className="flex h-full flex-col md:flex-row">
       {/* Left column - Product entry */}
-      <div className="flex flex-1 flex-col overflow-hidden border-b p-4 lg:border-b-0 lg:p-5">
+      <div className="flex flex-1 flex-col overflow-hidden border-b p-4 md:border-b-0 md:p-5">
         {/* Barcode input */}
         <Form {...searchForm}>
           <form onSubmit={searchForm.handleSubmit(handleSubmit)} className="mb-4">
@@ -416,9 +404,9 @@ export function VentasScreen() {
                   <FormItem className="space-y-0">
                     <SearchBar animated className="h-12">
                       {isSubmitting ? (
-                        <Loader2 className="h-[18px] w-[18px] shrink-0 animate-spin text-foreground" />
+                        <Spinner className="h-5 w-5 shrink-0 text-foreground" />
                       ) : (
-                        <Search className="h-[18px] w-[18px] shrink-0 text-foreground" />
+                        <Search className="h-5 w-5 shrink-0 text-foreground" />
                       )}
                       <FormControl>
                         <Input
@@ -436,10 +424,12 @@ export function VentasScreen() {
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
-                        className="h-[34px] shrink-0 gap-1.5 rounded-[10px] bg-foreground px-3.5 text-background hover:bg-foreground/90"
+                        size="sm"
+                        className="shrink-0"
+                        aria-label="Venta rápida"
                       >
                         <Zap className="h-3.5 w-3.5" />
-                        <span className="hidden text-xs font-semibold sm:inline">
+                        <span className="hidden text-xs font-semibold md:inline">
                           Venta rápida (F4)
                         </span>
                       </Button>
@@ -456,7 +446,7 @@ export function VentasScreen() {
           <div className="mb-4 max-h-48 overflow-auto rounded-md border bg-card shadow-md">
             {isSearching && (
               <div className="flex items-center justify-center py-2">
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <Spinner />
               </div>
             )}
             {searchResults.map((p) => (
@@ -488,18 +478,18 @@ export function VentasScreen() {
           <h3 className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted-foreground">
             Productos frecuentes
           </h3>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 xl:grid-cols-4">
             {frequentProducts.map((product) => (
               <button
                 type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
-                className="flex flex-col items-start rounded-lg border bg-card p-2.5 text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98] sm:p-3"
+                className="flex flex-col items-start rounded-lg border bg-card p-2.5 text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98] md:p-3"
               >
-                <span className="text-xs font-medium leading-snug text-foreground sm:text-sm">
+                <span className="text-xs font-medium leading-snug text-foreground md:text-sm">
                   {product.name}
                 </span>
-                <span className="mt-auto pt-1.5 text-sm font-bold text-primary sm:pt-2 sm:text-base">
+                <span className="mt-auto pt-1.5 text-sm font-bold text-primary md:pt-2 md:text-base">
                   {formatCurrency(product.price)}
                 </span>
               </button>
@@ -509,18 +499,12 @@ export function VentasScreen() {
       </div>
 
       {/* Mobile cart toggle button - fixed at bottom on small screens */}
-      <div className="border-t bg-card p-3 lg:hidden">
-        <Button
-          className="w-full bg-primary text-primary-foreground"
-          onClick={() => setMobileCartOpen(true)}
-        >
+      <div className="border-t bg-card p-3 md:hidden">
+        <Button className="w-full" onClick={() => setMobileCartOpen(true)}>
           <ShoppingBag className="mr-2 h-4 w-4" />
           Ver carrito
           {cartItemCount > 0 && (
-            <Badge
-              variant="secondary"
-              className="ml-2 bg-primary-foreground/20 text-primary-foreground"
-            >
+            <Badge variant="inverted" size="chip" className="ml-2 rounded-full">
               {cartItemCount}
             </Badge>
           )}
@@ -532,7 +516,7 @@ export function VentasScreen() {
       {mobileCartOpen && (
         <button
           type="button"
-          className="fixed inset-0 z-30 bg-foreground/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-foreground/40 md:hidden"
           onClick={() => setMobileCartOpen(false)}
           onKeyDown={(e) => {
             if (e.key === "Escape") setMobileCartOpen(false);
@@ -544,7 +528,7 @@ export function VentasScreen() {
       {/* Mobile cart drawer (slides up from bottom) */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-xl bg-card shadow-xl transition-transform duration-300 lg:hidden",
+          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-xl bg-card shadow-xl transition-transform duration-300 md:hidden",
           mobileCartOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
@@ -556,8 +540,8 @@ export function VentasScreen() {
       </div>
 
       {/* Desktop cart sidebar - hidden on mobile */}
-      <div className="hidden py-3 lg:flex">
-        <div className="flex w-[380px] flex-col overflow-hidden rounded-[28px] border bg-card">
+      <div className="hidden py-3 md:flex">
+        <div className="flex w-[380px] flex-col overflow-hidden rounded-3xl border bg-card">
           <CartHeader cartItemCount={cartItemCount} />
           {cartContent}
         </div>

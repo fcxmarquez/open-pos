@@ -1,5 +1,6 @@
-import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 interface ProductsPaginationProps {
@@ -34,39 +35,49 @@ export function ProductsPagination({
     <div className="mt-3 flex flex-col gap-0">
       {/* Badge bar */}
       <div className="flex items-center gap-3">
-        <span className="rounded-[20px] bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+        <Badge
+          variant="muted"
+          size="chip"
+          className="rounded-full px-3 py-1 font-semibold"
+        >
           {totalProducts} productos
-        </span>
-        <span className="rounded-[20px] border border-border px-3 py-1 text-xs text-muted-foreground">
+        </Badge>
+        <Badge
+          variant="outline"
+          size="chip"
+          className="rounded-full px-3 py-1 font-normal"
+        >
           Página {page} de {totalPages}
-        </span>
-        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </Badge>
+        {isFetching && <Spinner />}
       </div>
 
       {/* Pagination row */}
       <div
         className={cn(
-          "overflow-hidden transition-[max-height,opacity,transform,padding] duration-200 ease-out sm:overflow-visible sm:transition-none",
+          "overflow-hidden transition-[max-height,opacity,transform,padding] duration-200 ease-out md:overflow-visible md:transition-none",
           hideMobilePaginationRow
             ? "pointer-events-none max-h-0 translate-y-[-8px] px-3 pt-0 opacity-0"
-            : "max-h-24 translate-y-0 px-3 pt-3 opacity-100 sm:max-h-none sm:py-4"
+            : "max-h-24 translate-y-0 px-3 pt-3 opacity-100 md:max-h-none md:py-4"
         )}
         aria-hidden={hideMobilePaginationRow}
       >
         <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             Mostrando {from} a {to} de {totalProducts} resultados
           </span>
           <div className="flex items-center gap-2">
             <Button
-              className="rounded-lg border border-border bg-background px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted"
+              variant="outline"
+              size="sm"
               onClick={onPrevious}
               disabled={hideMobilePaginationRow || !hasPreviousPage || isFetching}
             >
               Anterior
             </Button>
             <Button
-              className="rounded-lg border border-border bg-background px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted"
+              variant="outline"
+              size="sm"
               onClick={onNext}
               disabled={hideMobilePaginationRow || !hasNextPage || isFetching}
             >
