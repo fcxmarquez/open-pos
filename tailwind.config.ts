@@ -63,6 +63,11 @@ const config: Config = {
           foreground: "hsl(var(--info-foreground))",
           border: "hsl(var(--info-border))",
         },
+        error: {
+          DEFAULT: "hsl(var(--error))",
+          foreground: "hsl(var(--error-foreground))",
+          border: "hsl(var(--error-border))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

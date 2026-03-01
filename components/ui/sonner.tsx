@@ -15,7 +15,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-[hsl(240,5%,10%)] group-[.toaster]:text-white border-none group-[.toaster]:shadow-lg",
+            "group toast group-[.toaster]:bg-[hsl(var(--toast-background))] group-[.toaster]:text-white border-none group-[.toaster]:shadow-lg",
           success: "group-[.toaster]:!text-success-foreground",
           error: "group-[.toaster]:!text-error-foreground",
           warning: "group-[.toaster]:!text-warning-foreground",
