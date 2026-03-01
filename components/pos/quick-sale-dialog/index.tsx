@@ -54,7 +54,7 @@ export function QuickSaleDialog({
 
   const handleSubmit = (values: QuickSaleFormValues) => {
     const priceNum = Number.parseFloat(values.price);
-    const saleName = values.name || "Venta rapida";
+    const saleName = values.name || "Venta rápida";
 
     const tempProduct = {
       id: `quick-${Date.now()}`,
@@ -74,8 +74,8 @@ export function QuickSaleDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Venta rapida</DialogTitle>
-          <DialogDescription>Agrega un articulo sin codigo de barras</DialogDescription>
+          <DialogTitle className="text-foreground">Venta rápida</DialogTitle>
+          <DialogDescription>Agrega un artículo sin código de barras</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -113,7 +113,7 @@ export function QuickSaleDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground">
-                    Descripcion (opcional)
+                    Descripción (opcional)
                   </FormLabel>
                   <FormControl>
                     <Input
