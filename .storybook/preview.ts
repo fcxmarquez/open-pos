@@ -14,13 +14,6 @@ const preview: Preview = {
     },
     layout: "centered",
   },
-  decorators: [
-    (Story) => (
-      <div className="font-body">
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export default preview;
