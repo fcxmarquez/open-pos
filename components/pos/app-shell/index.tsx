@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import {
   Calculator,
   CircleDot,
@@ -11,13 +13,13 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 type Screen = "ventas" | "productos" | "corte";
-type PinIntent = "unlock" | "logout";
 
 const screenPaths: Record<Screen, string> = {
   ventas: "/ventas",
@@ -52,12 +54,7 @@ const navItems = [
 ];
 
 function formatDate(): string {
-  return new Date().toLocaleDateString("es-MX", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
 }
 
 function pathToScreen(pathname: string): Screen {
@@ -75,8 +72,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
-  const [pinIntent, setPinIntent] = useState<PinIntent>("unlock");
   const isLoggingOut = useRef(false);
+
+  const dateStr = useMemo(formatDate, []);
 
   const { data: openSession, isPending: isSessionPending } = useQuery(
     openSessionQueryOptions()
@@ -97,7 +95,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
     const isProtected = activeScreen === "productos" || activeScreen === "corte";
     if (isProtected && !adminUnlocked) {
-      setPinIntent("unlock");
       setPendingScreen(activeScreen);
       setPinDialogOpen(true);
     }
@@ -106,7 +103,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const handleNavClick = (id: Screen) => {
     const item = navItems.find((n) => n.id === id);
     if (item?.locked && !adminUnlocked) {
-      setPinIntent("unlock");
       setPendingScreen(id);
       setPinDialogOpen(true);
       return;
@@ -122,21 +118,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   const handlePinSuccess = () => {
-    if (pinIntent === "logout") {
+    if (pendingScreen === null) {
       performLogout();
       return;
     }
 
     sessionStorage.setItem(SESSION_KEY, "true");
     setAdminUnlocked(true);
-    if (pendingScreen) {
-      router.push(screenPaths[pendingScreen]);
-      setPendingScreen(null);
-    }
+    router.push(screenPaths[pendingScreen]);
+    setPendingScreen(null);
   };
 
   const requestLogout = () => {
-    setPinIntent("logout");
     setPinDialogOpen(true);
   };
 
@@ -217,14 +210,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {/* Session badge */}
             <div className="flex items-center gap-1.5 rounded-xl border border-border bg-muted px-3 h-8">
               <CircleDot className="h-3.5 w-3.5 text-foreground" />
-              <span className="font-body text-xs font-semibold text-foreground">
-                {isSessionPending ? "..." : openSession ? "Sesión abierta" : "Sin sesión"}
-              </span>
+              {isSessionPending ? (
+                <Spinner className="text-foreground" />
+              ) : (
+                <span className="font-body text-xs font-semibold text-foreground">
+                  {openSession ? "Sesión abierta" : "Sin sesión"}
+                </span>
+              )}
             </div>
 
             {/* Date */}
             <div className="font-body text-xs font-semibold text-foreground capitalize md:w-[190px] md:text-right">
-              {formatDate()}
+              {dateStr}
             </div>
           </div>
         </header>
@@ -276,18 +273,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* PIN Dialog */}
       <PinDialog
         open={pinDialogOpen}
-        title={pinIntent === "logout" ? "Confirmar salida" : undefined}
+        title={pendingScreen === null ? "Confirmar salida" : undefined}
         description={
-          pinIntent === "logout"
+          pendingScreen === null
             ? "Ingresa el PIN de administrador para cerrar sesión"
             : undefined
         }
         onOpenChange={(open) => {
           setPinDialogOpen(open);
-          if (!open) {
-            setPendingScreen(null);
-            setPinIntent("unlock");
-          }
+          if (!open) setPendingScreen(null);
         }}
         onSuccess={handlePinSuccess}
       />
