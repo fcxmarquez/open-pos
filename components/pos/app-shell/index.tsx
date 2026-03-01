@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import {
   Calculator,
   CircleDot,
@@ -52,12 +54,7 @@ const navItems = [
 ];
 
 function formatDate(): string {
-  return new Date().toLocaleDateString("es-MX", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
 }
 
 function pathToScreen(pathname: string): Screen {
