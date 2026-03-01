@@ -279,6 +279,7 @@ export function VentasScreen() {
                           if (e.key === "Enter" || e.key === "Escape")
                             setEditingPriceId(null);
                         }}
+                        onFocus={(e) => e.target.select()}
                         className="h-7 w-24 text-sm"
                         min="0"
                         step="1"
@@ -294,7 +295,7 @@ export function VentasScreen() {
                           size="icon"
                           className="h-5 w-5 text-muted-foreground hover:text-foreground"
                           onClick={() => setEditingPriceId(item.product.id)}
-                          tabIndex={-1}
+                          aria-label={`Editar precio de ${item.product.name}`}
                         >
                           <Pencil className="h-3 w-3" />
                         </Button>
@@ -310,6 +311,7 @@ export function VentasScreen() {
                       onClick={() =>
                         updateCartQuantity(item.product.id, item.quantity - 1)
                       }
+                      aria-label={`Disminuir cantidad de ${item.product.name}`}
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
@@ -322,6 +324,7 @@ export function VentasScreen() {
                           parseInt(e.target.value, 10) || 0
                         )
                       }
+                      onFocus={(e) => e.target.select()}
                       className="h-7 w-12 text-center text-sm"
                       min="1"
                     />
@@ -332,6 +335,7 @@ export function VentasScreen() {
                       onClick={() =>
                         updateCartQuantity(item.product.id, item.quantity + 1)
                       }
+                      aria-label={`Aumentar cantidad de ${item.product.name}`}
                     >
                       <Plus className="h-3 w-3" />
                     </Button>
@@ -346,6 +350,7 @@ export function VentasScreen() {
                     size="icon"
                     className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => removeFromCart(item.product.id)}
+                    aria-label={`Eliminar ${item.product.name} del carrito`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
