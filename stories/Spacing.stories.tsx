@@ -43,10 +43,10 @@ export const HeightInContext: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <span className="w-20 text-xs text-muted-foreground">h-9</span>
+        <span className="w-20 text-xs text-muted-foreground">h-8</span>
         <button
           type="button"
-          className="inline-flex h-9 items-center justify-center rounded-2xl bg-primary px-3 text-sm font-medium text-primary-foreground"
+          className="inline-flex h-8 items-center justify-center rounded-2xl bg-primary px-3 text-sm font-medium text-primary-foreground"
         >
           Small button
         </button>

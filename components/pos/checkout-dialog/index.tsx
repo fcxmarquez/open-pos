@@ -143,6 +143,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
                       placeholder="0.00"
                       className="mt-1 h-12 text-center text-xl font-semibold text-foreground"
                       disabled={isProcessing}
+                      onFocus={(e) => e.target.select()}
                       {...field}
                     />
                   </FormControl>

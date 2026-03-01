@@ -1,0 +1,1 @@
+## 2024-05-18 - Missing Accessibility Labels\n**Learning:** Icon-only buttons without ARIA labels are invisible to screen readers, making critical actions like 'remove item' inaccessible.\n**Action:** Always add aria-label to icon buttons, describing the action + the item it acts on.

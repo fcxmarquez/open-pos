@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { Spinner } from "@/components/ui/spinner";
@@ -74,7 +74,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
   const isLoggingOut = useRef(false);
 
-  const dateStr = useMemo(formatDate, []);
+  const [dateStr, setDateStr] = useState(formatDate);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setDateStr(formatDate()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const { data: openSession, isPending: isSessionPending } = useQuery(
     openSessionQueryOptions()
