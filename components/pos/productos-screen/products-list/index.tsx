@@ -237,7 +237,7 @@ export function ProductsList({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
