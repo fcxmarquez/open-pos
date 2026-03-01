@@ -16,6 +16,7 @@ import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
+import { ThemeToggle } from "@/components/pos/theme-toggle";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
@@ -228,6 +229,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="font-body text-xs font-semibold text-foreground capitalize md:w-[190px] md:text-right">
               {dateStr}
             </div>
+            {/* Theme toggle */}
+            <ThemeToggle />
           </div>
         </header>
 
