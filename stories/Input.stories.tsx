@@ -19,7 +19,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: { placeholder: "Escribe aqui..." },
+  args: { placeholder: "Escribe aquí..." },
 };
 
 export const WithValue: Story = {

@@ -55,7 +55,7 @@ export const Scale: Story = {
         {
           cls: "text-xs",
           label: "text-xs (12px)",
-          sample: "Sesion abierta - 14:30",
+          sample: "Sesión abierta - 14:30",
         },
       ].map(({ cls, label, sample }) => (
         <div key={cls} className="flex items-baseline gap-4">
