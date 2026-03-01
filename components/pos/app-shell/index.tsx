@@ -200,24 +200,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex h-14 items-center gap-3 px-3 md:px-3">
+        <header className="flex flex-col gap-1.5 px-3 py-2 md:h-14 md:flex-row md:items-center md:gap-3 md:py-0">
           <h2 className="font-heading text-2xl font-extrabold text-foreground">
             {navItems.find((n) => n.id === activeScreen)?.label}
           </h2>
 
-          <div className="flex-1" />
+          <div className="hidden md:block md:flex-1" />
 
-          {/* Session badge */}
-          <div className="hidden items-center gap-1.5 rounded-xl border border-border bg-muted px-3 h-8 md:flex">
-            <CircleDot className="h-3.5 w-3.5 text-foreground" />
-            <span className="font-body text-xs font-semibold text-foreground">
-              Sesión abierta
-            </span>
-          </div>
+          <div className="flex items-center gap-2 md:gap-3">
+            {/* Session badge */}
+            <div className="flex items-center gap-1.5 rounded-xl border border-border bg-muted px-3 h-8">
+              <CircleDot className="h-3.5 w-3.5 text-foreground" />
+              <span className="font-body text-xs font-semibold text-foreground">
+                Sesión abierta
+              </span>
+            </div>
 
-          {/* Date */}
-          <div className="hidden w-[190px] text-right font-body text-xs font-semibold text-foreground capitalize md:block">
-            {formatDate()}
+            {/* Date */}
+            <div className="font-body text-xs font-semibold text-foreground capitalize md:w-[190px] md:text-right">
+              {formatDate()}
+            </div>
           </div>
         </header>
 
