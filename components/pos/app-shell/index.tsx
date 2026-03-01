@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   Calculator,
   CircleDot,
@@ -11,6 +12,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
+import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { cn } from "@/lib/utils";
 
@@ -75,6 +77,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
   const [pinIntent, setPinIntent] = useState<PinIntent>("unlock");
   const isLoggingOut = useRef(false);
+
+  const { data: openSession, isPending: isSessionPending } = useQuery(
+    openSessionQueryOptions()
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -212,7 +218,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-1.5 rounded-xl border border-border bg-muted px-3 h-8">
               <CircleDot className="h-3.5 w-3.5 text-foreground" />
               <span className="font-body text-xs font-semibold text-foreground">
-                Sesión abierta
+                {isSessionPending ? "..." : openSession ? "Sesión abierta" : "Sin sesión"}
               </span>
             </div>
 
