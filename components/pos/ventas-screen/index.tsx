@@ -252,6 +252,7 @@ export function VentasScreen() {
                           if (e.key === "Enter" || e.key === "Escape")
                             setEditingPriceId(null);
                         }}
+                        onFocus={(e) => e.target.select()}
                         className="h-7 w-24 text-sm"
                         min="0"
                         step="1"
@@ -296,6 +297,7 @@ export function VentasScreen() {
                           parseInt(e.target.value, 10) || 0
                         )
                       }
+                      onFocus={(e) => e.target.select()}
                       className="h-7 w-12 text-center text-sm"
                       min="1"
                     />
