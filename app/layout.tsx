@@ -2,9 +2,9 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type React from "react";
-import { Toaster } from "@/components/ui/sonner";
 import { IOSViewportFix } from "@/components/ios-viewport-fix";
 import { QueryProvider } from "@/components/query-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
 
