@@ -115,8 +115,8 @@ export function PinDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[360px]">
         <DialogHeader className="items-center text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <Lock className="h-6 w-6 text-primary" />
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <Lock className="h-6 w-6 text-muted-foreground" />
           </div>
           <DialogTitle className="text-foreground">{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
