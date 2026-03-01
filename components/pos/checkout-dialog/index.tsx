@@ -123,7 +123,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
           >
             <div className="rounded-lg bg-muted p-4 text-center">
               <p className="text-sm text-muted-foreground">Total a cobrar</p>
-              <p className="text-3xl font-bold text-foreground">
+              <p className="font-heading text-3xl font-bold text-foreground">
                 {formatCurrency(total)}
               </p>
             </div>
@@ -157,7 +157,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
                 aria-live="polite"
                 className={`rounded-lg p-3 text-center text-lg font-semibold ${
                   change >= 0
-                    ? "bg-accent/10 text-accent"
+                    ? "bg-muted text-success-foreground"
                     : "bg-destructive/10 text-destructive"
                 }`}
               >
