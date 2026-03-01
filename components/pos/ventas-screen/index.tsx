@@ -476,10 +476,7 @@ export function VentasScreen() {
 
         {/* Frequent products grid */}
         <div className="flex-1 overflow-auto">
-          <h3
-            className="mb-3 uppercase text-foreground"
-            style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.8px" }}
-          >
+          <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.8px] text-foreground">
             Productos frecuentes
           </h3>
           <div className="grid grid-cols-2 gap-[10px] md:grid-cols-4">
@@ -488,42 +485,17 @@ export function VentasScreen() {
                 type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
-                className="flex flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all active:scale-[0.98]"
-                style={{ height: 100 }}
+                className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all active:scale-[0.98]"
               >
                 <div
-                  style={{
-                    width: 6,
-                    flexShrink: 0,
-                    background: CATEGORY_COLOR_MAP[product.category],
-                  }}
+                  className="w-1.5 shrink-0"
+                  style={{ background: CATEGORY_COLOR_MAP[product.category] }}
                 />
-                <div
-                  className="flex flex-1 flex-col justify-between p-3.5"
-                  style={{ gap: 8 }}
-                >
-                  <span
-                    className="overflow-hidden uppercase"
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: "#1F0A5C",
-                      lineHeight: 1.2,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                    }}
-                  >
+                <div className="flex flex-1 flex-col justify-between gap-2 p-3.5">
+                  <span className="line-clamp-2 text-[13px] font-semibold uppercase leading-tight text-product-title">
                     {product.name}
                   </span>
-                  <span
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 800,
-                      color: "#000000",
-                      letterSpacing: "-0.5px",
-                    }}
-                  >
+                  <span className="text-xl font-extrabold tracking-[-0.5px] text-foreground">
                     {formatCurrency(product.price)}
                   </span>
                 </div>

@@ -68,6 +68,7 @@ const config: Config = {
           foreground: "hsl(var(--error-foreground))",
           border: "hsl(var(--error-border))",
         },
+        "product-title": "hsl(var(--product-title))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
