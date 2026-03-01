@@ -1,0 +1,23 @@
+<style>
+  @font-face {
+    font-family: '__inter';
+    src: url('/fonts/inter/inter-latin.woff2') format('woff2');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: '__plus_jakarta_sans';
+    src: url('/fonts/plus-jakarta-sans/plus-jakarta-sans-latin.woff2') format('woff2');
+    font-weight: 500 800;
+    font-style: normal;
+    font-display: swap;
+  }
+  :root {
+    --font-body: '__inter', system-ui, sans-serif;
+    --font-heading: '__plus_jakarta_sans', '__inter', system-ui, sans-serif;
+  }
+  body {
+    font-family: var(--font-body);
+  }
+</style>

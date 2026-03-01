@@ -10,39 +10,101 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
+    --background: 220 14% 96%;
     --foreground: 220 20% 10%;
     --card: 0 0% 100%;
     --card-foreground: 220 20% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
-    --primary: 199 89% 38%;
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
     --secondary: 210 16% 93%;
     --secondary-foreground: 220 20% 10%;
     --muted: 210 14% 95%;
-    --muted-foreground: 220 10% 46%;
-    --accent: 160 84% 39%;
+    --muted-foreground: 240 5% 46%;
+    --accent: 0 0% 0%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 20% 89%;
-    --input: 214 20% 89%;
-    --ring: 199 89% 38%;
-    --chart-1: 199 89% 38%;
-    --chart-2: 160 84% 39%;
-    --chart-3: 43 96% 56%;
-    --chart-4: 0 72% 51%;
-    --chart-5: 262 52% 47%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 0 0% 0%;
+    --chart-1: 220 9% 46%;
+    --chart-2: 220 9% 60%;
+    --chart-3: 220 9% 72%;
+    --chart-4: 220 9% 32%;
+    --chart-5: 220 9% 20%;
+    --success: 240 5% 10%;
+    --success-foreground: 150 80% 65%;
+    --success-border: 150 40% 25%;
+    --warning: 240 5% 10%;
+    --warning-foreground: 35 90% 65%;
+    --warning-border: 30 40% 25%;
+    --error: 240 5% 10%;
+    --error-foreground: 0 90% 65%;
+    --error-border: 0 40% 25%;
+    --info: 240 5% 10%;
+    --info-foreground: 220 90% 70%;
+    --info-border: 220 40% 25%;
+    --toast-background: 240 5% 10%;
     --radius: 0.5rem;
-    --sidebar-background: 220 20% 14%;
-    --sidebar-foreground: 210 16% 93%;
-    --sidebar-primary: 199 89% 48%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 18% 20%;
-    --sidebar-accent-foreground: 210 16% 93%;
-    --sidebar-border: 220 16% 22%;
-    --sidebar-ring: 199 89% 48%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 0 0% 0%;
+    --product-title: 256 80% 20%;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --success: 240 5% 10%;
+    --success-foreground: 150 80% 65%;
+    --success-border: 150 40% 25%;
+    --warning: 240 5% 10%;
+    --warning-foreground: 35 90% 65%;
+    --warning-border: 30 40% 25%;
+    --error: 240 5% 10%;
+    --error-foreground: 0 90% 65%;
+    --error-border: 0 40% 25%;
+    --info: 240 5% 10%;
+    --info-foreground: 220 90% 70%;
+    --info-border: 220 40% 25%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --product-title: 256 60% 75%;
   }
 }
 
@@ -51,19 +113,27 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-body text-foreground;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-extrabold;
   }
 }
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 hsl(199 89% 38% / 0.3);
+    box-shadow: 0 0 0 0 hsl(0 0% 0% / 0.3);
   }
   70% {
-    box-shadow: 0 0 0 6px hsl(199 89% 38% / 0);
+    box-shadow: 0 0 0 6px hsl(0 0% 0% / 0);
   }
   100% {
-    box-shadow: 0 0 0 0 hsl(199 89% 38% / 0);
+    box-shadow: 0 0 0 0 hsl(0 0% 0% / 0);
   }
 }
 

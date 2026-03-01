@@ -1,7 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
-import { es as esMX } from "date-fns/locale";
 import {
   AlertTriangle,
   ChevronDown,
@@ -24,12 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Product } from "@/lib/store";
-import { formatCurrency } from "@/lib/utils";
-
-function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return "Nunca";
-  return format(new Date(dateStr), "dd MMM yyyy", { locale: esMX });
-}
+import { cn, formatCurrency, formatDateLabel } from "@/lib/utils";
 
 interface ProductsListProps {
   allSelectedOnPage: boolean;
@@ -107,6 +100,10 @@ function sortProducts(products: Product[], sortState: SortState | null): Product
   });
 }
 
+const SORT_BTN_CLS =
+  "h-auto p-0 text-xs font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground";
+const CATEGORY_BADGE_CLASS = "border-transparent bg-muted";
+
 export function ProductsList({
   allSelectedOnPage,
   isMobile,
@@ -177,7 +174,7 @@ export function ProductsList({
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     {product.name === "Sin nombre" ? (
-                      <p className="text-sm text-amber-600">
+                      <p className="text-sm text-warning-foreground">
                         <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
                         Sin nombre - requiere registro
                       </p>
@@ -195,11 +192,11 @@ export function ProductsList({
                       <p>PLU: {product.pluCode ?? "—"}</p>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="muted" size="chip" className={CATEGORY_BADGE_CLASS}>
                         {product.category}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        Venta: {formatDate(product.lastSoldAt)}
+                        Venta: {formatDateLabel(product.lastSoldAt)}
                       </span>
                     </div>
                   </div>
@@ -240,11 +237,11 @@ export function ProductsList({
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-10">
+          <TableRow className="bg-muted/40 hover:bg-muted/40">
+            <TableHead className="h-12 w-10 px-5">
               <Checkbox
                 checked={
                   allSelectedOnPage ? true : someSelectedOnPage ? "indeterminate" : false
@@ -254,68 +251,76 @@ export function ProductsList({
                 aria-label="Seleccionar todos los productos de la pagina"
               />
             </TableHead>
-            <TableHead aria-sort={getAriaSort("code")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("code")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("code")}
               >
                 Código
                 {getSortIcon("code")}
               </Button>
             </TableHead>
-            <TableHead aria-sort={getAriaSort("name")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("name")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("name")}
               >
                 Nombre
                 {getSortIcon("name")}
               </Button>
             </TableHead>
-            <TableHead className="text-right" aria-sort={getAriaSort("price")}>
+            <TableHead className="h-12 px-5 text-right" aria-sort={getAriaSort("price")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto w-full justify-end p-0 font-medium"
+                className={cn(SORT_BTN_CLS, "w-full justify-end")}
                 onClick={() => toggleSort("price")}
               >
                 Precio de venta
                 {getSortIcon("price")}
               </Button>
             </TableHead>
-            <TableHead aria-sort={getAriaSort("category")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("category")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("category")}
               >
                 Categoría
                 {getSortIcon("category")}
               </Button>
             </TableHead>
-            <TableHead aria-sort={getAriaSort("lastSoldAt")}>
+            <TableHead className="h-12 px-5" aria-sort={getAriaSort("lastSoldAt")}>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 font-medium"
+                className={SORT_BTN_CLS}
                 onClick={() => toggleSort("lastSoldAt")}
               >
                 Última venta
                 {getSortIcon("lastSoldAt")}
               </Button>
             </TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
+            <TableHead className="h-12 px-5 text-right text-xs font-semibold text-muted-foreground">
+              Acciones
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedProducts.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>
+            <TableRow
+              key={product.id}
+              className={cn(
+                "h-16 border-b border-border/60",
+                selectedProductIds.has(product.id) && "bg-muted/60"
+              )}
+            >
+              <TableCell className="px-5">
                 <Checkbox
                   checked={selectedProductIds.has(product.id)}
                   onCheckedChange={() => onToggleProductSelection(product.id)}
@@ -323,7 +328,7 @@ export function ProductsList({
                   aria-label={`Seleccionar ${product.name}`}
                 />
               </TableCell>
-              <TableCell className="font-mono text-sm">
+              <TableCell className="px-5 font-mono text-sm">
                 <div className="flex flex-col gap-0.5">
                   {product.barcode ? (
                     <span>{product.barcode}</span>
@@ -335,9 +340,9 @@ export function ProductsList({
                   </span>
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="px-5">
                 {product.name === "Sin nombre" ? (
-                  <span className="text-amber-600">
+                  <span className="text-warning-foreground">
                     <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
                     Sin nombre - requiere registro
                   </span>
@@ -345,23 +350,23 @@ export function ProductsList({
                   <span className="font-medium text-foreground">{product.name}</span>
                 )}
               </TableCell>
-              <TableCell className="text-right font-semibold text-foreground">
+              <TableCell className="px-5 text-right font-semibold text-foreground">
                 {formatCurrency(product.price)}
               </TableCell>
-              <TableCell>
-                <Badge variant="secondary" className="text-xs">
+              <TableCell className="px-5">
+                <Badge variant="muted" size="chip" className={CATEGORY_BADGE_CLASS}>
                   {product.category}
                 </Badge>
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
-                {formatDate(product.lastSoldAt)}
+              <TableCell className="px-5 text-sm text-muted-foreground">
+                {formatDateLabel(product.lastSoldAt)}
               </TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-1">
+              <TableCell className="px-5 text-right">
+                <div className="flex items-center justify-end gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 text-foreground"
                     onClick={() => onEdit(product)}
                     disabled={isPending}
                   >

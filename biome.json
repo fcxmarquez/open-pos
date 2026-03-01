@@ -12,7 +12,8 @@
       "!out",
       "!build",
       "!next-env.d.ts",
-      "!.claude/settings.local.json"
+      "!.claude/settings.local.json",
+      "!.storybook"
     ]
   },
   "formatter": {
