@@ -1,0 +1,34 @@
+$ next dev
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+
+✓ Starting...
+✓ Ready in 1602ms
+○ Compiling /login ...
+ GET /login 200 in 12.0s (compile: 10.9s, proxy.ts: 15ms, render: 1059ms)
+ GET /login 200 in 132ms (compile: 8ms, proxy.ts: 11ms, render: 113ms)
+ GET /login 200 in 139ms (compile: 4ms, proxy.ts: 8ms, render: 126ms)
+ GET /ventas 200 in 3.3s (compile: 3.1s, proxy.ts: 24ms, render: 102ms)
+ POST /login 303 in 3.4s (compile: 4ms, proxy.ts: 12ms, render: 3.4s)
+ POST /ventas 200 in 723ms (compile: 16ms, proxy.ts: 21ms, render: 685ms)
+ POST /ventas 200 in 130ms (compile: 8ms, proxy.ts: 14ms, render: 107ms)
+ GET /login 200 in 135ms (compile: 9ms, proxy.ts: 7ms, render: 119ms)
+ GET /ventas 200 in 147ms (compile: 28ms, proxy.ts: 21ms, render: 99ms)
+ POST /login 303 in 210ms (compile: 5ms, proxy.ts: 12ms, render: 193ms)
+ POST /ventas 200 in 173ms (compile: 10ms, proxy.ts: 21ms, render: 142ms)
+ POST /ventas 200 in 142ms (compile: 10ms, proxy.ts: 50ms, render: 81ms)
+ GET /productos 200 in 1454ms (compile: 1247ms, proxy.ts: 23ms, render: 183ms)
+ POST /productos 200 in 78ms (compile: 18ms, proxy.ts: 20ms, render: 41ms)
+ POST /productos 200 in 144ms (compile: 7ms, proxy.ts: 16ms, render: 121ms)
+ POST /productos 200 in 72ms (compile: 9ms, proxy.ts: 18ms, render: 45ms)
+ POST /productos 200 in 132ms (compile: 6ms, proxy.ts: 18ms, render: 108ms)
+ GET /login 200 in 176ms (compile: 8ms, proxy.ts: 7ms, render: 161ms)
+ GET /ventas 200 in 166ms (compile: 9ms, proxy.ts: 17ms, render: 139ms)
+ POST /login 303 in 216ms (compile: 5ms, proxy.ts: 6ms, render: 204ms)
+ GET /productos 200 in 133ms (compile: 6ms, proxy.ts: 19ms, render: 108ms)
+ POST /productos 200 in 174ms (compile: 6ms, proxy.ts: 20ms, render: 147ms)
+ GET /productos 200 in 48ms (compile: 6ms, proxy.ts: 19ms, render: 23ms)
+ POST /productos 200 in 151ms (compile: 13ms, proxy.ts: 19ms, render: 119ms)
+ POST /productos 200 in 166ms (compile: 6ms, proxy.ts: 34ms, render: 126ms)
+ POST /productos 200 in 123ms (compile: 5ms, proxy.ts: 14ms, render: 104ms)
