@@ -66,6 +66,10 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
 
 `next.config.mjs` has `typescript.ignoreBuildErrors: true` and `images.unoptimized: true`.
 
+### Backend
+
+- Neon PostgreSQL is used as the database.
+
 ## Code Workflow
 
 ### Git Workflow
