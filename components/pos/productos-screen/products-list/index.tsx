@@ -211,6 +211,7 @@ export function ProductsList({
                         className="h-8 w-8"
                         onClick={() => onEdit(product)}
                         disabled={isPending}
+                        aria-label={`Editar ${product.name}`}
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         <span className="sr-only">Editar</span>
@@ -221,6 +222,7 @@ export function ProductsList({
                         className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => onDelete(product)}
                         disabled={isPending}
+                        aria-label={`Eliminar ${product.name}`}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         <span className="sr-only">Eliminar</span>
@@ -369,6 +371,7 @@ export function ProductsList({
                     className="h-8 w-8 text-foreground"
                     onClick={() => onEdit(product)}
                     disabled={isPending}
+                    aria-label={`Editar ${product.name}`}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                     <span className="sr-only">Editar</span>
@@ -379,6 +382,7 @@ export function ProductsList({
                     className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => onDelete(product)}
                     disabled={isPending}
+                    aria-label={`Eliminar ${product.name}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     <span className="sr-only">Eliminar</span>
