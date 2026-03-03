@@ -327,6 +327,7 @@ export function VentasScreen() {
                       onFocus={(e) => e.target.select()}
                       className="h-7 w-12 text-center text-sm"
                       min="1"
+                      aria-label={`Cantidad de ${item.product.name}`}
                     />
                     <Button
                       variant="outline"
