@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getDefaultRouteForRole } from "@/lib/auth/roles";
 
 const ERROR_MESSAGES: Record<string, string> = {
   AccessDenied: "Tu cuenta no tiene acceso a este sistema. Contacta al administrador.",
@@ -52,7 +53,7 @@ export default async function LoginPage({
 }) {
   const session = await auth();
   if (session) {
-    redirect("/ventas");
+    redirect(getDefaultRouteForRole(session.user?.role));
   }
 
   const params = await searchParams;
@@ -88,7 +89,7 @@ export default async function LoginPage({
                   await signIn("credentials", {
                     username: formData.get("username"),
                     password: formData.get("password"),
-                    redirectTo: "/ventas",
+                    redirectTo: "/",
                   });
                 } catch (error) {
                   if (error instanceof AuthError) {
@@ -120,7 +121,7 @@ export default async function LoginPage({
             <form
               action={async () => {
                 "use server";
-                await signIn("google", { redirectTo: "/ventas" });
+                await signIn("google", { redirectTo: "/" });
               }}
             >
               <Button type="submit" variant="outline" size="lg" className="w-full gap-3">
