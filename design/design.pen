@@ -3383,36 +3383,6 @@
                       "id": "8XluN",
                       "width": "fill_container",
                       "height": 1
-                    },
-                    {
-                      "type": "frame",
-                      "id": "v3Z9U",
-                      "height": 28,
-                      "fill": "#EFF6FF",
-                      "cornerRadius": 999,
-                      "stroke": {
-                        "align": "center",
-                        "thickness": 1,
-                        "fill": "#BFDBFE"
-                      },
-                      "padding": [
-                        0,
-                        12
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "IeiiA",
-                          "fill": "#2563EB",
-                          "textGrowth": "fixed-width",
-                          "width": 52,
-                          "content": "Abierto",
-                          "fontFamily": "Inter",
-                          "fontSize": 12,
-                          "fontWeight": "600"
-                        }
-                      ]
                     }
                   ]
                 },
