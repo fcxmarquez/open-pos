@@ -3,17 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import {
-  Calculator,
-  CircleDot,
-  LogOut,
-  Package,
-  ShoppingCart,
-  Store,
-} from "lucide-react";
+import { Calculator, CircleDot, LogOut, Package, ShoppingCart } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
+import { NavigationSidebar } from "@/components/navigation-sidebar";
 import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { ThemeToggle } from "@/components/pos/theme-toggle";
@@ -149,58 +143,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
-      {/* Sidebar */}
-      <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-3.5 pt-3 md:flex">
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex h-10 w-full items-center justify-center">
-            <Store className="h-5 w-5 text-sidebar-foreground" />
-            <span className="sr-only">Papeleria Luna</span>
-          </div>
-          <div className="h-px w-6 bg-border" />
-        </div>
-        <nav className="mt-3 flex flex-col items-center gap-3">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeScreen === item.id;
-            return (
-              <button
-                type="button"
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                title={item.label}
-                aria-label={item.label}
-                className={cn(
-                  "flex h-10 w-[46px] items-center justify-center rounded-xl border text-muted-foreground transition-colors",
-                  isActive
-                    ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "border-transparent bg-transparent hover:bg-sidebar-accent hover:text-foreground"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="sr-only">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="flex-1" />
-
-        {/* Logout button */}
-        {adminUnlocked && (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={requestLogout}
-              title="Cerrar sesión"
-              aria-label="Cerrar sesión"
-              className="flex h-10 w-[46px] items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="sr-only">Cerrar sesión</span>
-            </button>
-          </div>
-        )}
-      </aside>
+      <NavigationSidebar
+        action={
+          adminUnlocked
+            ? {
+                icon: LogOut,
+                label: "Cerrar sesión",
+                onSelect: requestLogout,
+              }
+            : null
+        }
+        allowExpandedDesktop={false}
+        brandLabel="Papeleria Luna"
+        defaultExpanded={false}
+        items={navItems.map((item) => ({
+          icon: item.icon,
+          id: item.id,
+          isActive: activeScreen === item.id,
+          label: item.label,
+          mobileLabel: item.mobileLabel,
+          onSelect: () => handleNavClick(item.id),
+        }))}
+      />
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
