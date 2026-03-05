@@ -428,6 +428,21 @@ export function VentasScreen() {
                           {...fieldProps}
                         />
                       </FormControl>
+                      {searchValue.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                          onClick={() => {
+                            clearSearch();
+                            focusInput();
+                          }}
+                          aria-label="Borrar búsqueda"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      )}
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
