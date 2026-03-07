@@ -6,7 +6,7 @@ import { es } from "date-fns/locale";
 import {
   ArrowDownRight,
   ArrowUpRight,
-  Package2,
+  CalendarDays,
   ReceiptText,
   TrendingUp,
   Wallet,
@@ -72,6 +72,34 @@ export function AdminDashboardScreen() {
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-4">
+            <Card className="rounded-3xl">
+              <CardHeader className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-muted-foreground">Proyección del mes</p>
+                  <CalendarDays className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <CardTitle className="text-3xl">
+                  {formatCurrency(data.revenueMonthProjected)}
+                </CardTitle>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Acumulado: {formatCurrency(data.revenueMonthToDate)}</span>
+                    <span>
+                      Día {data.monthDaysElapsed} de {data.monthDaysTotal}
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{
+                        width: `${(data.monthDaysElapsed / data.monthDaysTotal) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
             <SummaryCard
               label="Ingresos hoy"
               value={formatCurrency(data.revenueToday)}
@@ -98,25 +126,24 @@ export function AdminDashboardScreen() {
               )}
             </SummaryCard>
 
-            <SummaryCard
-              label="Transacciones"
-              value={data.transactionCount}
-              icon={ReceiptText}
-            >
-              <p className="text-xs text-muted-foreground">
-                Ventas completadas durante la jornada.
-              </p>
-            </SummaryCard>
-
-            <SummaryCard
-              label="Productos vendidos"
-              value={data.productsSold}
-              icon={Package2}
-            >
-              <p className="text-xs text-muted-foreground">
-                Unidades despachadas en las ventas de hoy.
-              </p>
-            </SummaryCard>
+            <Card className="rounded-3xl">
+              <CardHeader className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-muted-foreground">Actividad de hoy</p>
+                  <ReceiptText className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="flex gap-6">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Transacciones</p>
+                    <CardTitle className="text-3xl">{data.transactionCount}</CardTitle>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Productos</p>
+                    <CardTitle className="text-3xl">{data.productsSold}</CardTitle>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
 
             <Card className="rounded-3xl border-primary/10 bg-primary text-primary-foreground">
               <CardHeader className="space-y-3">

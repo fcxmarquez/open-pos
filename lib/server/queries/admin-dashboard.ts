@@ -16,8 +16,12 @@ export interface AdminDashboardData {
     items: { name: string; quantity: number }[];
     total: number;
   }[];
+  monthDaysElapsed: number;
+  monthDaysTotal: number;
   openSessionLabel: string | null;
   productsSold: number;
+  revenueMonthProjected: number;
+  revenueMonthToDate: number;
   revenueToday: number;
   revenueVsLastWeek: number | null;
   sessionHistory: {
@@ -50,36 +54,47 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const today = getTodayDateString();
   const lastWeekDate = getDateStringDaysAgo(7);
   const historyStartDate = getDateStringDaysAgo(89);
+  const monthStart = `${today.slice(0, 7)}-01`;
 
-  const [openSession, todaySalesRows, lastWeekSalesRows, historySessions] =
-    await Promise.all([
-      getOpenSession(),
-      db
-        .select({
-          createdAt: sales.createdAt,
-          id: sales.id,
-          total: sales.total,
-        })
-        .from(sales)
-        .innerJoin(salesSessions, eq(sales.sessionId, salesSessions.id))
-        .where(eq(salesSessions.sessionDate, today))
-        .orderBy(desc(sales.createdAt)),
-      db
-        .select({ revenue: sum(sales.total) })
-        .from(sales)
-        .innerJoin(salesSessions, eq(sales.sessionId, salesSessions.id))
-        .where(eq(salesSessions.sessionDate, lastWeekDate)),
-      db
-        .select()
-        .from(salesSessions)
-        .where(
-          and(
-            eq(salesSessions.status, "closed"),
-            gte(salesSessions.sessionDate, historyStartDate)
-          )
+  const [
+    openSession,
+    todaySalesRows,
+    lastWeekSalesRows,
+    historySessions,
+    monthSalesRows,
+  ] = await Promise.all([
+    getOpenSession(),
+    db
+      .select({
+        createdAt: sales.createdAt,
+        id: sales.id,
+        total: sales.total,
+      })
+      .from(sales)
+      .innerJoin(salesSessions, eq(sales.sessionId, salesSessions.id))
+      .where(eq(salesSessions.sessionDate, today))
+      .orderBy(desc(sales.createdAt)),
+    db
+      .select({ revenue: sum(sales.total) })
+      .from(sales)
+      .innerJoin(salesSessions, eq(sales.sessionId, salesSessions.id))
+      .where(eq(salesSessions.sessionDate, lastWeekDate)),
+    db
+      .select()
+      .from(salesSessions)
+      .where(
+        and(
+          eq(salesSessions.status, "closed"),
+          gte(salesSessions.sessionDate, historyStartDate)
         )
-        .orderBy(desc(salesSessions.sessionDate), desc(salesSessions.sessionNumber)),
-    ]);
+      )
+      .orderBy(desc(salesSessions.sessionDate), desc(salesSessions.sessionNumber)),
+    db
+      .select({ revenue: sum(sales.total) })
+      .from(sales)
+      .innerJoin(salesSessions, eq(sales.sessionId, salesSessions.id))
+      .where(gte(salesSessions.sessionDate, monthStart)),
+  ]);
 
   const todaySaleIds = todaySalesRows.map((sale) => sale.id);
   const historySessionIds = historySessions.map((session) => session.id);
@@ -157,6 +172,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     0
   );
   const lastWeekRevenue = Number(lastWeekSalesRows[0]?.revenue ?? 0);
+  const revenueMonthToDate = Number(monthSalesRows[0]?.revenue ?? 0);
+  const now = new Date();
+  const monthDaysElapsed = now.getDate();
+  const monthDaysTotal = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const revenueMonthProjected =
+    monthDaysElapsed > 0 ? (revenueMonthToDate / monthDaysElapsed) * monthDaysTotal : 0;
   const productsSold = todaySaleItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const revenueVsLastWeek =
@@ -185,10 +206,14 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     generatedAt: new Date().toISOString(),
     hasOpenSession: Boolean(openSession),
     latestTransactions,
+    monthDaysElapsed,
+    monthDaysTotal,
     openSessionLabel: openSession
       ? `Sesión abierta · Turno ${openSession.sessionNumber}`
       : null,
     productsSold,
+    revenueMonthProjected,
+    revenueMonthToDate,
     revenueToday,
     revenueVsLastWeek,
     sessionHistory: historySessions.map((session) => ({
