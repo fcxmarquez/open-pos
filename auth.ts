@@ -1,12 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import {
-  type AppRole,
-  getRoleForEmail,
-  normalizeEmails,
-  TESTING_BYPASS_EMAIL,
-} from "@/lib/auth/roles";
+import { isAuthBypassEnabled, TESTING_BYPASS_EMAIL } from "@/lib/auth/bypass";
+import { type AppRole, getRoleForEmail, normalizeEmails } from "@/lib/auth/roles";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -17,8 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
-        if (process.env.AUTH_BYPASS !== "true") return null;
-        if (process.env.VERCEL_ENV === "production") return null;
+        if (!isAuthBypassEnabled()) return null;
         if (!credentials?.username || !credentials?.password) return null;
         if (credentials.username === "root" && credentials.password === "testing") {
           return { id: "test-user", name: "Test User", email: TESTING_BYPASS_EMAIL };
@@ -37,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async signIn({ account, profile }) {
-      // Credentials provider is only active when AUTH_BYPASS is true
+      // Credentials provider is only active when the auth bypass is enabled
       if (account?.provider === "credentials") return true;
 
       if (!profile?.email) return false;

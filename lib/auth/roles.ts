@@ -1,5 +1,6 @@
+import { isAuthBypassEnabled, TESTING_BYPASS_EMAIL } from "@/lib/auth/bypass";
+
 export type AppRole = "admin" | "cashier";
-export const TESTING_BYPASS_EMAIL = "test@testing.local";
 
 export function normalizeEmails(rawValue: string | undefined): string[] {
   return (rawValue ?? "")
@@ -9,11 +10,7 @@ export function normalizeEmails(rawValue: string | undefined): string[] {
 }
 
 function isTestingAdmin(email: string): boolean {
-  return (
-    process.env.AUTH_BYPASS === "true" &&
-    process.env.VERCEL_ENV !== "production" &&
-    email.toLowerCase() === TESTING_BYPASS_EMAIL
-  );
+  return isAuthBypassEnabled() && email.toLowerCase() === TESTING_BYPASS_EMAIL;
 }
 
 export function getAdminEmails(): string[] {

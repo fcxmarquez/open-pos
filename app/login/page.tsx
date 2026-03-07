@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { isAuthBypassEnabled } from "@/lib/auth/bypass";
 import { getDefaultRouteForRole } from "@/lib/auth/roles";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -62,8 +63,7 @@ export default async function LoginPage({
     ? (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.Default)
     : null;
 
-  const isTestingMode =
-    process.env.AUTH_BYPASS === "true" && process.env.VERCEL_ENV !== "production";
+  const isTestingMode = isAuthBypassEnabled();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
