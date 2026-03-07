@@ -151,7 +151,6 @@ export function AppShell({
     label: "Cerrar sesión",
     onSelect: adminUnlocked ? requestLogout : performLogout,
   };
-
   if (!mounted) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
