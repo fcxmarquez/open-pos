@@ -1,7 +1,12 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import { type AppRole, getRoleForEmail, normalizeEmails } from "@/lib/auth/roles";
+import {
+  type AppRole,
+  getRoleForEmail,
+  normalizeEmails,
+  TESTING_BYPASS_EMAIL,
+} from "@/lib/auth/roles";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -16,7 +21,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (process.env.VERCEL_ENV === "production") return null;
         if (!credentials?.username || !credentials?.password) return null;
         if (credentials.username === "root" && credentials.password === "testing") {
-          return { id: "test-user", name: "Test User", email: "test@testing.local" };
+          return { id: "test-user", name: "Test User", email: TESTING_BYPASS_EMAIL };
         }
         return null;
       },
@@ -53,6 +58,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.name = user.name;
         token.role = getRoleForEmail(user.email);
+      }
+
+      if (!token.role && typeof token.email === "string") {
+        token.role = getRoleForEmail(token.email);
       }
 
       return token;

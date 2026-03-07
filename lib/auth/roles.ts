@@ -1,6 +1,5 @@
 export type AppRole = "admin" | "cashier";
-
-const TESTING_ADMIN_EMAIL = "test@testing.local";
+export const TESTING_BYPASS_EMAIL = "test@testing.local";
 
 export function normalizeEmails(rawValue: string | undefined): string[] {
   return (rawValue ?? "")
@@ -13,7 +12,7 @@ function isTestingAdmin(email: string): boolean {
   return (
     process.env.AUTH_BYPASS === "true" &&
     process.env.VERCEL_ENV !== "production" &&
-    email.toLowerCase() === TESTING_ADMIN_EMAIL
+    email.toLowerCase() === TESTING_BYPASS_EMAIL
   );
 }
 
