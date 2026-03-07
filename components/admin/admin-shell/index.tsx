@@ -20,6 +20,7 @@ import {
   MobileNavigationTrigger,
   NavigationSidebar,
 } from "@/components/navigation-sidebar";
+import { ThemeToggle, ThemeToggleSidebarRow } from "@/components/pos/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -112,6 +113,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       >
         <RefreshCw className={cn("h-4 w-4", isDashboardFetching && "animate-spin")} />
       </Button>
+
+      <ThemeToggle className="hidden md:flex" />
     </div>
   );
 
@@ -139,6 +142,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         action={logoutAction}
         brandLabel="POS Admin"
         brandSubtitle="Papelería Luna"
+        footer={<ThemeToggleSidebarRow />}
         items={items}
         open={mobileOpen}
         onOpenChange={setMobileOpen}

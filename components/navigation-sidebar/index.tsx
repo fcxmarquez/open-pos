@@ -28,6 +28,7 @@ interface NavigationSidebarContentProps {
   brandSubtitle?: string;
   brandTitle?: string;
   expanded: boolean;
+  footer?: React.ReactNode;
   items: NavigationSidebarItem[];
   mobile?: boolean;
   onToggleExpanded?: () => void;
@@ -51,6 +52,7 @@ interface NavigationSidebarMobileProps {
   brandLabel: string;
   brandSubtitle?: string;
   brandTitle?: string;
+  footer?: React.ReactNode;
   items: NavigationSidebarItem[];
   onOpenChange: (open: boolean) => void;
   open: boolean;
@@ -62,6 +64,7 @@ function NavigationSidebarContent({
   brandSubtitle,
   brandTitle,
   expanded,
+  footer,
   items,
   mobile = false,
   onToggleExpanded,
@@ -194,6 +197,8 @@ function NavigationSidebarContent({
         })}
       </nav>
 
+      {footer ? <div className="mt-4">{footer}</div> : null}
+
       {action ? (
         expanded ? (
           <button
@@ -294,6 +299,7 @@ export function MobileNavigationSidebar({
   brandLabel,
   brandSubtitle,
   brandTitle,
+  footer,
   items,
   onOpenChange,
   open,
@@ -328,6 +334,7 @@ export function MobileNavigationSidebar({
           brandSubtitle={brandSubtitle}
           brandTitle={brandTitle}
           expanded
+          footer={footer}
           items={mobileItems}
           mobile
           showExpandToggle={false}
