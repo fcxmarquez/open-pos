@@ -141,14 +141,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (!mounted) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div className="flex h-dvh items-center justify-center bg-background">
         <div className="text-muted-foreground">Cargando...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
+    <div className="flex h-dvh flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
       {/* Sidebar */}
       <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-3.5 pt-3 md:flex">
         <div className="flex flex-col items-center gap-3">
@@ -239,7 +239,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Mobile bottom navigation */}
-      <nav className="border-t border-border bg-card p-2 md:hidden">
+      <nav className="border-t border-border bg-card p-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] md:hidden">
         <div className="flex items-center gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
