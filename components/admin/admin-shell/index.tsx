@@ -70,6 +70,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const {
     data: dashboardData,
+    isError: hasDashboardStateError,
+    isPending: isDashboardStatePending,
     isFetching: isDashboardFetching,
     refetch: refetchDashboard,
   } = useQuery(adminDashboardQueryOptions());
@@ -97,10 +99,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             "h-2.5 w-2.5 rounded-full",
             dashboardData?.hasOpenSession
               ? "bg-success-foreground"
-              : "bg-muted-foreground/50"
+              : !dashboardData && hasDashboardStateError
+                ? "bg-destructive"
+                : "bg-muted-foreground/50"
           )}
         />
-        <span>{dashboardData?.openSessionLabel ?? "Sin sesión abierta"}</span>
+        <span>
+          {!dashboardData && isDashboardStatePending
+            ? "Cargando estado..."
+            : !dashboardData && hasDashboardStateError
+              ? "Estado no disponible"
+              : (dashboardData?.openSessionLabel ?? "Sin sesión abierta")}
+        </span>
       </div>
 
       <Button

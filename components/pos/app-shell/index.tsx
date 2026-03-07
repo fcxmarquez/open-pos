@@ -146,6 +146,12 @@ export function AppShell({
     setPinDialogOpen(true);
   };
 
+  const logoutAction = {
+    icon: LogOut,
+    label: "Cerrar sesión",
+    onSelect: adminUnlocked ? requestLogout : performLogout,
+  };
+
   if (!mounted) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -157,15 +163,7 @@ export function AppShell({
   return (
     <div className="flex h-screen flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
       <NavigationSidebar
-        action={
-          adminUnlocked
-            ? {
-                icon: LogOut,
-                label: "Cerrar sesión",
-                onSelect: requestLogout,
-              }
-            : null
-        }
+        action={logoutAction}
         allowExpandedDesktop={false}
         brandLabel="Papeleria Luna"
         defaultExpanded={false}
@@ -253,18 +251,16 @@ export function AppShell({
             );
           })}
 
-          {adminUnlocked && (
-            <button
-              type="button"
-              onClick={requestLogout}
-              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-xs font-medium transition-colors hover:bg-secondary text-muted-foreground"
-              aria-label="Cerrar sesión"
-              title="Cerrar sesión"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Salir</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={logoutAction.onSelect}
+            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Salir</span>
+          </button>
         </div>
       </nav>
 

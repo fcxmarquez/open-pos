@@ -22,6 +22,7 @@ export function ThemeToggleSidebarRow() {
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-pressed={isDark}
       aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       className="inline-flex h-10 w-full items-center gap-3 rounded-2xl border border-transparent px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
     >
@@ -53,6 +54,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       size="icon"
       className={cn("h-8 w-8 rounded-xl text-foreground", className)}
       onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-pressed={isDark}
       aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       title={isDark ? "Modo claro" : "Modo oscuro"}
     >

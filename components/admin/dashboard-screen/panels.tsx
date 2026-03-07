@@ -28,9 +28,9 @@ const PERIOD_DAYS: Record<HistoryPeriod, number> = {
 };
 
 const PERIOD_LABELS: Record<HistoryPeriod, string> = {
-  month: "Mes",
-  quarter: "Trimestre",
-  week: "Semana",
+  month: "30 días",
+  quarter: "90 días",
+  week: "7 días",
 };
 
 type HistoryRecord = {
@@ -122,9 +122,9 @@ export function LatestTransactionsPanel({
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">
-                        {visibleItems.map((item) => (
+                        {visibleItems.map((item, index) => (
                           <Badge
-                            key={`${transaction.id}-${item.name}`}
+                            key={`${transaction.id}-${item.name}-${index}`}
                             variant="muted"
                             size="chip"
                           >
