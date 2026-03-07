@@ -3,7 +3,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calculator, CircleDot, LogOut, Package, ShoppingCart } from "lucide-react";
+import {
+  Calculator,
+  CircleDot,
+  LayoutDashboard,
+  LogOut,
+  Package,
+  ShoppingCart,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
@@ -58,7 +65,13 @@ function pathToScreen(pathname: string): Screen {
   return "ventas";
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  isAdmin = false,
+}: {
+  children: React.ReactNode;
+  isAdmin?: boolean;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const activeScreen = pathToScreen(pathname);
@@ -156,14 +169,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         allowExpandedDesktop={false}
         brandLabel="Papeleria Luna"
         defaultExpanded={false}
-        items={navItems.map((item) => ({
-          icon: item.icon,
-          id: item.id,
-          isActive: activeScreen === item.id,
-          label: item.label,
-          mobileLabel: item.mobileLabel,
-          onSelect: () => handleNavClick(item.id),
-        }))}
+        items={[
+          ...navItems.map((item) => ({
+            icon: item.icon,
+            id: item.id,
+            isActive: activeScreen === item.id,
+            label: item.label,
+            mobileLabel: item.mobileLabel,
+            onSelect: () => handleNavClick(item.id),
+          })),
+          ...(isAdmin
+            ? [
+                {
+                  icon: LayoutDashboard,
+                  id: "admin",
+                  isActive: false,
+                  label: "Dashboard Admin",
+                  onSelect: () => router.push("/admin/dashboard"),
+                },
+              ]
+            : []),
+        ]}
       />
 
       {/* Main content */}
