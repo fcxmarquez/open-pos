@@ -1,21 +1,27 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import {
   ArrowRightLeft,
   LayoutDashboard,
   LogOut,
   Package,
+  RefreshCw,
   WalletCards,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { adminDashboardQueryOptions } from "@/components/admin/dashboard-screen/query";
 import {
   MobileNavigationSidebar,
   MobileNavigationTrigger,
   NavigationSidebar,
 } from "@/components/navigation-sidebar";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   {
@@ -48,11 +54,24 @@ const navItems = [
   },
 ] as const;
 
+function formatShortDate(date: Date): string {
+  return format(date, "d MMM yyyy", { locale: es });
+}
+
+function formatLongDate(date: Date): string {
+  return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
+}
+
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const {
+    data: dashboardData,
+    isFetching: isDashboardFetching,
+    refetch: refetchDashboard,
+  } = useQuery(adminDashboardQueryOptions());
 
   const items = navItems.map((item) => ({
     icon: item.icon,
@@ -68,6 +87,33 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     onSelect: () => signOut({ redirectTo: "/login" }),
     tone: "danger" as const,
   };
+
+  const sessionControls = (
+    <div className="flex items-center gap-3">
+      <div className="inline-flex items-center gap-2 rounded-full border bg-muted px-3 py-2 text-xs font-semibold text-foreground">
+        <span
+          className={cn(
+            "h-2.5 w-2.5 rounded-full",
+            dashboardData?.hasOpenSession
+              ? "bg-success-foreground"
+              : "bg-muted-foreground/50"
+          )}
+        />
+        <span>{dashboardData?.openSessionLabel ?? "Sin sesión abierta"}</span>
+      </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        onClick={() => refetchDashboard()}
+        disabled={isDashboardFetching}
+        aria-label="Actualizar dashboard"
+      >
+        <RefreshCw className={cn("h-4 w-4", isDashboardFetching && "animate-spin")} />
+      </Button>
+    </div>
+  );
 
   return (
     <div
@@ -99,25 +145,31 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       />
 
       <div className="min-w-0 flex-1 transition-[width] duration-300 ease-in-out">
-        <header className="flex items-center justify-between border-b bg-card px-4 py-3 md:hidden">
-          <div className="flex items-center gap-3">
+        <header className="hidden border-b bg-card md:block">
+          <div className="flex items-center justify-between px-8 py-4">
+            <div className="space-y-1">
+              <h1 className="text-2xl text-foreground">Dashboard</h1>
+              <p className="text-sm capitalize text-muted-foreground">
+                {formatLongDate(new Date())}
+              </p>
+            </div>
+
+            {sessionControls}
+          </div>
+        </header>
+
+        <header className="flex items-center justify-between gap-3 border-b bg-card px-4 py-3 md:hidden">
+          <div className="flex min-w-0 items-center gap-3">
             <MobileNavigationTrigger onClick={() => setMobileOpen(true)} />
-            <div>
-              <p className="text-sm font-semibold text-foreground">POS Admin</p>
-              <p className="text-xs text-muted-foreground">Papelería Luna</p>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-foreground">Dashboard</p>
+              <p className="truncate text-xs text-muted-foreground">
+                {formatShortDate(new Date())}
+              </p>
             </div>
           </div>
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={logoutAction.onSelect}
-            aria-label="Cerrar sesión"
-            className="h-10 w-10 rounded-xl text-muted-foreground"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+          {sessionControls}
         </header>
 
         {children}
