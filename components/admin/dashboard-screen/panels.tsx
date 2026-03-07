@@ -161,51 +161,50 @@ function getDifferenceColor(difference: number): string {
 function HistoryGraph({
   chartData,
 }: {
-  chartData: { label: string; revenue: number }[];
+  chartData: { label: string; revenue: number | null }[];
 }) {
   return (
-    <div className="rounded-3xl bg-primary p-4">
-      <div className="rounded-3xl bg-card p-4">
-        <ChartContainer
-          className="aspect-auto h-64 w-full"
-          config={{
-            revenue: {
-              color: "hsl(var(--primary))",
-              label: "Ingresos",
-            },
-          }}
+    <div className="rounded-2xl border bg-card p-4">
+      <ChartContainer
+        className="aspect-auto h-64 w-full"
+        config={{
+          revenue: {
+            color: "hsl(var(--primary))",
+            label: "Ingresos",
+          },
+        }}
+      >
+        <LineChart
+          accessibilityLayer
+          data={chartData}
+          margin={{ left: 12, right: 12, top: 16, bottom: 0 }}
         >
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{ left: 12, right: 12, top: 16, bottom: 0 }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis axisLine={false} dataKey="label" minTickGap={18} tickLine={false} />
-            <YAxis
-              axisLine={false}
-              tickFormatter={formatChartCurrency}
-              tickLine={false}
-              width={64}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  formatter={(value) => formatCurrency(Number(value))}
-                  indicator="line"
-                />
-              }
-            />
-            <Line
-              dataKey="revenue"
-              dot={false}
-              stroke="var(--color-revenue)"
-              strokeWidth={3}
-              type="monotone"
-            />
-          </LineChart>
-        </ChartContainer>
-      </div>
+          <CartesianGrid vertical={false} />
+          <XAxis axisLine={false} dataKey="label" minTickGap={18} tickLine={false} />
+          <YAxis
+            axisLine={false}
+            tickFormatter={formatChartCurrency}
+            tickLine={false}
+            width={64}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                formatter={(value) => formatCurrency(Number(value))}
+                indicator="line"
+              />
+            }
+          />
+          <Line
+            connectNulls
+            dataKey="revenue"
+            dot={false}
+            stroke="var(--color-revenue)"
+            strokeWidth={3}
+            type="monotone"
+          />
+        </LineChart>
+      </ChartContainer>
     </div>
   );
 }
@@ -258,20 +257,45 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
     return sessionHistory.filter((record) => record.sessionDate >= cutoff);
   }, [sessionHistory, historyPeriod]);
 
-  const chartData = useMemo(
-    () =>
-      [...filteredHistory]
-        .sort(
-          (left, right) =>
-            left.sessionDate.localeCompare(right.sessionDate) ||
-            left.sessionNumber - right.sessionNumber
-        )
-        .map((record) => ({
-          label: formatHistoryLabel(record.sessionDate, record.sessionNumber),
-          revenue: record.revenue,
-        })),
-    [filteredHistory]
-  );
+  const chartData = useMemo(() => {
+    const days = PERIOD_DAYS[historyPeriod];
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - (days - 1));
+    const cutoffStr = toMexicoDateString(cutoff);
+
+    const recordsByDate = new Map<string, HistoryRecord[]>();
+    for (const record of sessionHistory) {
+      if (record.sessionDate >= cutoffStr) {
+        const existing = recordsByDate.get(record.sessionDate) ?? [];
+        existing.push(record);
+        recordsByDate.set(record.sessionDate, existing);
+      }
+    }
+
+    const result: { label: string; revenue: number | null }[] = [];
+    for (let i = 0; i < days; i++) {
+      const date = new Date(cutoff);
+      date.setDate(date.getDate() + i);
+      const dateStr = toMexicoDateString(date);
+      const records = recordsByDate.get(dateStr);
+
+      if (records && records.length > 0) {
+        for (const record of records.sort((a, b) => a.sessionNumber - b.sessionNumber)) {
+          result.push({
+            label: formatHistoryLabel(record.sessionDate, record.sessionNumber),
+            revenue: record.revenue,
+          });
+        }
+      } else {
+        result.push({
+          label: format(new Date(`${dateStr}T12:00:00`), "d MMM", { locale: es }),
+          revenue: null,
+        });
+      }
+    }
+
+    return result;
+  }, [sessionHistory, historyPeriod]);
 
   return (
     <Card className="rounded-3xl">
