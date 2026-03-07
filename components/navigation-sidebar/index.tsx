@@ -276,7 +276,7 @@ export function NavigationSidebar({
   return (
     <aside
       className={cn(
-        "hidden shrink-0 md:block",
+        "hidden shrink-0 md:sticky md:top-0 md:h-screen md:block",
         allowExpandedDesktop ? (expanded ? "w-60" : "w-[72px]") : "w-[72px]"
       )}
     >
