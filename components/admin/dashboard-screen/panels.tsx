@@ -5,7 +5,6 @@ import { es } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import {
@@ -16,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, formatCurrency, formatTime, toMexicoDateString } from "@/lib/utils";
 
 type HistoryPeriod = "month" | "quarter" | "week";
@@ -277,34 +277,30 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {(["week", "month", "quarter"] as const).map((period) => (
-              <Button
-                key={period}
-                type="button"
-                size="sm"
-                variant={historyPeriod === period ? "default" : "outline"}
-                onClick={() => setHistoryPeriod(period)}
-              >
-                {PERIOD_LABELS[period]}
-              </Button>
-            ))}
-          </div>
+          <Tabs
+            value={historyPeriod}
+            onValueChange={(v) => setHistoryPeriod(v as HistoryPeriod)}
+          >
+            <TabsList className="h-auto rounded-full p-1">
+              {(["week", "month", "quarter"] as const).map((period) => (
+                <TabsTrigger key={period} value={period} className="rounded-full">
+                  {PERIOD_LABELS[period]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
 
-        <div className="flex items-center gap-2">
-          {(["graph", "table"] as const).map((view) => (
-            <Button
-              key={view}
-              type="button"
-              size="sm"
-              variant={historyView === view ? "default" : "outline"}
-              onClick={() => setHistoryView(view)}
-            >
-              {view === "graph" ? "Gráfica" : "Tabla"}
-            </Button>
-          ))}
-        </div>
+        <Tabs value={historyView} onValueChange={(v) => setHistoryView(v as HistoryView)}>
+          <TabsList className="h-auto rounded-full p-1">
+            <TabsTrigger value="graph" className="rounded-full">
+              Gráfica
+            </TabsTrigger>
+            <TabsTrigger value="table" className="rounded-full">
+              Tabla
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </CardHeader>
       <CardContent className="pt-0">
         {filteredHistory.length === 0 ? (
