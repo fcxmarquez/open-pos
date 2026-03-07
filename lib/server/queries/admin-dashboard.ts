@@ -13,7 +13,7 @@ export interface AdminDashboardData {
   latestTransactions: {
     createdAt: string;
     id: string;
-    itemNames: string[];
+    items: { name: string; quantity: number }[];
     total: number;
   }[];
   openSessionLabel: string | null;
@@ -130,16 +130,16 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const categoryByProductId = new Map(
     productRows.map((product) => [product.id, product.category ?? null])
   );
-  const itemNamesBySaleId = new Map<string, string[]>();
+  const itemsBySaleId = new Map<string, { name: string; quantity: number }[]>();
   const topProducts = new Map<
     string,
     { category: string | null; name: string; units: number }
   >();
 
   for (const item of todaySaleItems) {
-    const saleItemNames = itemNamesBySaleId.get(item.saleId) ?? [];
-    saleItemNames.push(item.productName);
-    itemNamesBySaleId.set(item.saleId, saleItemNames);
+    const saleItems2 = itemsBySaleId.get(item.saleId) ?? [];
+    saleItems2.push({ name: item.productName, quantity: item.quantity });
+    itemsBySaleId.set(item.saleId, saleItems2);
 
     const key = item.productId ?? `name:${item.productName}`;
     const currentTopProduct = topProducts.get(key) ?? {
@@ -167,7 +167,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const latestTransactions = todaySalesRows.slice(0, 5).map((sale) => ({
     createdAt: new Date(sale.createdAt).toISOString(),
     id: sale.id,
-    itemNames: itemNamesBySaleId.get(sale.id) ?? [],
+    items: itemsBySaleId.get(sale.id) ?? [],
     total: Number(sale.total ?? 0),
   }));
 

@@ -45,7 +45,7 @@ type HistoryRecord = {
 type TransactionRecord = {
   id: string;
   createdAt: string;
-  itemNames: string[];
+  items: { name: string; quantity: number }[];
   total: number;
 };
 
@@ -112,8 +112,8 @@ export function LatestTransactionsPanel({
             </TableHeader>
             <TableBody>
               {latestTransactions.map((transaction) => {
-                const visibleItems = transaction.itemNames.slice(0, 2);
-                const hiddenItems = transaction.itemNames.length - visibleItems.length;
+                const visibleItems = transaction.items.slice(0, 2);
+                const hiddenItems = transaction.items.length - visibleItems.length;
 
                 return (
                   <TableRow key={transaction.id}>
@@ -122,13 +122,13 @@ export function LatestTransactionsPanel({
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">
-                        {visibleItems.map((itemName) => (
+                        {visibleItems.map((item) => (
                           <Badge
-                            key={`${transaction.id}-${itemName}`}
+                            key={`${transaction.id}-${item.name}`}
                             variant="muted"
                             size="chip"
                           >
-                            {itemName}
+                            {item.name} x{item.quantity}
                           </Badge>
                         ))}
                         {hiddenItems > 0 ? (
