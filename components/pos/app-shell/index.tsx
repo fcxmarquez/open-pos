@@ -6,16 +6,18 @@ import { es } from "date-fns/locale";
 import {
   Calculator,
   CircleDot,
+  LayoutDashboard,
   LogOut,
   Package,
   ShoppingCart,
-  Store,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
+import { NavigationSidebar } from "@/components/navigation-sidebar";
 import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
+import { ThemeToggle } from "@/components/pos/theme-toggle";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
@@ -63,7 +65,13 @@ function pathToScreen(pathname: string): Screen {
   return "ventas";
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  isAdmin = false,
+}: {
+  children: React.ReactNode;
+  isAdmin?: boolean;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const activeScreen = pathToScreen(pathname);
@@ -138,6 +146,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setPinDialogOpen(true);
   };
 
+  const logoutAction = {
+    icon: LogOut,
+    label: "Cerrar sesión",
+    onSelect: adminUnlocked ? requestLogout : performLogout,
+  };
   if (!mounted) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -148,58 +161,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
-      {/* Sidebar */}
-      <aside className="hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar px-2 pb-3.5 pt-3 md:flex">
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex h-10 w-full items-center justify-center">
-            <Store className="h-5 w-5 text-sidebar-foreground" />
-            <span className="sr-only">Papeleria Luna</span>
-          </div>
-          <div className="h-px w-6 bg-border" />
-        </div>
-        <nav className="mt-3 flex flex-col items-center gap-3">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeScreen === item.id;
-            return (
-              <button
-                type="button"
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                title={item.label}
-                aria-label={item.label}
-                className={cn(
-                  "flex h-10 w-[46px] items-center justify-center rounded-xl border text-muted-foreground transition-colors",
-                  isActive
-                    ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "border-transparent bg-transparent hover:bg-sidebar-accent hover:text-foreground"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="sr-only">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="flex-1" />
-
-        {/* Logout button */}
-        {adminUnlocked && (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={requestLogout}
-              title="Cerrar sesión"
-              aria-label="Cerrar sesión"
-              className="flex h-10 w-[46px] items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="sr-only">Cerrar sesión</span>
-            </button>
-          </div>
-        )}
-      </aside>
+      <NavigationSidebar
+        action={logoutAction}
+        allowExpandedDesktop={false}
+        brandLabel="Papeleria Luna"
+        defaultExpanded={false}
+        items={[
+          ...navItems.map((item) => ({
+            icon: item.icon,
+            id: item.id,
+            isActive: activeScreen === item.id,
+            label: item.label,
+            mobileLabel: item.mobileLabel,
+            onSelect: () => handleNavClick(item.id),
+          })),
+          ...(isAdmin
+            ? [
+                {
+                  icon: LayoutDashboard,
+                  id: "admin",
+                  isActive: false,
+                  label: "Dashboard Admin",
+                  onSelect: () => router.push("/admin/dashboard"),
+                },
+              ]
+            : []),
+        ]}
+      />
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -228,6 +216,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="font-body text-xs font-semibold text-foreground capitalize md:w-[190px] md:text-right">
               {dateStr}
             </div>
+            {/* Theme toggle */}
+            <ThemeToggle />
           </div>
         </header>
 
@@ -260,18 +250,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
 
-          {adminUnlocked && (
-            <button
-              type="button"
-              onClick={requestLogout}
-              className="flex h-14 w-14 shrink-0 flex-col items-center gap-1 justify-center rounded-xl text-xs font-medium transition-colors hover:bg-secondary text-muted-foreground"
-              aria-label="Cerrar sesión"
-              title="Cerrar sesión"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Salir</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={logoutAction.onSelect}
+            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Salir</span>
+          </button>
         </div>
       </nav>
 

@@ -30,6 +30,12 @@ import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query"
 
 const PLU_CODE_REGEX = /^\d{4}$/;
 
+function parseCartQuantityInput(rawValue: string) {
+  const digitsOnly = rawValue.replace(/\D/g, "");
+
+  return Number.parseInt(digitsOnly, 10) || 0;
+}
+
 function CartHeader({
   cartItemCount,
   onClose,
@@ -316,17 +322,19 @@ export function VentasScreen() {
                       <Minus className="h-3 w-3" />
                     </Button>
                     <Input
-                      type="number"
-                      value={item.quantity}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={String(item.quantity)}
                       onChange={(e) =>
                         updateCartQuantity(
                           item.product.id,
-                          parseInt(e.target.value, 10) || 0
+                          parseCartQuantityInput(e.target.value)
                         )
                       }
                       onFocus={(e) => e.target.select()}
-                      className="h-7 w-12 text-center text-sm"
-                      min="1"
+                      className="h-7 w-14 text-center text-sm tabular-nums"
+                      aria-label={`Cantidad de ${item.product.name}`}
                     />
                     <Button
                       variant="outline"

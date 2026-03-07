@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import type React from "react";
 import { IOSViewportFix } from "@/components/ios-viewport-fix";
 import { QueryProvider } from "@/components/query-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
@@ -54,10 +55,17 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}>
         <IOSViewportFix />
-        <QueryProvider>
-          {children}
-          <Toaster position="top-right" closeButton />
-        </QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            {children}
+            <Toaster position="top-right" closeButton />
+          </QueryProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

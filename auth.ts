@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { isAuthBypassEnabled, TESTING_BYPASS_EMAIL } from "@/lib/auth/bypass";
+import { type AppRole, getRoleForEmail, normalizeEmails } from "@/lib/auth/roles";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -11,11 +13,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
-        if (process.env.AUTH_BYPASS !== "true") return null;
-        if (process.env.VERCEL_ENV === "production") return null;
+        if (!isAuthBypassEnabled()) return null;
         if (!credentials?.username || !credentials?.password) return null;
         if (credentials.username === "root" && credentials.password === "testing") {
-          return { id: "test-user", name: "Test User", email: "test@testing.local" };
+          return { id: "test-user", name: "Test User", email: TESTING_BYPASS_EMAIL };
         }
         return null;
       },
@@ -31,29 +32,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async signIn({ account, profile }) {
-      // Credentials provider is only active when AUTH_BYPASS is true
+      // Credentials provider is only active when the auth bypass is enabled
       if (account?.provider === "credentials") return true;
 
       if (!profile?.email) return false;
 
-      const allowedEmails = (process.env.ALLOWED_EMAILS ?? "")
-        .split(",")
-        .map((e) => e.trim())
-        .filter(Boolean);
+      const allowedEmails = normalizeEmails(process.env.ALLOWED_EMAILS);
 
       if (allowedEmails.length === 0) return false;
 
-      return allowedEmails.includes(profile.email);
+      return allowedEmails.includes(profile.email.toLowerCase());
     },
     async jwt({ token, user, profile }) {
       if (profile) {
         token.email = profile.email;
         token.name = profile.name;
         token.picture = profile.picture;
+        token.role = getRoleForEmail(profile.email);
       } else if (user) {
         token.email = user.email;
         token.name = user.name;
+        token.role = getRoleForEmail(user.email);
       }
+
+      if (!token.role && typeof token.email === "string") {
+        token.role = getRoleForEmail(token.email);
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -61,6 +66,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         session.user.image = token.picture as string;
+        session.user.role = (token.role ?? "cashier") as AppRole;
       }
       return session;
     },
