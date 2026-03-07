@@ -15,7 +15,7 @@ import { adminDashboardQueryOptions } from "@/components/admin/dashboard-screen/
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { HistoryPanel, LatestTransactionsPanel } from "./panels";
 import { DashboardSkeleton } from "./skeleton";
 import { SummaryCard } from "./summary-card";
@@ -35,13 +35,6 @@ export function AdminDashboardScreen() {
   const { data, dataUpdatedAt, error, isPending, refetch } = useQuery(
     adminDashboardQueryOptions()
   );
-
-  const comparisonTone =
-    data?.revenueVsLastWeek == null
-      ? "border-border bg-muted text-muted-foreground"
-      : data.revenueVsLastWeek >= 0
-        ? "border-success-border bg-success text-success-foreground"
-        : "border-destructive/20 bg-destructive/10 text-destructive";
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -84,26 +77,25 @@ export function AdminDashboardScreen() {
               value={formatCurrency(data.revenueToday)}
               icon={Wallet}
             >
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium",
-                    comparisonTone
-                  )}
-                >
-                  {data.revenueVsLastWeek == null ? null : data.revenueVsLastWeek >= 0 ? (
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  ) : (
-                    <ArrowDownRight className="h-3.5 w-3.5" />
-                  )}
-                  {data.revenueVsLastWeek == null
-                    ? "Sin dato"
-                    : `${data.revenueVsLastWeek >= 0 ? "+" : ""}${data.revenueVsLastWeek.toFixed(1)}%`}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {data.comparisonLabel}
-                </span>
-              </div>
+              {data.hasOpenSession && data.revenueVsLastWeek != null && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge
+                    variant={data.revenueVsLastWeek >= 0 ? "success" : "warning"}
+                    size="pill"
+                    className="gap-1"
+                  >
+                    {data.revenueVsLastWeek >= 0 ? (
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    ) : (
+                      <ArrowDownRight className="h-3.5 w-3.5" />
+                    )}
+                    {`${data.revenueVsLastWeek >= 0 ? "+" : ""}${data.revenueVsLastWeek.toFixed(1)}%`}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {data.comparisonLabel}
+                  </span>
+                </div>
+              )}
             </SummaryCard>
 
             <SummaryCard
