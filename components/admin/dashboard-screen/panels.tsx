@@ -69,11 +69,13 @@ function formatHistoryLabel(dateString: string, sessionNumber: number): string {
 
 interface LatestTransactionsPanelProps {
   transactionCount: number;
+  productsSold: number;
   latestTransactions: TransactionRecord[];
 }
 
 export function LatestTransactionsPanel({
   transactionCount,
+  productsSold,
   latestTransactions,
 }: LatestTransactionsPanelProps) {
   return (
@@ -85,9 +87,14 @@ export function LatestTransactionsPanel({
             Movimientos recientes del turno actual.
           </p>
         </div>
-        <Badge variant="muted" size="pill">
-          {transactionCount} hoy
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="muted" size="pill">
+            {transactionCount} ventas
+          </Badge>
+          <Badge variant="muted" size="pill">
+            {productsSold} productos
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent className="pt-0">
         {latestTransactions.length === 0 ? (

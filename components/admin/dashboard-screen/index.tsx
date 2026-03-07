@@ -161,6 +161,7 @@ export function AdminDashboardScreen() {
           <div className="grid gap-4 md:grid-cols-[1.1fr_1fr]">
             <LatestTransactionsPanel
               transactionCount={data.transactionCount}
+              productsSold={data.productsSold}
               latestTransactions={data.latestTransactions}
             />
             <HistoryPanel sessionHistory={data.sessionHistory} />
