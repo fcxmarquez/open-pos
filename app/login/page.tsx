@@ -105,7 +105,7 @@ export default async function LoginPage({
                   id="username"
                   name="username"
                   autoComplete="username"
-                  placeholder="root"
+                  placeholder="usuario"
                 />
               </div>
               <div className="space-y-1">
