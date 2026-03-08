@@ -16,3 +16,4 @@ ignore/
 .playwright-mcp/
 .codex/environments/
 storybook-static/
+next_output.log
