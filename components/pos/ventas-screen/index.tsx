@@ -162,6 +162,11 @@ export function VentasScreen() {
     setSearchResults([]);
   };
 
+  const clearSearchAndFocus = () => {
+    clearSearch();
+    focusInput();
+  };
+
   const handleSubmit = async ({
     searchValue: submittedValue,
   }: {
@@ -178,8 +183,7 @@ export function VentasScreen() {
       if (product) {
         addToCart(dbProductToStoreProduct(product));
         toast.success(`${product.name ?? "Producto"} agregado`);
-        clearSearch();
-        focusInput();
+        clearSearchAndFocus();
         return;
       }
 
@@ -188,8 +192,7 @@ export function VentasScreen() {
         if (pluProduct) {
           addToCart(dbProductToStoreProduct(pluProduct));
           toast.success(`${pluProduct.name ?? "Producto"} agregado`);
-          clearSearch();
-          focusInput();
+          clearSearchAndFocus();
           return;
         }
       }
@@ -200,8 +203,7 @@ export function VentasScreen() {
         const p = dbProductToStoreProduct(results[0]);
         addToCart(p);
         toast.success(`${p.name} agregado`);
-        clearSearch();
-        focusInput();
+        clearSearchAndFocus();
         return;
       }
 
@@ -435,6 +437,18 @@ export function VentasScreen() {
                           {...fieldProps}
                         />
                       </FormControl>
+                      {searchValue.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-accent-foreground"
+                          onClick={clearSearchAndFocus}
+                          aria-label="Borrar búsqueda"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      )}
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
@@ -470,8 +484,7 @@ export function VentasScreen() {
                 onClick={() => {
                   addToCart(p);
                   toast.success(`${p.name} agregado`);
-                  clearSearch();
-                  focusInput();
+                  clearSearchAndFocus();
                 }}
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
               >
@@ -548,7 +561,7 @@ export function VentasScreen() {
       {/* Mobile cart drawer (slides up from bottom) */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-xl bg-card shadow-xl transition-transform duration-300 md:hidden",
+          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85dvh] flex-col rounded-t-xl bg-card pb-[constant(safe-area-inset-bottom)] pb-[env(safe-area-inset-bottom,0px)] shadow-xl transition-transform duration-300 md:hidden",
           mobileCartOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
