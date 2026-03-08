@@ -30,6 +30,12 @@ import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query"
 
 const PLU_CODE_REGEX = /^\d{4}$/;
 
+function parseCartQuantityInput(rawValue: string) {
+  const digitsOnly = rawValue.replace(/\D/g, "");
+
+  return Number.parseInt(digitsOnly, 10) || 0;
+}
+
 function CartHeader({
   cartItemCount,
   onClose,
@@ -156,6 +162,11 @@ export function VentasScreen() {
     setSearchResults([]);
   };
 
+  const clearSearchAndFocus = () => {
+    clearSearch();
+    focusInput();
+  };
+
   const handleSubmit = async ({
     searchValue: submittedValue,
   }: {
@@ -172,8 +183,7 @@ export function VentasScreen() {
       if (product) {
         addToCart(dbProductToStoreProduct(product));
         toast.success(`${product.name ?? "Producto"} agregado`);
-        clearSearch();
-        focusInput();
+        clearSearchAndFocus();
         return;
       }
 
@@ -182,8 +192,7 @@ export function VentasScreen() {
         if (pluProduct) {
           addToCart(dbProductToStoreProduct(pluProduct));
           toast.success(`${pluProduct.name ?? "Producto"} agregado`);
-          clearSearch();
-          focusInput();
+          clearSearchAndFocus();
           return;
         }
       }
@@ -194,8 +203,7 @@ export function VentasScreen() {
         const p = dbProductToStoreProduct(results[0]);
         addToCart(p);
         toast.success(`${p.name} agregado`);
-        clearSearch();
-        focusInput();
+        clearSearchAndFocus();
         return;
       }
 
@@ -316,17 +324,18 @@ export function VentasScreen() {
                       <Minus className="h-3 w-3" />
                     </Button>
                     <Input
-                      type="number"
-                      value={item.quantity}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={String(item.quantity)}
                       onChange={(e) =>
                         updateCartQuantity(
                           item.product.id,
-                          parseInt(e.target.value, 10) || 0
+                          parseCartQuantityInput(e.target.value)
                         )
                       }
                       onFocus={(e) => e.target.select()}
-                      className="h-7 w-12 text-center text-sm"
-                      min="1"
+                      className="h-7 w-14 text-center text-sm tabular-nums"
                       aria-label={`Cantidad de ${item.product.name}`}
                     />
                     <Button
@@ -428,6 +437,18 @@ export function VentasScreen() {
                           {...fieldProps}
                         />
                       </FormControl>
+                      {searchValue.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-accent-foreground"
+                          onClick={clearSearchAndFocus}
+                          aria-label="Borrar búsqueda"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      )}
                       <Button
                         type="button"
                         onClick={() => setShowQuickSale(true)}
@@ -463,8 +484,7 @@ export function VentasScreen() {
                 onClick={() => {
                   addToCart(p);
                   toast.success(`${p.name} agregado`);
-                  clearSearch();
-                  focusInput();
+                  clearSearchAndFocus();
                 }}
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
               >
@@ -541,7 +561,7 @@ export function VentasScreen() {
       {/* Mobile cart drawer (slides up from bottom) */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-xl bg-card shadow-xl transition-transform duration-300 md:hidden",
+          "fixed inset-x-0 bottom-0 z-40 flex max-h-[85dvh] flex-col rounded-t-xl bg-card pb-[constant(safe-area-inset-bottom)] pb-[env(safe-area-inset-bottom,0px)] shadow-xl transition-transform duration-300 md:hidden",
           mobileCartOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
