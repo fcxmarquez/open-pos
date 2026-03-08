@@ -265,6 +265,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
+      aria-label="Toggle Sidebar"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
         onClick?.(event);
@@ -273,7 +274,6 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
 });
