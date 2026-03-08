@@ -345,8 +345,14 @@ export function ProductosScreen() {
 
       <ScrollArea className="flex-1">
         {products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
-            No se encontraron productos
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <Search className="mb-4 h-12 w-12 text-muted-foreground/50" />
+            <h3 className="text-lg font-bold text-foreground">
+              No se encontraron productos
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Intenta ajustar los filtros de búsqueda o agrega un nuevo producto.
+            </p>
           </div>
         ) : (
           <ProductsList
