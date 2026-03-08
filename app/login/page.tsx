@@ -101,7 +101,12 @@ export default async function LoginPage({
             >
               <div className="space-y-1">
                 <Label htmlFor="username">Usuario</Label>
-                <Input id="username" name="username" autoComplete="username" />
+                <Input
+                  id="username"
+                  name="username"
+                  autoComplete="username"
+                  placeholder="usuario"
+                />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="password">Contraseña</Label>
@@ -110,6 +115,7 @@ export default async function LoginPage({
                   name="password"
                   type="password"
                   autoComplete="current-password"
+                  placeholder="••••••••"
                 />
               </div>
               <Button type="submit" className="w-full">
