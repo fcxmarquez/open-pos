@@ -130,6 +130,7 @@ export function PinDialog({
         >
           {digits.map((digit, index) => (
             <Input
+              aria-label={`Dígito ${index + 1} del PIN`}
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length PIN input, never reordered
               key={index}
               ref={(el) => {
