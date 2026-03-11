@@ -147,6 +147,7 @@ export function PinDialog({
                 error && "border-destructive focus-visible:ring-destructive"
               )}
               autoComplete="off"
+              aria-label={`Dígito ${index + 1} del PIN`}
             />
           ))}
         </div>
