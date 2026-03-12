@@ -135,6 +135,7 @@ export function PinDialog({
               ref={(el) => {
                 inputRefs.current[index] = el;
               }}
+              aria-label={`Dígito ${index + 1} del PIN`}
               type="password"
               inputMode="numeric"
               maxLength={1}
