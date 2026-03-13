@@ -7,3 +7,7 @@
 ## 2026-03-08 - Input Placeholder Clarity
 **Learning:** Inputs without placeholders can be confusing, particularly when they are empty by default. Adding placeholders improves clarity by showing the user the format or a generic example of what is expected.
 **Action:** Add helpful placeholders to empty inputs by default to guide user input.
+
+## 2026-03-13 - Multi-Input Field Accessibility
+**Learning:** For multi-input fields (like PINs or OTPs that split a single logical input), screen readers need to understand the sequence and purpose of each individual field.
+**Action:** Always add explicit `aria-label` attributes to each individual input to indicate its sequence and purpose for screen readers (e.g., 'Dígito 1 del PIN').
