@@ -3,14 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import {
-  ArrowRightLeft,
-  LayoutDashboard,
-  LogOut,
-  Package,
-  RefreshCw,
-  WalletCards,
-} from "lucide-react";
+import { ArrowRightLeft, LayoutDashboard, LogOut, RefreshCw } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
@@ -38,20 +31,6 @@ const navItems = [
     label: "Ir a Ventas",
     path: "/ventas",
     match: (pathname: string) => pathname.startsWith("/ventas"),
-  },
-  {
-    icon: Package,
-    id: "productos",
-    label: "Productos",
-    path: "/productos",
-    match: (pathname: string) => pathname.startsWith("/productos"),
-  },
-  {
-    icon: WalletCards,
-    id: "corte",
-    label: "Corte de Caja",
-    path: "/corte",
-    match: (pathname: string) => pathname.startsWith("/corte"),
   },
 ] as const;
 
@@ -88,7 +67,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     icon: LogOut,
     label: "Cerrar sesión",
     onSelect: () => signOut({ redirectTo: "/login" }),
-    tone: "danger" as const,
   };
 
   const sessionControls = (

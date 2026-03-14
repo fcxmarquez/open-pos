@@ -4,12 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  Calculator,
   CircleDot,
   LayoutDashboard,
   LogOut,
   Package,
   ShoppingCart,
+  WalletCards,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -50,7 +50,7 @@ const navItems = [
     id: "corte" as const,
     label: "Corte de Caja",
     mobileLabel: "Corte",
-    icon: Calculator,
+    icon: WalletCards,
     locked: true,
   },
 ];
@@ -180,6 +180,7 @@ export function AppShell({
           ...(isAdmin
             ? [
                 {
+                  dividerBefore: true,
                   icon: LayoutDashboard,
                   id: "admin",
                   isActive: false,
