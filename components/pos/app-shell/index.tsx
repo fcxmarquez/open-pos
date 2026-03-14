@@ -4,12 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  Calculator,
   CircleDot,
   LayoutDashboard,
   LogOut,
   Package,
   ShoppingCart,
+  WalletCards,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -50,7 +50,7 @@ const navItems = [
     id: "corte" as const,
     label: "Corte de Caja",
     mobileLabel: "Corte",
-    icon: Calculator,
+    icon: WalletCards,
     locked: true,
   },
 ];
@@ -83,6 +83,7 @@ export function AppShell({
   const isLoggingOut = useRef(false);
 
   const [dateStr, setDateStr] = useState(formatDate);
+  const canAccessProtectedScreens = isAdmin || adminUnlocked;
 
   useEffect(() => {
     const timer = window.setInterval(() => setDateStr(formatDate()), 60_000);
@@ -107,15 +108,15 @@ export function AppShell({
       return;
     }
     const isProtected = activeScreen === "productos" || activeScreen === "corte";
-    if (isProtected && !adminUnlocked) {
+    if (isProtected && !canAccessProtectedScreens) {
       setPendingScreen(activeScreen);
       setPinDialogOpen(true);
     }
-  }, [mounted, activeScreen, adminUnlocked]);
+  }, [mounted, activeScreen, canAccessProtectedScreens]);
 
   const handleNavClick = (id: Screen) => {
     const item = navItems.find((n) => n.id === id);
-    if (item?.locked && !adminUnlocked) {
+    if (item?.locked && !canAccessProtectedScreens) {
       setPendingScreen(id);
       setPinDialogOpen(true);
       return;
@@ -179,10 +180,11 @@ export function AppShell({
           ...(isAdmin
             ? [
                 {
+                  dividerBefore: true,
                   icon: LayoutDashboard,
                   id: "admin",
                   isActive: false,
-                  label: "Dashboard Admin",
+                  label: "Panel Admin",
                   onSelect: () => router.push("/admin/dashboard"),
                 },
               ]
@@ -250,6 +252,18 @@ export function AppShell({
               </button>
             );
           })}
+
+          {isAdmin ? (
+            <button
+              type="button"
+              onClick={() => router.push("/admin/dashboard")}
+              className="flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Panel Admin"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Panel Admin</span>
+            </button>
+          ) : null}
 
           <button
             type="button"

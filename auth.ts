@@ -48,14 +48,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = profile.email;
         token.name = profile.name;
         token.picture = profile.picture;
-        token.role = getRoleForEmail(profile.email);
       } else if (user) {
         token.email = user.email;
         token.name = user.name;
-        token.role = getRoleForEmail(user.email);
       }
 
-      if (!token.role && typeof token.email === "string") {
+      // Always re-compute role so changes to ADMIN_EMAILS take effect immediately
+      if (typeof token.email === "string") {
         token.role = getRoleForEmail(token.email);
       }
 

@@ -7,6 +7,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 export interface NavigationSidebarItem {
+  dividerBefore?: boolean;
   icon: LucideIcon;
   id: string;
   isActive: boolean;
@@ -164,35 +165,44 @@ function NavigationSidebarContent({
           const Icon = item.icon;
 
           return (
-            <button
-              type="button"
-              key={item.id}
-              onClick={item.onSelect}
-              title={expanded ? undefined : item.label}
-              aria-label={item.label}
-              className={cn(
-                "transition-all duration-300 ease-in-out",
-                expanded
-                  ? "flex h-10 w-full items-center gap-3 rounded-2xl border px-3 text-sm font-medium"
-                  : "flex h-10 w-[46px] items-center justify-center rounded-xl border px-0",
-                item.isActive
-                  ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "border-transparent bg-transparent text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-              )}
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              <span
+            <div key={item.id} className="contents">
+              {item.dividerBefore && !mobile ? (
+                <div
+                  className={cn(
+                    "bg-border transition-all duration-300 ease-in-out",
+                    expanded ? "h-px w-full" : "h-px w-6"
+                  )}
+                />
+              ) : null}
+              <button
+                type="button"
+                onClick={item.onSelect}
+                title={expanded ? undefined : item.label}
+                aria-label={item.label}
                 className={cn(
-                  "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
+                  "transition-all duration-300 ease-in-out",
                   expanded
-                    ? "max-w-[9rem] translate-x-0 opacity-100"
-                    : "pointer-events-none max-w-0 -translate-x-2 opacity-0"
+                    ? "flex h-10 w-full items-center gap-3 rounded-2xl border px-3 text-sm font-medium"
+                    : "flex h-10 w-[46px] items-center justify-center rounded-xl border px-0",
+                  item.isActive
+                    ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "border-transparent bg-transparent text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                 )}
               >
-                {item.label}
-              </span>
-              {!expanded ? <span className="sr-only">{item.label}</span> : null}
-            </button>
+                <Icon className="h-4 w-4 shrink-0" />
+                <span
+                  className={cn(
+                    "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
+                    expanded
+                      ? "max-w-[9rem] translate-x-0 opacity-100"
+                      : "pointer-events-none max-w-0 -translate-x-2 opacity-0"
+                  )}
+                >
+                  {item.label}
+                </span>
+                {!expanded ? <span className="sr-only">{item.label}</span> : null}
+              </button>
+            </div>
           );
         })}
       </nav>
