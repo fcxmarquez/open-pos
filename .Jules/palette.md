@@ -16,7 +16,7 @@
 
 ## 2026-03-08 - Input Placeholder Clarity
 **Learning:** Inputs without placeholders can be confusing, particularly when they are empty by default. Adding placeholders improves clarity by showing the user the format or a generic example of what is expected.
-**Action:** Add helpful placeholders to empty inputs by default to guard user input.
+**Action:** Add helpful placeholders to empty inputs by default to guide user input.
 
 ## 2026-03-09 - Multi-input field context
 **Learning:** Multi-input fields like PINs or OTPs split a single logical input into multiple physical inputs, causing screen readers to lose the overall context and announce generic input fields consecutively without distinction.
