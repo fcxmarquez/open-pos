@@ -18,7 +18,6 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { closeSession } from "@/app/actions/sessions";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -55,45 +54,10 @@ import {
   openSessionQueryOptions,
   openSessionSalesQueryKey,
   openSessionSalesQueryOptions,
-  sessionHistoryQueryKey,
-  sessionHistoryQueryOptions,
 } from "./query";
 
 const surfaceCardClass = "overflow-hidden rounded-2xl border border-border bg-card";
 const tableHeadClass = "h-12 px-5 font-body text-xs font-semibold text-muted-foreground";
-
-function DiffBadge({ diff }: { diff: number }) {
-  if (diff === 0) {
-    return (
-      <Badge variant="success" size="pill">
-        Cuadra
-      </Badge>
-    );
-  }
-  if (diff > 0) {
-    return (
-      <Badge variant="info" size="pill">
-        +{formatCurrency(diff)}
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant="warning" size="pill">
-      -{formatCurrency(Math.abs(diff))}
-    </Badge>
-  );
-}
-
-function StatusBadge({ status }: { status: string | null }) {
-  if (status === "open") {
-    return <Badge size="pill">Abierto</Badge>;
-  }
-  return (
-    <Badge variant="muted" size="pill">
-      Cerrado
-    </Badge>
-  );
-}
 
 function SummaryCard({
   icon: Icon,
@@ -142,10 +106,6 @@ export function CorteScreen() {
   const { data: openSessionSales = [], isLoading: isLoadingSales } = useQuery(
     openSessionSalesQueryOptions()
   );
-  const { data: sessionHistory = [], isLoading: isLoadingHistory } = useQuery(
-    sessionHistoryQueryOptions()
-  );
-
   const isLoading = isLoadingSession || isLoadingSales;
 
   const systemTotal = Number(session?.systemTotal ?? 0);
@@ -180,15 +140,12 @@ export function CorteScreen() {
           form.reset(corteFormDefaults);
           queryClient.invalidateQueries({ queryKey: openSessionQueryKey });
           queryClient.invalidateQueries({ queryKey: openSessionSalesQueryKey });
-          queryClient.invalidateQueries({ queryKey: sessionHistoryQueryKey });
         } else {
           toast.error(result.error);
         }
       });
     }
   };
-
-  const history = sessionHistory;
 
   if (isLoading) {
     return (
@@ -428,117 +385,6 @@ export function CorteScreen() {
             </CollapsibleContent>
           </Collapsible>
         )}
-
-        <div className={surfaceCardClass}>
-          <div className="flex h-14 items-center border-b border-border px-5">
-            <h3 className="font-heading text-lg font-bold text-foreground">
-              Historial de sesiones
-            </h3>
-          </div>
-
-          {isLoadingHistory ? (
-            <div className="flex items-center justify-center px-6 py-10">
-              <Spinner size="md" />
-            </div>
-          ) : history.length === 0 ? (
-            <div className="flex min-h-[160px] flex-col items-center justify-center gap-2 px-6 py-10 text-center">
-              <Receipt className="h-5 w-5 text-muted-foreground" />
-              <p className="text-sm font-medium text-foreground">
-                Aún no hay cortes anteriores
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="divide-y md:hidden">
-                {history.map((rec) => {
-                  const diff = Number(rec.difference ?? 0);
-                  return (
-                    <div key={rec.id} className="px-4 py-4">
-                      <div className="mb-3 flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-medium text-foreground">
-                            {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
-                          </p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Sistema: {formatCurrency(Number(rec.systemTotal ?? 0))}
-                          </p>
-                        </div>
-                        <StatusBadge status={rec.status} />
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="text-sm text-muted-foreground">
-                          {rec.status === "closed"
-                            ? `Contado: ${formatCurrency(Number(rec.countedTotal ?? 0))}`
-                            : "Pendiente de cierre"}
-                        </div>
-                        {rec.status === "closed" ? <DiffBadge diff={diff} /> : null}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="h-10 border-b border-border bg-muted/40 hover:bg-muted/40">
-                      <TableHead className={cn(tableHeadClass, "w-[180px] px-5")}>
-                        Fecha
-                      </TableHead>
-                      <TableHead className={cn(tableHeadClass, "w-[130px] px-5")}>
-                        Estado
-                      </TableHead>
-                      <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
-                      >
-                        Sistema
-                      </TableHead>
-                      <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
-                      >
-                        Contado
-                      </TableHead>
-                      <TableHead
-                        className={cn(tableHeadClass, "w-[120px] px-5 text-right")}
-                      >
-                        Diferencia
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {history.map((rec) => {
-                      const diff = Number(rec.difference ?? 0);
-                      return (
-                        <TableRow
-                          key={rec.id}
-                          className="h-12 border-b border-border/60 hover:bg-card"
-                        >
-                          <TableCell className="w-[180px] px-5 py-3 text-sm font-medium text-foreground">
-                            {formatDateShort(rec.sessionDate)} (T{rec.sessionNumber})
-                          </TableCell>
-                          <TableCell className="w-[130px] px-5 py-3">
-                            <StatusBadge status={rec.status} />
-                          </TableCell>
-                          <TableCell className="w-[120px] px-5 py-3 text-right text-sm font-medium text-foreground">
-                            {formatCurrency(Number(rec.systemTotal ?? 0))}
-                          </TableCell>
-                          <TableCell className="w-[120px] px-5 py-3 text-right text-sm font-medium text-muted-foreground">
-                            {rec.status === "closed"
-                              ? formatCurrency(Number(rec.countedTotal ?? 0))
-                              : "-"}
-                          </TableCell>
-                          <TableCell className="w-[120px] px-5 py-3 text-right">
-                            {rec.status === "closed" ? <DiffBadge diff={diff} /> : "-"}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </>
-          )}
-        </div>
       </div>
     </ScrollArea>
   );

@@ -28,12 +28,17 @@ export function formatDateLabel(dateStr: string | undefined): string {
   return format(new Date(dateStr), "dd MMM yyyy", { locale: es });
 }
 
-/** Returns today's date as "YYYY-MM-DD" in Mexico City timezone. */
-export function getTodayDateString(): string {
+/** Formats a Date as "YYYY-MM-DD" in Mexico City timezone. */
+export function toMexicoDateString(date: Date): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Mexico_City",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(new Date());
+  }).format(date);
+}
+
+/** Returns today's date as "YYYY-MM-DD" in Mexico City timezone. */
+export function getTodayDateString(): string {
+  return toMexicoDateString(new Date());
 }
