@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Plus, Search } from "lucide-react";
+import { AlertTriangle, PackageSearch, Plus, Search } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
@@ -346,12 +346,15 @@ export function ProductosScreen() {
       <ScrollArea className="flex-1">
         {products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Search className="mb-4 h-12 w-12 text-muted-foreground/50" />
-            <h3 className="text-lg font-bold text-foreground">
+            <PackageSearch
+              className="mb-3 h-12 w-12 text-muted-foreground/50"
+              aria-hidden="true"
+            />
+            <h3 className="text-lg font-semibold text-foreground">
               No se encontraron productos
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Intenta ajustar los filtros de búsqueda o agrega un nuevo producto.
+            <p className="mt-1 text-sm text-muted-foreground">
+              Intenta ajustar los filtros o la búsqueda, o agrega un nuevo producto.
             </p>
           </div>
         ) : (
