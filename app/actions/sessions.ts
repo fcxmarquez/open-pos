@@ -66,6 +66,7 @@ export async function closeSession(
           countedTotal: countedTotal.toFixed(2),
           difference: difference.toFixed(2),
           status: "closed",
+          closedReason: "manual",
           closedAt,
         })
         .where(eq(salesSessions.id, sessionId))
