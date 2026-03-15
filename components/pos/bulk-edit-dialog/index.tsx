@@ -204,6 +204,7 @@ export function BulkEditDialog({
                     <FormControl>
                       <Input
                         type="number"
+                        inputMode="decimal"
                         min="0"
                         step="0.01"
                         placeholder="Sin cambios"
@@ -228,6 +229,7 @@ export function BulkEditDialog({
                     <FormControl>
                       <Input
                         type="number"
+                        inputMode="decimal"
                         min="0"
                         step="0.01"
                         placeholder="Sin cambios"
