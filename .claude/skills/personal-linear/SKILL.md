@@ -26,6 +26,12 @@ List any important product, design, or scope decisions made during planning.
 ## Edge Cases
 * What happens if the user does X?
 * How do we handle empty states, errors, or offline mode?
+
+## Constraints
+Any given constraints for the current issue. This section is optional.
+
+## References
+Add references to documentation, links, designs, anything that can help to the development of the current task. This section is optional
 ```
 
 ### Guidance for filling out the template:
