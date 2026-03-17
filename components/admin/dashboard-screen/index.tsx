@@ -38,9 +38,13 @@ export function AdminDashboardScreen() {
   const { data, dataUpdatedAt, error, isPending, refetch } = useQuery(
     adminDashboardQueryOptions()
   );
-  const [staleBannerDismissed, setStaleBannerDismissed] = useState(false);
+  const [dismissedStaleSessionId, setDismissedStaleSessionId] = useState<string | null>(
+    null
+  );
 
-  const showStaleBanner = !!data?.staleSession && !staleBannerDismissed;
+  const showStaleBanner = Boolean(
+    data?.staleSession && data.staleSession.id !== dismissedStaleSessionId
+  );
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -96,7 +100,7 @@ export function AdminDashboardScreen() {
               </div>
               <button
                 type="button"
-                onClick={() => setStaleBannerDismissed(true)}
+                onClick={() => setDismissedStaleSessionId(data.staleSession!.id)}
                 className="shrink-0 text-muted-foreground hover:text-foreground"
                 aria-label="Descartar aviso"
               >
