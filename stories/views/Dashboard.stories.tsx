@@ -129,14 +129,18 @@ function createQueryClient(data: AdminDashboardData) {
   return qc;
 }
 
-function withData(data: AdminDashboardData): Decorator {
+function withQueryLayout(qc: QueryClient): Decorator {
   return (Story) => (
-    <QueryClientProvider client={createQueryClient(data)}>
+    <QueryClientProvider client={qc}>
       <div className="min-h-screen bg-background">
         <Story />
       </div>
     </QueryClientProvider>
   );
+}
+
+function withData(data: AdminDashboardData): Decorator {
+  return withQueryLayout(createQueryClient(data));
 }
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
@@ -155,42 +159,26 @@ type Story = StoryObj<typeof meta>;
 // ─── States ───────────────────────────────────────────────────────────────────
 
 function withPending(): Decorator {
-  return (Story) => {
-    const qc = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    qc.prefetchQuery({
-      queryKey: adminDashboardQueryKey,
-      queryFn: (): Promise<AdminDashboardData> => new Promise(() => {}),
-    });
-    return (
-      <QueryClientProvider client={qc}>
-        <div className="min-h-screen bg-background">
-          <Story />
-        </div>
-      </QueryClientProvider>
-    );
-  };
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  qc.prefetchQuery({
+    queryKey: adminDashboardQueryKey,
+    queryFn: (): Promise<AdminDashboardData> => new Promise(() => {}),
+  });
+  return withQueryLayout(qc);
 }
 
 function withError(): Decorator {
-  return (Story) => {
-    const qc = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    qc.prefetchQuery({
-      queryKey: adminDashboardQueryKey,
-      queryFn: (): Promise<AdminDashboardData> =>
-        Promise.reject(new Error("Failed to load")),
-    });
-    return (
-      <QueryClientProvider client={qc}>
-        <div className="min-h-screen bg-background">
-          <Story />
-        </div>
-      </QueryClientProvider>
-    );
-  };
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  qc.prefetchQuery({
+    queryKey: adminDashboardQueryKey,
+    queryFn: (): Promise<AdminDashboardData> =>
+      Promise.reject(new Error("Failed to load")),
+  });
+  return withQueryLayout(qc);
 }
 
 export const Loading: Story = {
