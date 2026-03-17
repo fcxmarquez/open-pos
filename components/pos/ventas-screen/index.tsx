@@ -275,6 +275,7 @@ export function VentasScreen() {
                     {editingPriceId === item.product.id ? (
                       <Input
                         type="number"
+                        inputMode="decimal"
                         value={item.unitPrice}
                         onChange={(e) =>
                           updateCartItemPrice(
