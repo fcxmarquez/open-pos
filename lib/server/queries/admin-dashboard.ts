@@ -1,6 +1,6 @@
 import { format, subDays } from "date-fns";
 import { es } from "date-fns/locale";
-import { and, count, desc, eq, gte, inArray, sum } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, lt, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { products, saleItems, sales, salesSessions } from "@/db/schema";
 import { getOpenSession } from "@/lib/server/queries/sessions";
@@ -24,6 +24,11 @@ export interface AdminDashboardData {
   revenueMonthToDate: number;
   revenueToday: number;
   revenueVsLastWeek: number | null;
+  staleSession: {
+    id: string;
+    sessionDate: string;
+    sessionNumber: number;
+  } | null;
   sessionHistory: {
     difference: number;
     id: string;
@@ -58,12 +63,23 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   const [
     openSession,
+    staleSessionRow,
     todaySalesRows,
     lastWeekSalesRows,
     historySessions,
     monthSalesRows,
   ] = await Promise.all([
     getOpenSession(),
+    db
+      .select({
+        id: salesSessions.id,
+        sessionDate: salesSessions.sessionDate,
+        sessionNumber: salesSessions.sessionNumber,
+      })
+      .from(salesSessions)
+      .where(and(eq(salesSessions.status, "open"), lt(salesSessions.sessionDate, today)))
+      .limit(1)
+      .then((rows) => rows[0] ?? null),
     db
       .select({
         createdAt: sales.createdAt,
@@ -202,6 +218,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   );
 
   return {
+    staleSession: staleSessionRow,
     comparisonLabel: `vs ${formatPastWeekday(lastWeekDate)}`,
     generatedAt: new Date().toISOString(),
     hasOpenSession: Boolean(openSession),

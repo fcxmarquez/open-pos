@@ -1,16 +1,19 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import {
+  AlertTriangle,
   ArrowDownRight,
   ArrowUpRight,
   CalendarDays,
   ReceiptText,
   TrendingUp,
   Wallet,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 import { adminDashboardQueryOptions } from "@/components/admin/dashboard-screen/query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +37,13 @@ function formatUpdatedLabel(timestamp: number): string {
 export function AdminDashboardScreen() {
   const { data, dataUpdatedAt, error, isPending, refetch } = useQuery(
     adminDashboardQueryOptions()
+  );
+  const [dismissedStaleSessionId, setDismissedStaleSessionId] = useState<string | null>(
+    null
+  );
+
+  const showStaleBanner = Boolean(
+    data?.staleSession && data.staleSession.id !== dismissedStaleSessionId
   );
 
   return (
@@ -71,6 +81,34 @@ export function AdminDashboardScreen() {
         </Card>
       ) : (
         <>
+          {showStaleBanner && data.staleSession && (
+            <div className="flex items-start justify-between gap-3 rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+                <span>
+                  El corte del{" "}
+                  <span className="font-medium">
+                    {format(
+                      new Date(`${data.staleSession.sessionDate}T12:00:00`),
+                      "d 'de' MMMM",
+                      { locale: es }
+                    )}
+                  </span>{" "}
+                  (Turno {data.staleSession.sessionNumber}) no fue cerrado. Se cerrará
+                  automáticamente al registrar la próxima venta.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDismissedStaleSessionId(data.staleSession!.id)}
+                className="shrink-0 text-muted-foreground hover:text-foreground"
+                aria-label="Descartar aviso"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           <div className="grid gap-4 md:grid-cols-4">
             <Card className="rounded-3xl">
               <CardHeader className="space-y-3">
@@ -105,7 +143,7 @@ export function AdminDashboardScreen() {
               value={formatCurrency(data.revenueToday)}
               icon={Wallet}
             >
-              {data.hasOpenSession && data.revenueVsLastWeek != null && (
+              {data.revenueVsLastWeek != null && (
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
                     variant={data.revenueVsLastWeek >= 0 ? "success" : "warning"}
