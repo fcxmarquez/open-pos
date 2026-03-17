@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
@@ -69,8 +69,12 @@ export async function closeSession(
           closedReason: "manual",
           closedAt,
         })
-        .where(eq(salesSessions.id, sessionId))
+        .where(and(eq(salesSessions.id, sessionId), eq(salesSessions.status, "open")))
         .returning();
+
+      if (!updated) {
+        return { success: false, data: null, error: "La sesión ya fue cerrada" } as const;
+      }
 
       return {
         success: true,

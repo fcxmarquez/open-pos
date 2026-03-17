@@ -1,6 +1,6 @@
 "use server";
 
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
@@ -61,7 +61,7 @@ async function getOrCreateOpenSession(tx: DbTransaction): Promise<string> {
         difference: "0.00",
         closedAt: new Date(),
       })
-      .where(eq(salesSessions.id, existing.id));
+      .where(and(eq(salesSessions.id, existing.id), eq(salesSessions.status, "open")));
   }
 
   const [lastToday] = await tx
