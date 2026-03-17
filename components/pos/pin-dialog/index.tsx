@@ -113,7 +113,7 @@ export function PinDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[360px]">
+      <DialogContent className="md:max-w-[360px]">
         <DialogHeader className="items-center text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
             <Lock className="h-6 w-6 text-muted-foreground" />
@@ -143,6 +143,7 @@ export function PinDialog({
               onChange={(e) => handleDigitChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={index === 0 ? handlePaste : undefined}
+              aria-label={`Dígito ${index + 1} del PIN`}
               className={cn(
                 "h-14 w-14 text-center text-2xl font-bold",
                 error && "border-destructive focus-visible:ring-destructive"

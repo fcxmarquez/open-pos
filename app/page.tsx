@@ -1,5 +1,13 @@
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { getDefaultRouteForRole } from "@/lib/auth/roles";
 
-export default function Page() {
-  redirect("/ventas");
+export default async function Page() {
+  const session = await auth();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  redirect(getDefaultRouteForRole(session.user?.role));
 }

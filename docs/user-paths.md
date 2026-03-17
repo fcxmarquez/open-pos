@@ -1,6 +1,6 @@
 # User Paths
 
-Last updated: 2026-02-21
+Last updated: 2026-03-02
 
 This document lists the end-to-end user paths currently implemented in the POS app.
 
@@ -8,7 +8,9 @@ This document lists the end-to-end user paths currently implemented in the POS a
 
 | Path | User path |
 |---|---|
-| `/` | Redirects to `/ventas`. |
+| `/` | Redirects signed-in admins to `/admin/dashboard`, signed-in cashiers to `/ventas`, and unauthenticated users to `/login`. |
+| `/admin` | Redirects admins to `/admin/dashboard`. |
+| `/admin/dashboard` | Opens the admin dashboard for admin users only. |
 | `/login` | Shows Google sign-in screen when no active session exists. |
 | `/ventas` | Opens sales flow (no admin PIN required). |
 | `/productos` | Opens product management flow (PIN-protected in UI). |
@@ -18,11 +20,14 @@ This document lists the end-to-end user paths currently implemented in the POS a
 
 | ID | User path | Outcome |
 |---|---|---|
-| AUTH-01 | User opens `/login` with active session | Redirect to `/ventas`. |
-| AUTH-02 | User opens `/login` without session | Login card with Google button is shown. |
-| AUTH-03 | User signs in with Google and allowed email | Session is created and app redirects to `/ventas`. |
-| AUTH-04 | User signs in with disallowed email | Access is denied and login error message is shown. |
-| AUTH-05 | Login error query param is present | Contextual error message is shown on login page. |
+| AUTH-01 | Admin user opens `/login` with active session | Redirect to `/admin/dashboard`. |
+| AUTH-02 | Cashier user opens `/login` with active session | Redirect to `/ventas`. |
+| AUTH-03 | User opens `/login` without session | Login card with Google button is shown. |
+| AUTH-04 | Admin user signs in with allowed Google email + `ADMIN_EMAILS` match | Session is created and app redirects to `/admin/dashboard`. |
+| AUTH-05 | Cashier user signs in with allowed Google email only | Session is created and app redirects to `/ventas`. |
+| AUTH-06 | Testing user (`root` / `testing`) signs in with `AUTH_BYPASS=true` | Session is created with admin role and redirects to `/admin/dashboard`. |
+| AUTH-07 | User signs in with disallowed email | Access is denied and login error message is shown. |
+| AUTH-08 | Login error query param is present | Contextual error message is shown on login page. |
 
 ## Shell Navigation and Admin Access Paths
 
@@ -35,6 +40,18 @@ This document lists the end-to-end user paths currently implemented in the POS a
 | NAV-05 | User enters incorrect PIN | Error state is shown and PIN inputs reset. |
 | NAV-06 | User cancels PIN dialog | Protected navigation is aborted. |
 | NAV-07 | Admin uses logout button | Admin unlock state resets and route goes to `/ventas`. |
+
+## Admin Dashboard Paths
+
+| ID | User path | Outcome |
+|---|---|---|
+| ADM-01 | Admin opens `/admin/dashboard` | Dashboard loads summary cards, latest transactions, and corte history. |
+| ADM-02 | Cashier opens `/admin/dashboard` directly | Server redirects to `/ventas`. |
+| ADM-03 | Unauthenticated user opens `/admin/dashboard` | Server redirects to `/login`. |
+| ADM-04 | Dashboard remains open for 60 seconds | Data refreshes automatically in place. |
+| ADM-05 | Admin taps refresh button | Dashboard data refreshes immediately. |
+| ADM-06 | There are no sales today | Summary cards and transactions panel show empty-state values gracefully. |
+| ADM-07 | There are no closed sessions in selected period | Corte history panel shows empty state in graph/table views. |
 
 ## Ventas Paths
 

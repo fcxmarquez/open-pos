@@ -127,13 +127,13 @@
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 hsl(0 0% 0% / 0.3);
+    box-shadow: 0 0 0 0 hsl(var(--ring) / 0.3);
   }
   70% {
-    box-shadow: 0 0 0 6px hsl(0 0% 0% / 0);
+    box-shadow: 0 0 0 6px hsl(var(--ring) / 0);
   }
   100% {
-    box-shadow: 0 0 0 0 hsl(0 0% 0% / 0);
+    box-shadow: 0 0 0 0 hsl(var(--ring) / 0);
   }
 }
 

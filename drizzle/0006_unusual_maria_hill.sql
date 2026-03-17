@@ -1,0 +1,1 @@
+ALTER TABLE "sales_sessions" ADD COLUMN "closed_reason" text;

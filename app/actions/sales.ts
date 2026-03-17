@@ -1,6 +1,6 @@
 "use server";
 
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
@@ -33,18 +33,36 @@ interface CompleteSaleResult {
 type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 async function getOrCreateOpenSession(tx: DbTransaction): Promise<string> {
+  const today = getTodayDateString();
+
   const [existing] = await tx
-    .select({ id: salesSessions.id })
+    .select({
+      id: salesSessions.id,
+      sessionDate: salesSessions.sessionDate,
+      systemTotal: salesSessions.systemTotal,
+    })
     .from(salesSessions)
     .where(eq(salesSessions.status, "open"))
     .orderBy(desc(salesSessions.openedAt))
     .limit(1);
 
   if (existing) {
-    return existing.id;
-  }
+    if (existing.sessionDate === today) {
+      return existing.id;
+    }
 
-  const today = getTodayDateString();
+    // Stale session from a previous day — auto-close it
+    await tx
+      .update(salesSessions)
+      .set({
+        status: "closed",
+        closedReason: "auto",
+        countedTotal: existing.systemTotal ?? "0.00",
+        difference: "0.00",
+        closedAt: new Date(),
+      })
+      .where(and(eq(salesSessions.id, existing.id), eq(salesSessions.status, "open")));
+  }
 
   const [lastToday] = await tx
     .select({ sessionNumber: salesSessions.sessionNumber })
