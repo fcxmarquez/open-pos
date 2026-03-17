@@ -40,6 +40,7 @@ export const salesSessions = pgTable(
     countedTotal: decimal("counted_total", { precision: 10, scale: 2 }),
     difference: decimal("difference", { precision: 10, scale: 2 }),
     status: text("status").default("open"),
+    closedReason: text("closed_reason"),
     openedAt: timestamp("opened_at").defaultNow().notNull(),
     closedAt: timestamp("closed_at"),
   },
