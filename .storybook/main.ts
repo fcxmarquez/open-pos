@@ -18,13 +18,14 @@ const config: StorybookConfig = {
   ],
   viteFinal: async (config) => {
     config.resolve ??= {};
-    config.resolve.alias = {
-      ...(config.resolve.alias as Record<string, string>),
-      "@/app/actions/admin-dashboard": path.resolve(
-        __dirname,
-        "./mocks/admin-dashboard.ts"
-      ),
+    const newAlias = {
+      find: "@/app/actions/admin-dashboard",
+      replacement: path.resolve(__dirname, "./mocks/admin-dashboard.ts"),
     };
+    const existing = config.resolve.alias;
+    config.resolve.alias = Array.isArray(existing)
+      ? [...existing, newAlias]
+      : { ...(existing ?? {}), "@/app/actions/admin-dashboard": newAlias.replacement };
     return config;
   },
 };
