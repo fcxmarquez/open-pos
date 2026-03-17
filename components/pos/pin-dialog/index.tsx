@@ -130,6 +130,7 @@ export function PinDialog({
         >
           {digits.map((digit, index) => (
             <Input
+              aria-label={`Dígito ${index + 1} del PIN`}
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length PIN input, never reordered
               key={index}
               ref={(el) => {
@@ -142,7 +143,6 @@ export function PinDialog({
               onChange={(e) => handleDigitChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={index === 0 ? handlePaste : undefined}
-              aria-label={`Dígito ${index + 1} del PIN`}
               className={cn(
                 "h-14 w-14 text-center text-2xl font-bold",
                 error && "border-destructive focus-visible:ring-destructive"
