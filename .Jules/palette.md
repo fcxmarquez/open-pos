@@ -21,3 +21,7 @@
 ## 2026-03-09 - Multi-input field context
 **Learning:** Multi-input fields like PINs or OTPs split a single logical input into multiple physical inputs, causing screen readers to lose the overall context and announce generic input fields consecutively without distinction.
 **Action:** Always add explicit `aria-label` attributes to each split input to indicate its position and purpose (e.g., "Dígito 1 del PIN").
+
+## 2026-03-10 - Mobile Currency Inputs
+**Learning:** Using `type="number"` on inputs for currency or decimals is often not enough for a good mobile UX, because some mobile operating systems won't show the decimal separator on the numeric keypad by default unless explicitly instructed.
+**Action:** Always add `inputMode="decimal"` alongside `type="number"` for numeric or currency inputs to ensure mobile devices display the correct numeric keypad with decimal capabilities.
