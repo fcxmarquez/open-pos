@@ -1,0 +1,36 @@
+name: Sync main → dev
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open back-merge PR (main → dev)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync/main-into-dev-${{ github.sha }}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH" origin/main
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --base dev \
+            --head "$BRANCH" \
+            --title "chore: sync main into dev" \
+            --body "Automated back-merge after a squash to \`main\`. Merge this to keep \`dev\` aligned and avoid future conflicts." \
+            || echo "PR already exists or nothing to merge — skipping."
