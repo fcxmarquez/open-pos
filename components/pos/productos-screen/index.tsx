@@ -356,6 +356,28 @@ export function ProductosScreen() {
             <p className="mt-1 text-sm text-muted-foreground">
               Intenta ajustar los filtros o la búsqueda, o agrega un nuevo producto.
             </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              {(normalizedSearch || categoryFilter !== "all") && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    filtersForm.setValue("searchQuery", "");
+                    filtersForm.setValue("categoryFilter", "all");
+                  }}
+                >
+                  Limpiar filtros
+                </Button>
+              )}
+              <Button
+                onClick={() => {
+                  setEditingProduct(null);
+                  setShowForm(true);
+                }}
+              >
+                <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                Agregar producto
+              </Button>
+            </div>
           </div>
         ) : (
           <ProductsList
