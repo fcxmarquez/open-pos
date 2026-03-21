@@ -25,6 +25,6 @@
 ## 2026-03-09 - Numeric Mobile Keyboards
 **Learning:** `type="number"` doesn't always automatically show the numeric keypad on mobile devices, or sometimes shows a numeric keypad without decimal capabilities, leading to friction. Adding `inputMode="decimal"` significantly improves the mobile UX by forcing the correct numeric keyboard to appear right away.
 **Action:** Whenever a numeric input is designed (especially for currency or float values), always include `inputMode="decimal"` alongside `type="number"`.
-## 2025-02-23 - Add Call-to-Action Buttons to Empty States
+## 2026-03-20 - Add Call-to-Action Buttons to Empty States
 **Learning:** Empty states without immediate calls-to-action leave users stranded, especially after filtering. By providing actionable context-aware buttons (like "Limpiar filtros" when filters are active, and "Agregar producto" regardless) directly inside the empty state message, the UI becomes significantly more intuitive and reduces unnecessary navigation clicks.
 **Action:** Whenever designing or updating an empty state for a searchable/filterable list, always include contextual buttons to reset filters or create a new item immediately within the empty state container.
