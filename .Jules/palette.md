@@ -25,7 +25,10 @@
 ## 2026-03-09 - Numeric Mobile Keyboards
 **Learning:** `type="number"` doesn't always automatically show the numeric keypad on mobile devices, or sometimes shows a numeric keypad without decimal capabilities, leading to friction. Adding `inputMode="decimal"` significantly improves the mobile UX by forcing the correct numeric keyboard to appear right away.
 **Action:** Whenever a numeric input is designed (especially for currency or float values), always include `inputMode="decimal"` alongside `type="number"`.
-
 ## 2026-03-09 - Label in Name WCAG compliance
 **Learning:** When adding `aria-label` to buttons that already have visible text to add extra context, the exact visible text string MUST be a continuous substring of the `aria-label` value. For example, if the button says "Editar seleccionados", the label should be "Editar seleccionados (1 producto)", not "Editar 1 productos seleccionados", which violates WCAG 2.5.3 (Label in Name). This is critical for speech recognition users.
 **Action:** Always ensure the visible text of an interactive element is fully contained within its accessible name (`aria-label` or `aria-labelledby`).
+
+## 2026-03-20 - Add Call-to-Action Buttons to Empty States
+**Learning:** Empty states without immediate calls-to-action leave users stranded, especially after filtering. By providing actionable context-aware buttons (like "Limpiar filtros" when filters are active, and "Agregar producto" regardless) directly inside the empty state message, the UI becomes significantly more intuitive and reduces unnecessary navigation clicks.
+**Action:** Whenever designing or updating an empty state for a searchable/filterable list, always include contextual buttons to reset filters or create a new item immediately within the empty state container.
