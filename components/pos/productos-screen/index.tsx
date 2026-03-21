@@ -327,6 +327,7 @@ export function ProductosScreen() {
               size="sm"
               disabled={!hasSelection}
               onClick={() => setShowBulkEditDialog(true)}
+              aria-label={`Editar seleccionados (${selectedCount} producto${selectedCount === 1 ? "" : "s"})`}
             >
               Editar seleccionados
             </Button>
@@ -336,6 +337,7 @@ export function ProductosScreen() {
               variant="outline"
               disabled={!hasSelection}
               onClick={clearSelection}
+              aria-label="Limpiar seleccion de productos"
             >
               Limpiar seleccion
             </Button>
