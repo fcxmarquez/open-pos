@@ -254,7 +254,10 @@ export function VentasScreen() {
       <ScrollArea className="flex-1">
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
-            <ShoppingBag className="mb-3 h-10 w-10 text-muted-foreground/40" />
+            <ShoppingBag
+              className="mb-3 h-10 w-10 text-muted-foreground/40"
+              aria-hidden="true"
+            />
             <p className="text-xs font-semibold text-muted-foreground">
               Escanea o busca un producto para iniciar
             </p>
