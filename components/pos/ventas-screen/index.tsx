@@ -490,6 +490,7 @@ export function VentasScreen() {
                   toast.success(`${p.name} agregado`);
                   clearSearchAndFocus();
                 }}
+                aria-label={`Agregar ${p.name} al carrito por ${formatCurrency(p.price)}`}
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
               >
                 <div>
@@ -515,6 +516,7 @@ export function VentasScreen() {
                 type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
+                aria-label={`Agregar ${product.name} al carrito por ${formatCurrency(product.price)}`}
                 className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98]"
               >
                 <div
