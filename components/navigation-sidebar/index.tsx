@@ -214,6 +214,7 @@ function NavigationSidebarContent({
           <button
             type="button"
             onClick={action.onSelect}
+            aria-label={action.label}
             className={cn(
               "mt-4 inline-flex h-10 w-full items-center gap-3 rounded-2xl border px-3 text-sm font-medium transition-all duration-300 ease-in-out",
               action.tone === "danger"
