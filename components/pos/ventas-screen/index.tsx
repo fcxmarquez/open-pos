@@ -45,7 +45,7 @@ function CartHeader({
 }) {
   return (
     <div className="flex h-14 items-center border-b px-5">
-      <ShoppingBag className="h-5 w-5 shrink-0 text-foreground" />
+      <ShoppingBag className="h-5 w-5 shrink-0 text-foreground" aria-hidden="true" />
       <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
       <div className="flex-1" />
       <Badge variant="muted" size="chip" className="border-foreground px-2.5 py-1">
@@ -254,7 +254,10 @@ export function VentasScreen() {
       <ScrollArea className="flex-1">
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
-            <ShoppingBag className="mb-3 h-10 w-10 text-muted-foreground/40" />
+            <ShoppingBag
+              className="mb-3 h-10 w-10 text-muted-foreground/40"
+              aria-hidden="true"
+            />
             <p className="text-xs font-semibold text-muted-foreground">
               Escanea o busca un producto para iniciar
             </p>
@@ -275,6 +278,7 @@ export function VentasScreen() {
                     {editingPriceId === item.product.id ? (
                       <Input
                         type="number"
+                        inputMode="decimal"
                         value={item.unitPrice}
                         onChange={(e) =>
                           updateCartItemPrice(
@@ -305,7 +309,7 @@ export function VentasScreen() {
                           onClick={() => setEditingPriceId(item.product.id)}
                           aria-label={`Editar precio de ${item.product.name}`}
                         >
-                          <Pencil className="h-3 w-3" />
+                          <Pencil className="h-3 w-3" aria-hidden="true" />
                         </Button>
                       </>
                     )}
@@ -321,7 +325,7 @@ export function VentasScreen() {
                       }
                       aria-label={`Disminuir cantidad de ${item.product.name}`}
                     >
-                      <Minus className="h-3 w-3" />
+                      <Minus className="h-3 w-3" aria-hidden="true" />
                     </Button>
                     <Input
                       type="text"
@@ -347,7 +351,7 @@ export function VentasScreen() {
                       }
                       aria-label={`Aumentar cantidad de ${item.product.name}`}
                     >
-                      <Plus className="h-3 w-3" />
+                      <Plus className="h-3 w-3" aria-hidden="true" />
                     </Button>
                   </div>
                 </div>
@@ -362,7 +366,7 @@ export function VentasScreen() {
                     onClick={() => removeFromCart(item.product.id)}
                     aria-label={`Eliminar ${item.product.name} del carrito`}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                   </Button>
                 </div>
               </div>
@@ -486,6 +490,7 @@ export function VentasScreen() {
                   toast.success(`${p.name} agregado`);
                   clearSearchAndFocus();
                 }}
+                aria-label={`Agregar ${p.name} al carrito por ${formatCurrency(p.price)}`}
                 className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
               >
                 <div>
@@ -511,6 +516,7 @@ export function VentasScreen() {
                 type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
+                aria-label={`Agregar ${product.name} al carrito por ${formatCurrency(product.price)}`}
                 className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98]"
               >
                 <div
@@ -534,7 +540,7 @@ export function VentasScreen() {
       {/* Mobile cart toggle button - fixed at bottom on small screens */}
       <div className="border-t bg-card p-3 md:hidden">
         <Button className="w-full" onClick={() => setMobileCartOpen(true)}>
-          <ShoppingBag className="mr-2 h-4 w-4" />
+          <ShoppingBag className="mr-2 h-4 w-4" aria-hidden="true" />
           Ver carrito
           {cartItemCount > 0 && (
             <Badge variant="inverted" size="chip" className="ml-2 rounded-full">

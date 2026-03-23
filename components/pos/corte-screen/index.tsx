@@ -222,6 +222,7 @@ export function CorteScreen() {
                           <Input
                             id="counted"
                             type="number"
+                            inputMode="decimal"
                             step="0.01"
                             min="0"
                             placeholder="Ingresa la cantidad contada en caja"

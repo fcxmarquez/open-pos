@@ -185,6 +185,11 @@ export function ProductosScreen() {
     setShowForm(true);
   };
 
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setShowForm(true);
+  };
+
   const handleBulkApply = async (updates: BulkProductUpdatesPayload) => {
     if (selectedCount === 0) {
       toast.error("Selecciona al menos un producto");
@@ -222,12 +227,7 @@ export function ProductosScreen() {
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
       <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
-        <Button
-          onClick={() => {
-            setEditingProduct(null);
-            setShowForm(true);
-          }}
-        >
+        <Button onClick={handleAddProduct}>
           <Plus className="mr-1.5 h-4 w-4" />
           Agregar producto
         </Button>
@@ -327,6 +327,7 @@ export function ProductosScreen() {
               size="sm"
               disabled={!hasSelection}
               onClick={() => setShowBulkEditDialog(true)}
+              aria-label={`Editar seleccionados (${selectedCount} producto${selectedCount === 1 ? "" : "s"})`}
             >
               Editar seleccionados
             </Button>
@@ -336,6 +337,7 @@ export function ProductosScreen() {
               variant="outline"
               disabled={!hasSelection}
               onClick={clearSelection}
+              aria-label="Limpiar seleccion de productos"
             >
               Limpiar seleccion
             </Button>
@@ -356,6 +358,23 @@ export function ProductosScreen() {
             <p className="mt-1 text-sm text-muted-foreground">
               Intenta ajustar los filtros o la búsqueda, o agrega un nuevo producto.
             </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              {(normalizedSearch || categoryFilter !== "all") && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    filtersForm.setValue("searchQuery", "");
+                    filtersForm.setValue("categoryFilter", "all");
+                  }}
+                >
+                  Limpiar filtros
+                </Button>
+              )}
+              <Button onClick={handleAddProduct}>
+                <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                Agregar producto
+              </Button>
+            </div>
           </div>
         ) : (
           <ProductsList
