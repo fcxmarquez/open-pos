@@ -1,17 +1,15 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  AlertTriangle,
   ArrowDownRight,
   ArrowUpRight,
   CalendarDays,
   ReceiptText,
   TrendingUp,
   Wallet,
-  X,
 } from "lucide-react";
 import { useState } from "react";
 import { adminDashboardQueryOptions } from "@/components/admin/dashboard-screen/query";
@@ -21,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { HistoryPanel, LatestTransactionsPanel } from "./panels";
 import { DashboardSkeleton } from "./skeleton";
+import { StaleSessionBanner } from "./stale-session-banner";
 import { SummaryCard } from "./summary-card";
 
 function formatUpdatedLabel(timestamp: number): string {
@@ -82,31 +81,10 @@ export function AdminDashboardScreen() {
       ) : (
         <>
           {showStaleBanner && data.staleSession && (
-            <div className="flex items-start justify-between gap-3 rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-                <span>
-                  El corte del{" "}
-                  <span className="font-medium">
-                    {format(
-                      new Date(`${data.staleSession.sessionDate}T12:00:00`),
-                      "d 'de' MMMM",
-                      { locale: es }
-                    )}
-                  </span>{" "}
-                  (Turno {data.staleSession.sessionNumber}) no fue cerrado. Se cerrará
-                  automáticamente al registrar la próxima venta.
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDismissedStaleSessionId(data.staleSession!.id)}
-                className="shrink-0 text-muted-foreground hover:text-foreground"
-                aria-label="Descartar aviso"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <StaleSessionBanner
+              staleSession={data.staleSession}
+              onDismiss={() => setDismissedStaleSessionId(data.staleSession?.id ?? null)}
+            />
           )}
 
           <div className="grid gap-4 md:grid-cols-4">

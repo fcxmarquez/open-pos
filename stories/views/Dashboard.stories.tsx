@@ -117,6 +117,12 @@ const BASE_DATA: AdminDashboardData = {
   transactionCount: 6,
 };
 
+const STALE_SESSION = {
+  id: "stale-1",
+  sessionDate: "2026-03-13",
+  sessionNumber: 1,
+} as const;
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function createQueryClient(data: AdminDashboardData) {
@@ -213,11 +219,7 @@ export const WithStaleBanner: Story = {
       ...BASE_DATA,
       hasOpenSession: false,
       openSessionLabel: null,
-      staleSession: {
-        id: "stale-1",
-        sessionDate: "2026-03-13",
-        sessionNumber: 1,
-      },
+      staleSession: STALE_SESSION,
     }),
   ],
 };
