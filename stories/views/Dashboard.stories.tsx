@@ -122,7 +122,6 @@ const STALE_SESSION = {
   sessionDate: "2026-03-13",
   sessionNumber: 1,
 } as const;
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function createQueryClient(data: AdminDashboardData) {

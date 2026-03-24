@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { AlertTriangle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -34,8 +34,7 @@ export function StaleSessionBanner({
         className
       )}
     >
-      <div className="flex min-w-0 items-center gap-3">
-
+      <div className="flex min-w-0 items-start gap-3">
         <div className="min-w-0 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <Badge size="chip" variant="warning">
