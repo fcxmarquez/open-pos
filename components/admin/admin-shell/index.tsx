@@ -141,7 +141,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center justify-between px-8 py-4">
             <div className="space-y-1">
               <h1 className="text-2xl text-foreground">Dashboard</h1>
-              <p className="text-sm capitalize text-muted-foreground">
+              <p
+                className="text-sm capitalize text-muted-foreground"
+                suppressHydrationWarning
+              >
                 {formatLongDate(new Date())}
               </p>
             </div>
@@ -155,7 +158,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <MobileNavigationTrigger onClick={() => setMobileOpen(true)} />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">Dashboard</p>
-              <p className="truncate text-xs text-muted-foreground">
+              <p
+                className="truncate text-xs text-muted-foreground"
+                suppressHydrationWarning
+              >
                 {formatShortDate(new Date())}
               </p>
             </div>
