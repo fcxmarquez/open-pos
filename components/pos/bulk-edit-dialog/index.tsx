@@ -258,7 +258,7 @@ export function BulkEditDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Sin cambios" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

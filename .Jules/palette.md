@@ -36,3 +36,7 @@
 ## 2026-03-24 - Inline Editable Inputs Context
 **Learning:** Inline editable inputs within list items (like cart quantity and price) without specific `aria-label`s cause screen readers to announce disconnected generic inputs without item context, confusing visually impaired users.
 **Action:** Always ensure inline editable inputs within list items have specific `aria-labels` that explicitly reference the item's name (e.g. "Cantidad de [Product Name]").
+
+## 2026-03-25 - Select Dropdown Placeholder Clarity
+**Learning:** Dropdowns (Select components) without placeholders can appear blank or confusing before a user interacts with them, similar to empty text inputs. They fail to convey what the dropdown controls.
+**Action:** Always add a helpful `placeholder` prop to `<SelectValue>` to explicitly indicate what the dropdown is for (e.g. "Selecciona una categoria").
