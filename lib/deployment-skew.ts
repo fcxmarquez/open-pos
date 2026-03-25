@@ -6,6 +6,8 @@
 
 const CLIENT_BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID ?? null;
 
+let checkInFlight: Promise<void> | null = null;
+
 async function fetchServerBuildId(): Promise<string | null> {
   try {
     const res = await fetch("/api/build-id", { cache: "no-store" });
@@ -20,18 +22,29 @@ async function fetchServerBuildId(): Promise<string | null> {
 /**
  * Call this when a server action fails. It checks whether the failure is caused
  * by deployment skew (stale client vs new server). If so, it reloads the page.
+ *
+ * Concurrent callers share the same in-flight check to avoid redundant fetches.
  */
 export async function reloadIfDeploymentSkew(): Promise<void> {
+  if (checkInFlight) return checkInFlight;
   if (!CLIENT_BUILD_ID) return;
 
-  const serverBuildId = await fetchServerBuildId();
+  checkInFlight = (async () => {
+    const serverBuildId = await fetchServerBuildId();
 
-  // Could not reach the build-id endpoint — network issue, not skew
-  if (!serverBuildId) return;
+    // Could not reach the build-id endpoint — network issue, not skew
+    if (!serverBuildId) return;
 
-  // Build IDs match — the error is genuine, not skew
-  if (CLIENT_BUILD_ID === serverBuildId) return;
+    // Build IDs match — the error is genuine, not skew
+    if (CLIENT_BUILD_ID === serverBuildId) return;
 
-  // Deployment changed — reload to get new client bundles
-  window.location.reload();
+    // Deployment changed — reload to get new client bundles
+    window.location.reload();
+  })();
+
+  try {
+    await checkInFlight;
+  } finally {
+    checkInFlight = null;
+  }
 }
