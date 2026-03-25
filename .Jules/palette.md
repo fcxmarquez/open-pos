@@ -32,3 +32,11 @@
 ## 2026-03-20 - Add Call-to-Action Buttons to Empty States
 **Learning:** Empty states without immediate calls-to-action leave users stranded, especially after filtering. By providing actionable context-aware buttons (like "Limpiar filtros" when filters are active, and "Agregar producto" regardless) directly inside the empty state message, the UI becomes significantly more intuitive and reduces unnecessary navigation clicks.
 **Action:** Whenever designing or updating an empty state for a searchable/filterable list, always include contextual buttons to reset filters or create a new item immediately within the empty state container.
+
+## 2026-03-24 - Inline Editable Inputs Context
+**Learning:** Inline editable inputs within list items (like cart quantity and price) without specific `aria-label`s cause screen readers to announce disconnected generic inputs without item context, confusing visually impaired users.
+**Action:** Always ensure inline editable inputs within list items have specific `aria-labels` that explicitly reference the item's name (e.g. "Cantidad de [Product Name]").
+
+## 2026-03-25 - Select Dropdown Placeholder Clarity
+**Learning:** Dropdowns (Select components) without placeholders can appear blank or confusing before a user interacts with them, similar to empty text inputs. They fail to convey what the dropdown controls.
+**Action:** Always add a helpful `placeholder` prop to `<SelectValue>` to explicitly indicate what the dropdown is for (e.g. "Selecciona una categoria").

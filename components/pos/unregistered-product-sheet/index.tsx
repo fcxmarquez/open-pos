@@ -205,7 +205,7 @@ export function UnregisteredProductSheet({
                   >
                     <FormControl>
                       <SelectTrigger className="mt-1">
-                        <SelectValue />
+                        <SelectValue placeholder="Selecciona una categoria" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

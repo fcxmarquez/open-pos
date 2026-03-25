@@ -296,6 +296,7 @@ export function VentasScreen() {
                         min="0"
                         step="1"
                         autoFocus
+                        aria-label={`Precio de ${item.product.name}`}
                       />
                     ) : (
                       <>
