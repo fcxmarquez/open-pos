@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Calendar, Receipt } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Badge } from "@/components/ui/badge";
@@ -98,8 +99,14 @@ export function LatestTransactionsPanel({
       </CardHeader>
       <CardContent className="pt-0">
         {latestTransactions.length === 0 ? (
-          <div className="rounded-3xl border border-dashed p-6 text-sm text-muted-foreground">
-            No hay transacciones registradas hoy todavía.
+          <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-3xl border border-dashed p-6 text-center">
+            <Receipt className="h-8 w-8 text-muted-foreground/50" aria-hidden="true" />
+            <h3 className="text-sm font-semibold text-foreground">
+              No hay transacciones hoy
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Las ventas realizadas durante el turno actual aparecerán aquí.
+            </p>
           </div>
         ) : (
           <Table>
@@ -335,8 +342,15 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
       </CardHeader>
       <CardContent className="pt-0">
         {filteredHistory.length === 0 ? (
-          <div className="rounded-3xl border border-dashed p-6 text-sm text-muted-foreground">
-            No hay cortes cerrados para este periodo.
+          <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 rounded-3xl border border-dashed p-6 text-center">
+            <Calendar className="h-8 w-8 text-muted-foreground/50" aria-hidden="true" />
+            <h3 className="text-sm font-semibold text-foreground">
+              No hay cortes en este periodo
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Intenta seleccionar un periodo de tiempo diferente usando los filtros de
+              arriba.
+            </p>
           </div>
         ) : historyView === "graph" ? (
           <HistoryGraph chartData={chartData} />

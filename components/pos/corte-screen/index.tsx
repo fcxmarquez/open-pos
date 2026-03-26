@@ -305,10 +305,16 @@ export function CorteScreen() {
               <div className={surfaceCardClass}>
                 <div className="divide-y md:hidden">
                   {openSessionSales.length === 0 ? (
-                    <div className="flex min-h-[90px] flex-col items-center justify-center gap-2 px-6 py-8 text-center">
-                      <Receipt className="h-5 w-5 text-muted-foreground" />
-                      <p className="text-sm font-medium text-foreground">
+                    <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 px-6 py-8 text-center">
+                      <Receipt
+                        className="h-5 w-5 text-muted-foreground/50"
+                        aria-hidden="true"
+                      />
+                      <p className="text-sm font-semibold text-foreground">
                         No hay ventas registradas
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Las ventas del turno actual aparecerán aquí
                       </p>
                     </div>
                   ) : (
@@ -352,11 +358,19 @@ export function CorteScreen() {
                     <TableBody>
                       {openSessionSales.length === 0 ? (
                         <TableRow className="h-12 hover:bg-card">
-                          <TableCell
-                            colSpan={3}
-                            className="px-4 py-6 text-center text-sm text-muted-foreground"
-                          >
-                            No hay ventas registradas
+                          <TableCell colSpan={3} className="px-4 py-8 text-center">
+                            <div className="flex flex-col items-center justify-center gap-2">
+                              <Receipt
+                                className="h-5 w-5 text-muted-foreground/50"
+                                aria-hidden="true"
+                              />
+                              <p className="text-sm font-semibold text-foreground">
+                                No hay ventas registradas
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Las ventas del turno actual aparecerán aquí
+                              </p>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ) : (
