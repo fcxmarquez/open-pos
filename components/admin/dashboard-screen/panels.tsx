@@ -28,6 +28,31 @@ const PERIOD_DAYS: Record<HistoryPeriod, number> = {
   week: 7,
 };
 
+function PanelEmptyState({
+  icon: Icon,
+  title,
+  description,
+  minHeight = "min-h-[200px]",
+}: {
+  icon: typeof Receipt;
+  title: string;
+  description: string;
+  minHeight?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center gap-2 rounded-3xl border border-dashed p-6 text-center",
+        minHeight
+      )}
+    >
+      <Icon className="h-8 w-8 text-muted-foreground/50" aria-hidden="true" />
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <p className="text-sm text-muted-foreground">{description}</p>
+    </div>
+  );
+}
+
 const PERIOD_LABELS: Record<HistoryPeriod, string> = {
   month: "30 días",
   quarter: "90 días",
@@ -99,15 +124,11 @@ export function LatestTransactionsPanel({
       </CardHeader>
       <CardContent className="pt-0">
         {latestTransactions.length === 0 ? (
-          <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-3xl border border-dashed p-6 text-center">
-            <Receipt className="h-8 w-8 text-muted-foreground/50" aria-hidden="true" />
-            <h3 className="text-sm font-semibold text-foreground">
-              No hay transacciones hoy
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Las ventas realizadas durante el turno actual aparecerán aquí.
-            </p>
-          </div>
+          <PanelEmptyState
+            icon={Receipt}
+            title="No hay transacciones hoy"
+            description="Las ventas realizadas durante el turno actual aparecerán aquí."
+          />
         ) : (
           <Table>
             <TableHeader>
@@ -342,16 +363,12 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
       </CardHeader>
       <CardContent className="pt-0">
         {filteredHistory.length === 0 ? (
-          <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 rounded-3xl border border-dashed p-6 text-center">
-            <Calendar className="h-8 w-8 text-muted-foreground/50" aria-hidden="true" />
-            <h3 className="text-sm font-semibold text-foreground">
-              No hay cortes en este periodo
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Intenta seleccionar un periodo de tiempo diferente usando los filtros de
-              arriba.
-            </p>
-          </div>
+          <PanelEmptyState
+            icon={Calendar}
+            title="No hay cortes en este periodo"
+            description="Intenta seleccionar un periodo de tiempo diferente usando los filtros de arriba."
+            minHeight="min-h-[300px]"
+          />
         ) : historyView === "graph" ? (
           <HistoryGraph chartData={chartData} />
         ) : (
