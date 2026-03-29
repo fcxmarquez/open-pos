@@ -166,7 +166,8 @@ function withQueryLayout(qc: QueryClient): Decorator {
 }
 
 function withData(session: Session | null, sales: SessionSales): Decorator {
-  return withQueryLayout(createQueryClient(session, sales));
+  return (Story, context) =>
+    withQueryLayout(createQueryClient(session, sales))(Story, context);
 }
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
@@ -185,18 +186,20 @@ type Story = StoryObj<typeof meta>;
 // ─── States ───────────────────────────────────────────────────────────────────
 
 function withPending(): Decorator {
-  const qc = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  qc.prefetchQuery({
-    queryKey: openSessionQueryKey,
-    queryFn: (): Promise<Session | null> => new Promise(() => {}),
-  });
-  qc.prefetchQuery({
-    queryKey: openSessionSalesQueryKey,
-    queryFn: (): Promise<SessionSales> => new Promise(() => {}),
-  });
-  return withQueryLayout(qc);
+  return (Story, context) => {
+    const qc = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    qc.prefetchQuery({
+      queryKey: openSessionQueryKey,
+      queryFn: (): Promise<Session | null> => new Promise(() => {}),
+    });
+    qc.prefetchQuery({
+      queryKey: openSessionSalesQueryKey,
+      queryFn: (): Promise<SessionSales> => new Promise(() => {}),
+    });
+    return withQueryLayout(qc)(Story, context);
+  };
 }
 
 export const Loading: Story = {
