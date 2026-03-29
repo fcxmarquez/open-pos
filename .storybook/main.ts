@@ -18,14 +18,24 @@ const config: StorybookConfig = {
   ],
   viteFinal: async (config) => {
     config.resolve ??= {};
-    const newAlias = {
-      find: "@/app/actions/admin-dashboard",
-      replacement: path.resolve(__dirname, "./mocks/admin-dashboard.ts"),
-    };
+    const mockAliases = (
+      [
+        ["@/app/actions/admin-dashboard", "admin-dashboard"],
+        ["@/app/actions/session-queries", "session-queries"],
+        ["@/app/actions/sessions", "sessions"],
+        ["@/db", "db"],
+      ] as [string, string][]
+    ).map(([find, mockFile]) => ({
+      find,
+      replacement: path.resolve(__dirname, `./mocks/${mockFile}.ts`),
+    }));
     const existing = config.resolve.alias;
     config.resolve.alias = Array.isArray(existing)
-      ? [...existing, newAlias]
-      : { ...(existing ?? {}), "@/app/actions/admin-dashboard": newAlias.replacement };
+      ? [...mockAliases, ...existing]
+      : {
+          ...Object.fromEntries(mockAliases.map((a) => [a.find, a.replacement])),
+          ...(existing ?? {}),
+        };
     return config;
   },
 };
