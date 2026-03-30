@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Calendar, Receipt } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,31 @@ const PERIOD_DAYS: Record<HistoryPeriod, number> = {
   quarter: 90,
   week: 7,
 };
+
+function PanelEmptyState({
+  icon: Icon,
+  title,
+  description,
+  minHeight = "min-h-[200px]",
+}: {
+  icon: typeof Receipt;
+  title: string;
+  description: string;
+  minHeight?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center gap-2 rounded-3xl border border-dashed p-6 text-center",
+        minHeight
+      )}
+    >
+      <Icon className="h-8 w-8 text-muted-foreground/50" aria-hidden="true" />
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <p className="text-sm text-muted-foreground">{description}</p>
+    </div>
+  );
+}
 
 const PERIOD_LABELS: Record<HistoryPeriod, string> = {
   month: "30 días",
@@ -98,9 +124,11 @@ export function LatestTransactionsPanel({
       </CardHeader>
       <CardContent className="pt-0">
         {latestTransactions.length === 0 ? (
-          <div className="rounded-3xl border border-dashed p-6 text-sm text-muted-foreground">
-            No hay transacciones registradas hoy todavía.
-          </div>
+          <PanelEmptyState
+            icon={Receipt}
+            title="No hay transacciones hoy"
+            description="Las ventas realizadas durante el turno actual aparecerán aquí."
+          />
         ) : (
           <Table>
             <TableHeader>
@@ -335,9 +363,12 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
       </CardHeader>
       <CardContent className="pt-0">
         {filteredHistory.length === 0 ? (
-          <div className="rounded-3xl border border-dashed p-6 text-sm text-muted-foreground">
-            No hay cortes cerrados para este periodo.
-          </div>
+          <PanelEmptyState
+            icon={Calendar}
+            title="No hay cortes en este periodo"
+            description="Intenta seleccionar un periodo de tiempo diferente usando los filtros de arriba."
+            minHeight="min-h-[300px]"
+          />
         ) : historyView === "graph" ? (
           <HistoryGraph chartData={chartData} />
         ) : (

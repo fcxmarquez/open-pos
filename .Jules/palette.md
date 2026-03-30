@@ -40,3 +40,7 @@
 ## 2026-03-25 - Select Dropdown Placeholder Clarity
 **Learning:** Dropdowns (Select components) without placeholders can appear blank or confusing before a user interacts with them, similar to empty text inputs. They fail to convey what the dropdown controls.
 **Action:** Always add a helpful `placeholder` prop to `<SelectValue>` to explicitly indicate what the dropdown is for (e.g. "Selecciona una categoria").
+
+## 2026-03-26 - Visual Empty States
+**Learning:** Empty states consisting only of text feel like dead ends or errors, especially in dashboards or active list views. Adding a relevant, explicit visual indicator (such as an `aria-hidden="true"` icon) alongside contextual guidance immediately improves usability and helps users recover or understand the application's current state.
+**Action:** When creating or refactoring empty states, ensure they include an appropriate contextual icon (like `Receipt` or `Calendar`), a clear heading, and helpful guidance text explaining what should appear there or how to populate the view.
