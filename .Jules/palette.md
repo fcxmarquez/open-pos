@@ -25,6 +25,7 @@
 ## 2026-03-09 - Numeric Mobile Keyboards
 **Learning:** `type="number"` doesn't always automatically show the numeric keypad on mobile devices, or sometimes shows a numeric keypad without decimal capabilities, leading to friction. Adding `inputMode="decimal"` significantly improves the mobile UX by forcing the correct numeric keyboard to appear right away.
 **Action:** Whenever a numeric input is designed (especially for currency or float values), always include `inputMode="decimal"` alongside `type="number"`.
+
 ## 2026-03-09 - Label in Name WCAG compliance
 **Learning:** When adding `aria-label` to buttons that already have visible text to add extra context, the exact visible text string MUST be a continuous substring of the `aria-label` value. For example, if the button says "Editar seleccionados", the label should be "Editar seleccionados (1 producto)", not "Editar 1 productos seleccionados", which violates WCAG 2.5.3 (Label in Name). This is critical for speech recognition users.
 **Action:** Always ensure the visible text of an interactive element is fully contained within its accessible name (`aria-label` or `aria-labelledby`).
@@ -44,3 +45,7 @@
 ## 2026-03-26 - Visual Empty States
 **Learning:** Empty states consisting only of text feel like dead ends or errors, especially in dashboards or active list views. Adding a relevant, explicit visual indicator (such as an `aria-hidden="true"` icon) alongside contextual guidance immediately improves usability and helps users recover or understand the application's current state.
 **Action:** When creating or refactoring empty states, ensure they include an appropriate contextual icon (like `Receipt` or `Calendar`), a clear heading, and helpful guidance text explaining what should appear there or how to populate the view.
+
+## 2026-03-26 - Clear Buttons in Search Inputs
+**Learning:** Search inputs without a quick way to clear the text force users to manually delete characters one by one, increasing friction especially on mobile devices or with long queries. Adding a visible 'clear' button when the input has text significantly speeds up the workflow of starting a new search.
+**Action:** Always include a 'clear search' (X) icon button inside search bars that appears when text is entered to provide a fast reset mechanism.
