@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, PackageSearch, Plus, Search } from "lucide-react";
+import { AlertTriangle, PackageSearch, Plus, Search, X } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
@@ -249,7 +249,10 @@ export function ProductosScreen() {
             render={({ field }) => (
               <FormItem className="flex-1 space-y-0">
                 <SearchBar className="h-12">
-                  <Search className="h-5 w-5 shrink-0 text-foreground" />
+                  <Search
+                    className="h-5 w-5 shrink-0 text-foreground"
+                    aria-hidden="true"
+                  />
                   <FormControl>
                     <Input
                       placeholder="Buscar por nombre, codigo o PLU..."
@@ -257,6 +260,18 @@ export function ProductosScreen() {
                       {...field}
                     />
                   </FormControl>
+                  {field.value.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-muted-foreground hover:text-accent-foreground"
+                      onClick={() => filtersForm.setValue("searchQuery", "")}
+                      aria-label="Borrar búsqueda"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                  )}
                 </SearchBar>
               </FormItem>
             )}
