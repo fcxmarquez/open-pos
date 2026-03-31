@@ -44,3 +44,7 @@
 ## 2026-03-26 - Visual Empty States
 **Learning:** Empty states consisting only of text feel like dead ends or errors, especially in dashboards or active list views. Adding a relevant, explicit visual indicator (such as an `aria-hidden="true"` icon) alongside contextual guidance immediately improves usability and helps users recover or understand the application's current state.
 **Action:** When creating or refactoring empty states, ensure they include an appropriate contextual icon (like `Receipt` or `Calendar`), a clear heading, and helpful guidance text explaining what should appear there or how to populate the view.
+
+## 2026-03-27 - Search Input Clear Buttons
+**Learning:** Forcing users to manually backspace through a search query creates friction, particularly on mobile devices. A prominent "Clear search" button significantly improves UX by allowing instant reset.
+**Action:** Always include a conditionally rendered 'Clear search' (X) button inside search inputs to allow users to quickly clear their typed queries without manual backspacing.
