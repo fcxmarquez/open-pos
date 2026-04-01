@@ -435,6 +435,10 @@ export function VentasScreen() {
                             ref(element);
                             inputRef.current = element;
                           }}
+                          type="text"
+                          inputMode="search"
+                          autoComplete="off"
+                          aria-label="Buscar producto"
                           placeholder="Busca o escanea un producto..."
                           className="h-full flex-1 border-0 bg-transparent p-0 text-sm font-medium shadow-none placeholder:font-medium placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                           autoFocus
