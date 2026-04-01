@@ -49,3 +49,7 @@
 ## 2026-03-26 - Clear Buttons in Search Inputs
 **Learning:** Search inputs without a quick way to clear the text force users to manually delete characters one by one, increasing friction especially on mobile devices or with long queries. Adding a visible 'clear' button when the input has text significantly speeds up the workflow of starting a new search.
 **Action:** Always include a 'clear search' (X) icon button inside search bars that appears when text is entered to provide a fast reset mechanism.
+
+## 2026-03-30 - Mobile Search Keyboards
+**Learning:** Using `inputMode="search"` on text inputs intended for searching changes the mobile keyboard's "Return" key to "Search", providing a better cue to the user, without the side effects of `type="search"` (like native clear buttons that conflict with custom ones). Additionally, search inputs without visible labels need `aria-label`s for screen reader accessibility.
+**Action:** Always add `inputMode="search"`, `autoComplete="off"`, and a descriptive `aria-label` to custom search inputs.

@@ -255,6 +255,10 @@ export function ProductosScreen() {
                   />
                   <FormControl>
                     <Input
+                      type="text"
+                      inputMode="search"
+                      autoComplete="off"
+                      aria-label="Buscar producto"
                       placeholder="Buscar por nombre, codigo o PLU..."
                       className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                       {...field}
