@@ -1,16 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Minus, Pencil, Plus, Search, ShoppingBag, Trash2, X, Zap } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { Search, ShoppingBag, X, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  getProductByBarcode,
-  getProductByPluCode,
-  searchProducts as searchProductsQuery,
-} from "@/app/actions/product-queries";
 import { CheckoutDialog } from "@/components/pos/checkout-dialog";
 import { QuickSaleDialog } from "@/components/pos/quick-sale-dialog";
 import { SearchBar } from "@/components/pos/search-bar";
@@ -19,78 +12,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { CATEGORY_COLOR_MAP } from "@/lib/category-colors";
-import { dbProductToStoreProduct } from "@/lib/mappers";
-import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
+import { CartPanel } from "./cart-panel";
 import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query";
-
-const PLU_CODE_REGEX = /^\d{4}$/;
-
-function parseCartQuantityInput(rawValue: string) {
-  const digitsOnly = rawValue.replace(/\D/g, "");
-
-  return Number.parseInt(digitsOnly, 10) || 0;
-}
-
-function CartHeader({
-  cartItemCount,
-  onClose,
-}: {
-  cartItemCount: number;
-  onClose?: () => void;
-}) {
-  return (
-    <div className="flex h-14 items-center border-b px-5">
-      <ShoppingBag className="h-5 w-5 shrink-0 text-foreground" aria-hidden="true" />
-      <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
-      <div className="flex-1" />
-      <Badge variant="muted" size="chip" className="border-foreground px-2.5 py-1">
-        {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
-      </Badge>
-      {onClose && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-2 h-8 w-8"
-          onClick={onClose}
-          aria-label="Cerrar carrito"
-        >
-          <X className="h-4 w-4" aria-hidden="true" />
-          <span className="sr-only">Cerrar carrito</span>
-        </Button>
-      )}
-    </div>
-  );
-}
+import { useProductSearch } from "./use-product-search";
 
 export function VentasScreen() {
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [showUnregistered, setShowUnregistered] = useState(false);
   const [unregisteredBarcode, setUnregisteredBarcode] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
   const [showQuickSale, setShowQuickSale] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
-  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [, startTransition] = useTransition();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
-  const searchForm = useForm({
-    resolver: zodResolver(ventasSearchFormSchema),
-    defaultValues: ventasSearchFormDefaults,
+
+  const {
+    searchForm,
+    searchValue,
+    searchResults,
+    isSearching,
+    isSubmitting,
+    handleSubmit,
+    clearSearchAndFocus,
+    inputRef,
+    focusInput,
+  } = useProductSearch({
+    onUnregistered: (barcode) => {
+      setUnregisteredBarcode(barcode);
+      setShowUnregistered(true);
+    },
   });
-  const searchValue = searchForm.watch("searchValue");
 
   const cart = useStore((s) => s.cart);
   const addToCart = useStore((s) => s.addToCart);
-  const removeFromCart = useStore((s) => s.removeFromCart);
-  const updateCartQuantity = useStore((s) => s.updateCartQuantity);
-  const updateCartItemPrice = useStore((s) => s.updateCartItemPrice);
   const clearCart = useStore((s) => s.clearCart);
   const getCartTotal = useStore((s) => s.getCartTotal);
 
@@ -99,15 +54,6 @@ export function VentasScreen() {
 
   const queryClient = useQueryClient();
   const { data: frequentProducts = [] } = useQuery(frequentProductsQueryOptions());
-
-  const focusInput = useCallback(() => {
-    setTimeout(() => inputRef.current?.focus(), 50);
-  }, []);
-
-  // Auto focus on mount
-  useEffect(() => {
-    focusInput();
-  }, [focusInput]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -124,104 +70,6 @@ export function VentasScreen() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [cart.length]);
-
-  // Debounced search as user types
-  useEffect(() => {
-    if (searchValue.length < 2) {
-      setSearchResults([]);
-      return;
-    }
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      setIsSearching(true);
-      startTransition(async () => {
-        try {
-          const results = await searchProductsQuery(searchValue);
-          setSearchResults(results.map(dbProductToStoreProduct));
-        } catch {
-          // Silently fail on search
-        } finally {
-          setIsSearching(false);
-        }
-      });
-    }, 300);
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchValue]);
-
-  const clearSearch = () => {
-    searchForm.reset(ventasSearchFormDefaults);
-    setSearchResults([]);
-  };
-
-  const clearSearchAndFocus = () => {
-    clearSearch();
-    focusInput();
-  };
-
-  const handleSubmit = async ({
-    searchValue: submittedValue,
-  }: {
-    searchValue: string;
-  }) => {
-    const value = submittedValue.trim();
-    if (!value) return;
-
-    setIsSubmitting(true);
-
-    try {
-      // First try exact barcode match
-      const product = await getProductByBarcode(value);
-      if (product) {
-        addToCart(dbProductToStoreProduct(product));
-        toast.success(`${product.name ?? "Producto"} agregado`);
-        clearSearchAndFocus();
-        return;
-      }
-
-      if (PLU_CODE_REGEX.test(value)) {
-        const pluProduct = await getProductByPluCode(value);
-        if (pluProduct) {
-          addToCart(dbProductToStoreProduct(pluProduct));
-          toast.success(`${pluProduct.name ?? "Producto"} agregado`);
-          clearSearchAndFocus();
-          return;
-        }
-      }
-
-      // Try name search
-      const results = await searchProductsQuery(value);
-      if (results.length === 1) {
-        const p = dbProductToStoreProduct(results[0]);
-        addToCart(p);
-        toast.success(`${p.name} agregado`);
-        clearSearchAndFocus();
-        return;
-      }
-
-      if (results.length > 1) {
-        setSearchResults(results.map(dbProductToStoreProduct));
-        return;
-      }
-
-      // No match - open unregistered product sheet
-      setUnregisteredBarcode(value);
-      setShowUnregistered(true);
-      clearSearch();
-    } catch {
-      toast.error("Error al buscar el producto");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleProductClick = (product: Product) => {
     addToCart(product);
@@ -246,167 +94,6 @@ export function VentasScreen() {
     focusInput();
     queryClient.invalidateQueries({ queryKey: frequentProductsQueryKey });
   };
-
-  // Shared cart content component
-  const cartContent = (
-    <>
-      {/* Cart items */}
-      <ScrollArea className="flex-1">
-        {cart.length === 0 ? (
-          <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
-            <ShoppingBag
-              className="mb-3 h-10 w-10 text-muted-foreground/40"
-              aria-hidden="true"
-            />
-            <p className="text-xs font-semibold text-muted-foreground">
-              Escanea o busca un producto para iniciar
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground/70">
-              Los artículos aparecerán aquí
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y px-4">
-            {cart.map((item) => (
-              <div key={item.product.id} className="flex items-start gap-3 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium leading-snug text-foreground">
-                    {item.product.name}
-                  </p>
-                  <div className="mt-1.5 flex items-center gap-1.5">
-                    <span className="text-xs text-muted-foreground">Precio</span>
-                    {editingPriceId === item.product.id ? (
-                      <Input
-                        type="number"
-                        inputMode="decimal"
-                        value={item.unitPrice}
-                        onChange={(e) =>
-                          updateCartItemPrice(
-                            item.product.id,
-                            Number.parseFloat(e.target.value) || 0
-                          )
-                        }
-                        onBlur={() => setEditingPriceId(null)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === "Escape")
-                            setEditingPriceId(null);
-                        }}
-                        onFocus={(e) => e.target.select()}
-                        className="h-7 w-24 text-sm"
-                        min="0"
-                        step="1"
-                        autoFocus
-                        aria-label={`Precio de ${item.product.name}`}
-                      />
-                    ) : (
-                      <>
-                        <span className="text-xs text-foreground">
-                          ${item.unitPrice.toFixed(2)}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 text-muted-foreground hover:text-foreground"
-                          onClick={() => setEditingPriceId(item.product.id)}
-                          aria-label={`Editar precio de ${item.product.name}`}
-                        >
-                          <Pencil className="h-3 w-3" aria-hidden="true" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                  {/* Quantity controls */}
-                  <div className="mt-1.5 flex items-center gap-1.5">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7 bg-transparent"
-                      onClick={() =>
-                        updateCartQuantity(item.product.id, item.quantity - 1)
-                      }
-                      aria-label={`Disminuir cantidad de ${item.product.name}`}
-                    >
-                      <Minus className="h-3 w-3" aria-hidden="true" />
-                    </Button>
-                    <Input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={String(item.quantity)}
-                      onChange={(e) =>
-                        updateCartQuantity(
-                          item.product.id,
-                          parseCartQuantityInput(e.target.value)
-                        )
-                      }
-                      onFocus={(e) => e.target.select()}
-                      className="h-7 w-14 text-center text-sm tabular-nums"
-                      aria-label={`Cantidad de ${item.product.name}`}
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7 bg-transparent"
-                      onClick={() =>
-                        updateCartQuantity(item.product.id, item.quantity + 1)
-                      }
-                      aria-label={`Aumentar cantidad de ${item.product.name}`}
-                    >
-                      <Plus className="h-3 w-3" aria-hidden="true" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  <span className="text-sm font-semibold text-foreground">
-                    {`$${(item.unitPrice * item.quantity).toFixed(2)}`}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => removeFromCart(item.product.id)}
-                    aria-label={`Eliminar ${item.product.name} del carrito`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
-
-      {/* Cart footer */}
-      <div className="px-5 py-4">
-        <div className="mb-3 flex items-center justify-between rounded-xl bg-muted px-3 py-2.5">
-          <span className="text-sm font-bold text-foreground">Total</span>
-          <span className="text-4xl font-extrabold leading-none tracking-[-1px] text-foreground">
-            {formatCurrency(cartTotal)}
-          </span>
-        </div>
-        <Button
-          size="lg"
-          className="mb-2 w-full"
-          disabled={cart.length === 0}
-          onClick={() => {
-            setShowCheckout(true);
-            setMobileCartOpen(false);
-          }}
-        >
-          Cobrar (F2) →
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full"
-          disabled={cart.length === 0}
-          onClick={handleCancelSale}
-        >
-          Cancelar venta
-        </Button>
-      </div>
-    </>
-  );
 
   return (
     <div className="flex h-full flex-col md:flex-row">
@@ -576,18 +263,23 @@ export function VentasScreen() {
           mobileCartOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
-        <CartHeader
-          cartItemCount={cartItemCount}
+        <CartPanel
+          onCheckout={() => {
+            setShowCheckout(true);
+            setMobileCartOpen(false);
+          }}
+          onCancelSale={handleCancelSale}
           onClose={() => setMobileCartOpen(false)}
         />
-        {cartContent}
       </div>
 
       {/* Desktop cart sidebar - hidden on mobile */}
       <div className="hidden py-3 md:flex">
         <div className="flex w-[380px] flex-col overflow-hidden rounded-3xl border bg-card">
-          <CartHeader cartItemCount={cartItemCount} />
-          {cartContent}
+          <CartPanel
+            onCheckout={() => setShowCheckout(true)}
+            onCancelSale={handleCancelSale}
+          />
         </div>
       </div>
 

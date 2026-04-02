@@ -1,0 +1,106 @@
+"use client";
+
+import { ShoppingBag, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
+import { CartItemRow } from "./cart-item";
+
+interface CartPanelProps {
+  onCheckout: () => void;
+  onCancelSale: () => void;
+  onClose?: () => void;
+}
+
+export function CartPanel({ onCheckout, onCancelSale, onClose }: CartPanelProps) {
+  const cart = useStore((s) => s.cart);
+  const removeFromCart = useStore((s) => s.removeFromCart);
+  const updateCartQuantity = useStore((s) => s.updateCartQuantity);
+  const updateCartItemPrice = useStore((s) => s.updateCartItemPrice);
+  const getCartTotal = useStore((s) => s.getCartTotal);
+
+  const cartTotal = getCartTotal();
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <>
+      <div className="flex h-14 items-center border-b px-5">
+        <ShoppingBag className="h-5 w-5 shrink-0 text-foreground" aria-hidden="true" />
+        <h3 className="ml-2 text-base font-extrabold text-foreground">Venta actual</h3>
+        <div className="flex-1" />
+        <Badge variant="muted" size="chip" className="border-foreground px-2.5 py-1">
+          {cartItemCount} {cartItemCount === 1 ? "artículo" : "artículos"}
+        </Badge>
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-2 h-8 w-8"
+            onClick={onClose}
+            aria-label="Cerrar carrito"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+            <span className="sr-only">Cerrar carrito</span>
+          </Button>
+        )}
+      </div>
+
+      <ScrollArea className="flex-1">
+        {cart.length === 0 ? (
+          <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
+            <ShoppingBag
+              className="mb-3 h-10 w-10 text-muted-foreground/40"
+              aria-hidden="true"
+            />
+            <p className="text-xs font-semibold text-muted-foreground">
+              Escanea o busca un producto para iniciar
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground/70">
+              Los artículos aparecerán aquí
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y px-4">
+            {cart.map((item) => (
+              <CartItemRow
+                key={item.product.id}
+                item={item}
+                onUpdateQuantity={(qty) => updateCartQuantity(item.product.id, qty)}
+                onUpdatePrice={(price) => updateCartItemPrice(item.product.id, price)}
+                onRemove={() => removeFromCart(item.product.id)}
+              />
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+
+      <div className="px-5 py-4">
+        <div className="mb-3 flex items-center justify-between rounded-xl bg-muted px-3 py-2.5">
+          <span className="text-sm font-bold text-foreground">Total</span>
+          <span className="text-4xl font-extrabold leading-none tracking-[-1px] text-foreground">
+            {formatCurrency(cartTotal)}
+          </span>
+        </div>
+        <Button
+          size="lg"
+          className="mb-2 w-full"
+          disabled={cart.length === 0}
+          onClick={onCheckout}
+        >
+          Cobrar (F2) →
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full"
+          disabled={cart.length === 0}
+          onClick={onCancelSale}
+        >
+          Cancelar venta
+        </Button>
+      </div>
+    </>
+  );
+}
