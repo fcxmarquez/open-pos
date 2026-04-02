@@ -42,7 +42,6 @@ export function CartPanel({ onCheckout, onCancelSale, onClose }: CartPanelProps)
             aria-label="Cerrar carrito"
           >
             <X className="h-4 w-4" aria-hidden="true" />
-            <span className="sr-only">Cerrar carrito</span>
           </Button>
         )}
       </div>
