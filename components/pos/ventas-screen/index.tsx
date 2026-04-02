@@ -544,7 +544,11 @@ export function VentasScreen() {
 
       {/* Mobile cart toggle button - fixed at bottom on small screens */}
       <div className="border-t bg-card p-3 md:hidden">
-        <Button className="w-full" onClick={() => setMobileCartOpen(true)}>
+        <Button
+          className="w-full"
+          onClick={() => setMobileCartOpen(true)}
+          aria-label={`Ver carrito con ${cartItemCount} artículos, total ${formatCurrency(cartTotal)}`}
+        >
           <ShoppingBag className="mr-2 h-4 w-4" aria-hidden="true" />
           Ver carrito
           {cartItemCount > 0 && (
