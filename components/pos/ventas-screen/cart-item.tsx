@@ -25,6 +25,15 @@ export function CartItemRow({
   onRemove,
 }: CartItemRowProps) {
   const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [draftPrice, setDraftPrice] = useState("");
+
+  const commitPrice = () => {
+    const parsed = Number.parseFloat(draftPrice);
+    if (!Number.isNaN(parsed) && parsed >= 0) {
+      onUpdatePrice(parsed);
+    }
+    setIsEditingPrice(false);
+  };
 
   return (
     <div className="flex items-start gap-3 py-3">
@@ -38,11 +47,12 @@ export function CartItemRow({
             <Input
               type="number"
               inputMode="decimal"
-              value={item.unitPrice}
-              onChange={(e) => onUpdatePrice(Number.parseFloat(e.target.value) || 0)}
-              onBlur={() => setIsEditingPrice(false)}
+              value={draftPrice}
+              onChange={(e) => setDraftPrice(e.target.value)}
+              onBlur={commitPrice}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === "Escape") setIsEditingPrice(false);
+                if (e.key === "Enter") commitPrice();
+                if (e.key === "Escape") setIsEditingPrice(false);
               }}
               onFocus={(e) => e.target.select()}
               className="h-7 w-24 text-sm"
@@ -60,7 +70,10 @@ export function CartItemRow({
                 variant="ghost"
                 size="icon"
                 className="h-5 w-5 text-muted-foreground hover:text-foreground"
-                onClick={() => setIsEditingPrice(true)}
+                onClick={() => {
+                  setDraftPrice(String(item.unitPrice));
+                  setIsEditingPrice(true);
+                }}
                 aria-label={`Editar precio de ${item.product.name}`}
               >
                 <Pencil className="h-3 w-3" aria-hidden="true" />
