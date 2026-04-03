@@ -2,7 +2,7 @@ import { Store } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/pos/login/submit-button";
 import {
   Card,
   CardContent,
@@ -119,9 +119,7 @@ export default async function LoginPage({
                   placeholder="••••••••"
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Iniciar sesion
-              </Button>
+              <SubmitButton className="w-full">Iniciar sesion</SubmitButton>
             </form>
           ) : (
             <form
@@ -130,10 +128,10 @@ export default async function LoginPage({
                 await signIn("google", { redirectTo: "/" });
               }}
             >
-              <Button type="submit" variant="outline" size="lg" className="w-full gap-3">
+              <SubmitButton variant="outline" size="lg" className="w-full gap-3">
                 <GoogleIcon />
                 Continuar con Google
-              </Button>
+              </SubmitButton>
             </form>
           )}
         </CardContent>
