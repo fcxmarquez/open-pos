@@ -53,3 +53,7 @@
 ## 2026-03-30 - Mobile Search Keyboards
 **Learning:** Using `inputMode="search"` on text inputs intended for searching changes the mobile keyboard's "Return" key to "Search", providing a better cue to the user, without the side effects of `type="search"` (like native clear buttons that conflict with custom ones). Additionally, search inputs without visible labels need `aria-label`s for screen reader accessibility.
 **Action:** Always add `inputMode="search"`, `autoComplete="off"`, and a descriptive `aria-label` to custom search inputs.
+
+## 2026-04-03 - Custom Search Dropdown Empty States
+**Learning:** Custom search dropdowns that completely hide when there are no results leave the user wondering if the search is still loading, if it failed, or if there genuinely are no results.
+**Action:** Ensure custom search dropdown containers remain visible during loading (to display spinners) and explicitly render an empty state (e.g., "No se encontraron productos") when a query yields zero matches, rather than conditionally unmounting the entire dropdown.

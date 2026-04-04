@@ -479,11 +479,16 @@ export function VentasScreen() {
         </Form>
 
         {/* Search results dropdown */}
-        {searchValue.length >= 2 && searchResults.length > 1 && (
+        {searchValue.length >= 2 && (
           <div className="mb-4 max-h-48 overflow-auto rounded-md border bg-card shadow-md">
             {isSearching && (
               <div className="flex items-center justify-center py-2">
                 <Spinner />
+              </div>
+            )}
+            {!isSearching && searchResults.length === 0 && (
+              <div className="px-4 py-3 text-center text-sm text-muted-foreground">
+                No se encontraron productos. Presiona Enter para registrar.
               </div>
             )}
             {searchResults.map((p) => (
