@@ -32,6 +32,7 @@ export function VentasScreen() {
     searchValue,
     searchResults,
     isSearching,
+    isDebouncing,
     isSubmitting,
     handleSubmit,
     clearSearchAndFocus,
@@ -166,34 +167,50 @@ export function VentasScreen() {
         </Form>
 
         {/* Search results dropdown */}
-        {searchValue.length >= 2 && searchResults.length > 1 && (
+        {searchValue.length >= 2 && (
           <div className="mb-4 max-h-48 overflow-auto rounded-md border bg-card shadow-md">
-            {isSearching && (
-              <div className="flex items-center justify-center py-2">
+            {isSearching || isDebouncing ? (
+              <div className="flex items-center justify-center py-4">
                 <Spinner />
               </div>
+            ) : searchResults.length === 0 ? (
+              <div className="flex flex-col items-center justify-center px-4 py-6 text-center">
+                <Search
+                  className="mb-2 h-6 w-6 text-muted-foreground/50"
+                  aria-hidden="true"
+                />
+                <p className="text-sm font-medium text-foreground">
+                  No se encontraron productos
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Presiona Enter para registrarlo
+                </p>
+              </div>
+            ) : (
+              searchResults.map((p) => (
+                <button
+                  type="button"
+                  key={p.id}
+                  onClick={() => {
+                    addToCart(p);
+                    toast.success(`${p.name} agregado`);
+                    clearSearchAndFocus();
+                  }}
+                  aria-label={`Agregar ${p.name} al carrito por ${formatCurrency(p.price)}`}
+                  className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
+                >
+                  <div>
+                    <span className="font-medium text-foreground">{p.name}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {p.barcode}
+                    </span>
+                  </div>
+                  <span className="font-semibold text-foreground">
+                    {formatCurrency(p.price)}
+                  </span>
+                </button>
+              ))
             )}
-            {searchResults.map((p) => (
-              <button
-                type="button"
-                key={p.id}
-                onClick={() => {
-                  addToCart(p);
-                  toast.success(`${p.name} agregado`);
-                  clearSearchAndFocus();
-                }}
-                aria-label={`Agregar ${p.name} al carrito por ${formatCurrency(p.price)}`}
-                className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
-              >
-                <div>
-                  <span className="font-medium text-foreground">{p.name}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">{p.barcode}</span>
-                </div>
-                <span className="font-semibold text-foreground">
-                  {formatCurrency(p.price)}
-                </span>
-              </button>
-            ))}
           </div>
         )}
 

@@ -54,6 +54,10 @@
 **Learning:** Using `inputMode="search"` on text inputs intended for searching changes the mobile keyboard's "Return" key to "Search", providing a better cue to the user, without the side effects of `type="search"` (like native clear buttons that conflict with custom ones). Additionally, search inputs without visible labels need `aria-label`s for screen reader accessibility.
 **Action:** Always add `inputMode="search"`, `autoComplete="off"`, and a descriptive `aria-label` to custom search inputs.
 
+## 2026-03-31 - Search Dropdown Loading and Empty States
+**Learning:** Debounced search dropdowns that only render on specific result length thresholds (e.g. `results.length > 1`) can silently swallow loading spinners and "no results" empty states, leaving the user with zero feedback while they type or if a query has no matches. Adding a dedicated empty state with an icon inside the search dropdown directly solves this dead end.
+**Action:** When building custom search dropdowns, ensure the container renders to show the loading spinner during the search, and explicitly handles the `0` results state with a contextual empty state (e.g., "No se encontraron productos") rather than just hiding the dropdown entirely.
+
 ## 2026-04-03 - Added SubmitButton component
 **Learning:** For server actions attached to form submissions, adding a loading state prevents accidental double clicks and provides necessary visual feedback to the user when the request is processing. Since `useFormStatus()` only works in client components and specifically within a `<form>` element, we extracted the submit button into a reusable `components/pos/login/submit-button.tsx` component that consumes the pending status and renders a loading spinner.
 **Action:** Use this `<SubmitButton>` component inside forms instead of a standard `<Button type="submit">` whenever visual feedback during server action submissions is needed.
