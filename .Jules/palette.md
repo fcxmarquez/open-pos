@@ -53,3 +53,7 @@
 ## 2026-03-30 - Mobile Search Keyboards
 **Learning:** Using `inputMode="search"` on text inputs intended for searching changes the mobile keyboard's "Return" key to "Search", providing a better cue to the user, without the side effects of `type="search"` (like native clear buttons that conflict with custom ones). Additionally, search inputs without visible labels need `aria-label`s for screen reader accessibility.
 **Action:** Always add `inputMode="search"`, `autoComplete="off"`, and a descriptive `aria-label` to custom search inputs.
+
+## 2026-04-03 - Added SubmitButton component
+**Learning:** For server actions attached to form submissions, adding a loading state prevents accidental double clicks and provides necessary visual feedback to the user when the request is processing. Since `useFormStatus()` only works in client components and specifically within a `<form>` element, we extracted the submit button into a reusable `components/pos/login/submit-button.tsx` component that consumes the pending status and renders a loading spinner.
+**Action:** Use this `<SubmitButton>` component inside forms instead of a standard `<Button type="submit">` whenever visual feedback during server action submissions is needed.
