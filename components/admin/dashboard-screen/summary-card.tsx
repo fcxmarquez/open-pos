@@ -17,7 +17,7 @@ export function SummaryCard({ label, value, icon: Icon, children }: SummaryCardP
             <p className="text-sm text-muted-foreground">{label}</p>
             <CardTitle className="text-3xl">{value}</CardTitle>
           </div>
-          <Icon className="h-5 w-5 text-muted-foreground" />
+          <Icon className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         </div>
         {children}
       </CardHeader>
