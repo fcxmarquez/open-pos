@@ -32,6 +32,7 @@ export function VentasScreen() {
     searchValue,
     searchResults,
     isSearching,
+    isDebouncing,
     isSubmitting,
     handleSubmit,
     clearSearchAndFocus,
@@ -168,7 +169,7 @@ export function VentasScreen() {
         {/* Search results dropdown */}
         {searchValue.length >= 2 && (
           <div className="mb-4 max-h-48 overflow-auto rounded-md border bg-card shadow-md">
-            {isSearching ? (
+            {isSearching || isDebouncing ? (
               <div className="flex items-center justify-center py-4">
                 <Spinner />
               </div>
