@@ -22,6 +22,7 @@ interface UseProductSearchOptions {
 export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isDebouncing, setIsDebouncing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -48,14 +49,18 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
   useEffect(() => {
     if (searchValue.length < 2) {
       setSearchResults([]);
+      setIsDebouncing(false);
       return;
     }
+
+    setIsDebouncing(true);
 
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
     searchTimeoutRef.current = setTimeout(() => {
+      setIsDebouncing(false);
       setIsSearching(true);
       startTransition(async () => {
         try {
@@ -144,6 +149,7 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
     searchValue,
     searchResults,
     isSearching,
+    isDebouncing,
     isSubmitting,
     handleSubmit,
     clearSearchAndFocus,
