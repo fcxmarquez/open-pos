@@ -228,7 +228,7 @@ export function ProductosScreen() {
     <div className="flex h-full flex-col p-4 md:p-5">
       <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
         <Button onClick={handleAddProduct}>
-          <Plus className="mr-1.5 h-4 w-4" />
+          <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
           Agregar producto
         </Button>
         <div className="flex flex-wrap items-center gap-2">
