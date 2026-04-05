@@ -88,7 +88,7 @@ function SummaryCard({
         <span className="font-body text-xs font-medium text-muted-foreground">
           {label}
         </span>
-        <Icon className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+        <Icon className="h-4 w-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
       </div>
       <p
         className={cn(
@@ -199,7 +199,10 @@ export function CorteScreen() {
           {!session ? (
             <div className="rounded-2xl bg-muted/50 px-4 py-5">
               <div className="flex items-start gap-3">
-                <CircleDot className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+                <CircleDot
+                  className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <div>
                   <p className="text-sm font-semibold text-foreground">
                     No hay sesión activa
@@ -307,9 +310,15 @@ export function CorteScreen() {
               <Button variant="outline" className="w-full justify-between">
                 <span>Detalle de ventas ({openSessionSales.length})</span>
                 {showDetail ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  <ChevronUp
+                    className="h-4 w-4 text-muted-foreground"
+                    aria-hidden="true"
+                  />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown
+                    className="h-4 w-4 text-muted-foreground"
+                    aria-hidden="true"
+                  />
                 )}
               </Button>
             </CollapsibleTrigger>
