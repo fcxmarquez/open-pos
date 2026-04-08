@@ -136,8 +136,11 @@ export function UnregisteredProductSheet({
             className="mt-6 flex flex-col gap-4"
           >
             <div>
-              <Label className="text-foreground">Codigo de barras</Label>
+              <Label htmlFor="barcode" className="text-foreground">
+                Codigo de barras
+              </Label>
               <Input
+                id="barcode"
                 value={barcode}
                 readOnly
                 className="mt-1 bg-muted font-mono text-foreground"
