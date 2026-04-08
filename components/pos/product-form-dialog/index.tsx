@@ -46,6 +46,7 @@ interface ProductFormDialogProps {
   onOpenChange: (open: boolean) => void;
   product: Product | null;
   onSuccess?: () => void;
+  initialValues?: Partial<ProductFormValues>;
 }
 
 export function ProductFormDialog({
@@ -53,6 +54,7 @@ export function ProductFormDialog({
   onOpenChange,
   product,
   onSuccess,
+  initialValues,
 }: ProductFormDialogProps) {
   const [isPending, startTransition] = useTransition();
   const form = useForm<ProductFormValues>({
@@ -75,8 +77,8 @@ export function ProductFormDialog({
       return;
     }
 
-    form.reset(productFormDefaults);
-  }, [open, product, form]);
+    form.reset({ ...productFormDefaults, ...initialValues });
+  }, [open, product, form, initialValues]);
 
   const handleSubmit = (values: ProductFormValues) => {
     const priceNum = Number.parseFloat(values.price);

@@ -62,6 +62,9 @@ export function ProductosScreen() {
   const [showForm, setShowForm] = useState(false);
   const [showBulkEditDialog, setShowBulkEditDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [addInitialValues, setAddInitialValues] = useState<
+    Partial<{ barcode: string; pluCode: string; name: string }> | undefined
+  >(undefined);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
@@ -185,9 +188,19 @@ export function ProductosScreen() {
     setShowForm(true);
   };
 
-  const handleAddProduct = () => {
+  const handleAddProduct = (
+    prefill?: Partial<{ barcode: string; pluCode: string; name: string }>
+  ) => {
     setEditingProduct(null);
+    setAddInitialValues(prefill);
     setShowForm(true);
+  };
+
+  const getSearchPrefill = () => {
+    if (!normalizedSearch) return undefined;
+    if (/^\d{4}$/.test(normalizedSearch)) return { pluCode: normalizedSearch };
+    if (/^\d+$/.test(normalizedSearch)) return { barcode: normalizedSearch };
+    return { name: normalizedSearch };
   };
 
   const handleBulkApply = async (updates: BulkProductUpdatesPayload) => {
@@ -227,7 +240,7 @@ export function ProductosScreen() {
   return (
     <div className="flex h-full flex-col p-4 md:p-5">
       <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
-        <Button onClick={handleAddProduct}>
+        <Button onClick={() => handleAddProduct()}>
           <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
           Agregar producto
         </Button>
@@ -389,7 +402,7 @@ export function ProductosScreen() {
                   Limpiar filtros
                 </Button>
               )}
-              <Button onClick={handleAddProduct}>
+              <Button onClick={() => handleAddProduct(getSearchPrefill())}>
                 <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 Agregar producto
               </Button>
@@ -429,6 +442,7 @@ export function ProductosScreen() {
         onOpenChange={setShowForm}
         product={editingProduct}
         onSuccess={invalidateQueries}
+        initialValues={editingProduct ? undefined : addInitialValues}
       />
       <BulkEditDialog
         open={showBulkEditDialog}
