@@ -199,7 +199,8 @@ export function ProductosScreen() {
   const getSearchPrefill = () => {
     if (!normalizedSearch) return undefined;
     if (/^\d{4}$/.test(normalizedSearch)) return { pluCode: normalizedSearch };
-    if (/^\d+$/.test(normalizedSearch)) return { barcode: normalizedSearch };
+    if (/^\d{5,}$/.test(normalizedSearch)) return { barcode: normalizedSearch };
+    if (/^\d+$/.test(normalizedSearch)) return undefined;
     return { name: normalizedSearch };
   };
 
