@@ -106,6 +106,9 @@ export default async function LoginPage({
                   id="username"
                   name="username"
                   autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
                   placeholder="usuario"
                 />
               </div>

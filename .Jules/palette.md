@@ -61,3 +61,7 @@
 ## 2026-04-03 - Added SubmitButton component
 **Learning:** For server actions attached to form submissions, adding a loading state prevents accidental double clicks and provides necessary visual feedback to the user when the request is processing. Since `useFormStatus()` only works in client components and specifically within a `<form>` element, we extracted the submit button into a reusable `components/pos/login/submit-button.tsx` component that consumes the pending status and renders a loading spinner.
 **Action:** Use this `<SubmitButton>` component inside forms instead of a standard `<Button type="submit">` whenever visual feedback during server action submissions is needed.
+
+## 2026-04-09 - Login Username Input UX
+**Learning:** Mobile keyboards often default to capitalizing the first letter of text inputs and attempting to autocorrect. For login fields like 'username' where exact casing and non-dictionary words are common, this causes significant friction and login failures.
+**Action:** Always add `autoCapitalize="none"`, `autoCorrect="off"`, and `spellCheck="false"` to username or non-email identifier inputs to prevent the mobile OS from modifying the user's input automatically.
