@@ -167,7 +167,7 @@ function createQueryClient(data: AdminDashboardData) {
         retry: false,
         staleTime: Infinity,
         gcTime: Infinity,
-        refetchInterval: false,
+        enabled: false,
       },
     },
   });
