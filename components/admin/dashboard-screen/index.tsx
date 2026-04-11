@@ -22,6 +22,7 @@ import { LatestTransactionsPanel } from "./latest-transactions-panel";
 import { DashboardSkeleton } from "./skeleton";
 import { StaleSessionBanner } from "./stale-session-banner";
 import { SummaryCard } from "./summary-card";
+import { CopilotSidebar } from "@copilotkit/react-core/v2";
 
 function formatUpdatedLabel(timestamp: number): string {
   if (timestamp === 0) {
@@ -48,6 +49,7 @@ export function AdminDashboardScreen() {
 
   return (
     <div className="space-y-6 p-4 md:p-8">
+      <CopilotSidebar />
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-lg text-foreground">Resumen de hoy</h2>
