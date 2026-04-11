@@ -2,10 +2,11 @@
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calendar, Receipt } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Receipt } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import {
@@ -89,7 +90,9 @@ function formatChartCurrency(value: number): string {
 }
 
 function formatHistoryLabel(dateString: string, sessionNumber: number): string {
-  const label = format(new Date(`${dateString}T12:00:00`), "d MMM", { locale: es });
+  const label = format(new Date(`${dateString}T12:00:00`), "d MMM", {
+    locale: es,
+  });
   return `${label} · T${sessionNumber}`;
 }
 
@@ -105,7 +108,7 @@ export function LatestTransactionsPanel({
   latestTransactions,
 }: LatestTransactionsPanelProps) {
   return (
-    <Card className="rounded-3xl">
+    <Card className="flex flex-col rounded-3xl">
       <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <CardTitle className="text-lg">Últimas transacciones</CardTitle>
@@ -122,7 +125,7 @@ export function LatestTransactionsPanel({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="flex min-h-0 flex-1 flex-col pt-0">
         {latestTransactions.length === 0 ? (
           <PanelEmptyState
             icon={Receipt}
@@ -130,50 +133,52 @@ export function LatestTransactionsPanel({
             description="Las ventas realizadas durante el turno actual aparecerán aquí."
           />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Hora</TableHead>
-                <TableHead>Productos</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {latestTransactions.map((transaction) => {
-                const visibleItems = transaction.items.slice(0, 2);
-                const hiddenItems = transaction.items.length - visibleItems.length;
+          <div className="h-80 grow overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Hora</TableHead>
+                  <TableHead>Productos</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {latestTransactions.map((transaction) => {
+                  const visibleItems = transaction.items.slice(0, 2);
+                  const hiddenItems = transaction.items.length - visibleItems.length;
 
-                return (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="font-medium text-foreground">
-                      {formatTime(new Date(transaction.createdAt))}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-2">
-                        {visibleItems.map((item, index) => (
-                          <Badge
-                            key={`${transaction.id}-${item.name}-${index}`}
-                            variant="muted"
-                            size="chip"
-                          >
-                            {item.name} x{item.quantity}
-                          </Badge>
-                        ))}
-                        {hiddenItems > 0 ? (
-                          <Badge variant="muted" size="chip">
-                            +{hiddenItems}
-                          </Badge>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-foreground">
-                      {formatCurrency(transaction.total)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                  return (
+                    <TableRow key={transaction.id}>
+                      <TableCell className="font-medium text-foreground">
+                        {formatTime(new Date(transaction.createdAt))}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-2">
+                          {visibleItems.map((item, index) => (
+                            <Badge
+                              key={`${transaction.id}-${item.name}-${index}`}
+                              variant="muted"
+                              size="chip"
+                            >
+                              {item.name} x{item.quantity}
+                            </Badge>
+                          ))}
+                          {hiddenItems > 0 ? (
+                            <Badge variant="muted" size="chip">
+                              +{hiddenItems}
+                            </Badge>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-foreground">
+                        {formatCurrency(transaction.total)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>
@@ -272,6 +277,8 @@ function HistoryTable({ records }: { records: HistoryRecord[] }) {
   );
 }
 
+const HISTORY_PAGE_SIZE = 10;
+
 interface HistoryPanelProps {
   sessionHistory: HistoryRecord[];
 }
@@ -279,11 +286,19 @@ interface HistoryPanelProps {
 export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
   const [historyView, setHistoryView] = useState<HistoryView>("graph");
   const [historyPeriod, setHistoryPeriod] = useState<HistoryPeriod>("week");
+  const [page, setPage] = useState(0);
 
   const filteredHistory = useMemo(() => {
     const cutoff = getPeriodCutoff(historyPeriod);
     return sessionHistory.filter((record) => record.sessionDate >= cutoff);
   }, [sessionHistory, historyPeriod]);
+
+  const pageCount = Math.ceil(filteredHistory.length / HISTORY_PAGE_SIZE);
+  const clampedPage = pageCount > 0 ? Math.min(page, pageCount - 1) : 0;
+  const pagedHistory = filteredHistory.slice(
+    clampedPage * HISTORY_PAGE_SIZE,
+    (clampedPage + 1) * HISTORY_PAGE_SIZE
+  );
 
   const chartData = useMemo(() => {
     const days = PERIOD_DAYS[historyPeriod];
@@ -316,7 +331,9 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
         }
       } else {
         result.push({
-          label: format(new Date(`${dateStr}T12:00:00`), "d MMM", { locale: es }),
+          label: format(new Date(`${dateStr}T12:00:00`), "d MMM", {
+            locale: es,
+          }),
           revenue: null,
         });
       }
@@ -372,7 +389,34 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
         ) : historyView === "graph" ? (
           <HistoryGraph chartData={chartData} />
         ) : (
-          <HistoryTable records={filteredHistory} />
+          <>
+            <HistoryTable records={pagedHistory} />
+            {pageCount > 1 && (
+              <div className="flex items-center justify-between pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(clampedPage - 1)}
+                  disabled={clampedPage === 0}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Anterior
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {clampedPage + 1} / {pageCount}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(clampedPage + 1)}
+                  disabled={clampedPage >= pageCount - 1}
+                >
+                  Siguiente
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

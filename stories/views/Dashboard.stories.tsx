@@ -5,94 +5,129 @@ import { adminDashboardQueryKey } from "@/components/admin/dashboard-screen/quer
 import type { AdminDashboardData } from "@/lib/server/queries/admin-dashboard";
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
+// Dates anchored to 2026-04-05–2026-04-11 so the 7-day filter keeps them visible.
+// 13 sessions (>10) triggers HistoryPanel pagination in table view.
+// 11 transactions triggers LatestTransactionsPanel scroll.
 
-const MOCK_TRANSACTIONS: AdminDashboardData["latestTransactions"] = [
-  {
-    id: "t1",
-    createdAt: "2026-03-14T12:51:00.000Z",
-    items: [{ name: "IMPRESION Y COPIA T/C", quantity: 1 }],
-    total: 5.0,
-  },
-  {
-    id: "t2",
-    createdAt: "2026-03-14T11:37:00.000Z",
-    items: [{ name: "IMPRESION Y COPIA T/C", quantity: 4 }],
-    total: 8.0,
-  },
-  {
-    id: "t3",
-    createdAt: "2026-03-14T11:26:00.000Z",
-    items: [{ name: "IMPRESION Y COPIA T/C", quantity: 10 }],
-    total: 20.0,
-  },
-  {
-    id: "t4",
-    createdAt: "2026-03-14T11:03:00.000Z",
-    items: [{ name: "Venta rápida", quantity: 1 }],
-    total: 12.0,
-  },
-  {
-    id: "t5",
-    createdAt: "2026-03-14T11:02:00.000Z",
-    items: [{ name: "Hoja opalina", quantity: 6 }],
-    total: 21.0,
-  },
-];
+const MOCK_TRANSACTIONS: AdminDashboardData["latestTransactions"] = Array.from(
+  { length: 11 },
+  (_, i) => ({
+    id: `t${i + 1}`,
+    createdAt: `2026-04-11T${String(8 + i).padStart(2, "0")}:${String(i * 5).padStart(2, "0")}:00.000Z`,
+    items: [{ name: `Producto ${i + 1}`, quantity: i + 1 }],
+    total: (i + 1) * 10,
+  })
+);
 
 const MOCK_SESSION_HISTORY: AdminDashboardData["sessionHistory"] = [
+  // 2026-04-11 — 3 sessions
   {
     id: "s1",
-    sessionDate: "2026-03-14",
+    sessionDate: "2026-04-11",
     sessionNumber: 1,
-    revenue: 305.0,
+    revenue: 320,
     salesCount: 6,
-    difference: 0,
+    difference: 15,
   },
   {
     id: "s2",
-    sessionDate: "2026-03-13",
-    sessionNumber: 1,
-    revenue: 707.0,
-    salesCount: 14,
-    difference: -20.0,
+    sessionDate: "2026-04-11",
+    sessionNumber: 2,
+    revenue: 180,
+    salesCount: 3,
+    difference: 0,
   },
   {
     id: "s3",
-    sessionDate: "2026-03-12",
-    sessionNumber: 1,
-    revenue: 598.0,
-    salesCount: 11,
-    difference: 2.0,
+    sessionDate: "2026-04-11",
+    sessionNumber: 3,
+    revenue: 95,
+    salesCount: 2,
+    difference: -5,
   },
+  // 2026-04-10 — 2 sessions
   {
     id: "s4",
-    sessionDate: "2026-03-11",
+    sessionDate: "2026-04-10",
     sessionNumber: 1,
-    revenue: 420.5,
+    revenue: 710,
+    salesCount: 14,
+    difference: 20,
+  },
+  {
+    id: "s5",
+    sessionDate: "2026-04-10",
+    sessionNumber: 2,
+    revenue: 230,
+    salesCount: 5,
+    difference: 0,
+  },
+  // 2026-04-09 — 2 sessions
+  {
+    id: "s6",
+    sessionDate: "2026-04-09",
+    sessionNumber: 1,
+    revenue: 600,
+    salesCount: 11,
+    difference: 2,
+  },
+  {
+    id: "s7",
+    sessionDate: "2026-04-09",
+    sessionNumber: 2,
+    revenue: 140,
+    salesCount: 3,
+    difference: -10,
+  },
+  // 2026-04-08 — 2 sessions
+  {
+    id: "s8",
+    sessionDate: "2026-04-08",
+    sessionNumber: 1,
+    revenue: 425,
     salesCount: 8,
     difference: 0,
   },
   {
-    id: "s5",
-    sessionDate: "2026-03-10",
+    id: "s9",
+    sessionDate: "2026-04-08",
+    sessionNumber: 2,
+    revenue: 90,
+    salesCount: 2,
+    difference: 5,
+  },
+  // 2026-04-07 — 2 sessions
+  {
+    id: "s10",
+    sessionDate: "2026-04-07",
     sessionNumber: 1,
-    revenue: 1150.0,
+    revenue: 1150,
     salesCount: 22,
-    difference: 50.0,
+    difference: 50,
   },
   {
-    id: "s6",
-    sessionDate: "2026-03-09",
+    id: "s11",
+    sessionDate: "2026-04-07",
+    sessionNumber: 2,
+    revenue: 310,
+    salesCount: 6,
+    difference: -3,
+  },
+  // 2026-04-06 — 1 session
+  {
+    id: "s12",
+    sessionDate: "2026-04-06",
     sessionNumber: 1,
-    revenue: 860.0,
+    revenue: 860,
     salesCount: 17,
-    difference: -5.0,
+    difference: -5,
   },
+  // 2026-04-05 — 1 session
   {
-    id: "s7",
-    sessionDate: "2026-03-08",
+    id: "s13",
+    sessionDate: "2026-04-05",
     sessionNumber: 1,
-    revenue: 210.0,
+    revenue: 210,
     salesCount: 4,
     difference: 0,
   },
@@ -100,34 +135,40 @@ const MOCK_SESSION_HISTORY: AdminDashboardData["sessionHistory"] = [
 
 const BASE_DATA: AdminDashboardData = {
   comparisonLabel: "vs sábado pasado",
-  generatedAt: "2026-03-14T18:00:00.000Z",
+  generatedAt: "2026-04-11T18:00:00.000Z",
   hasOpenSession: true,
   latestTransactions: MOCK_TRANSACTIONS,
-  monthDaysElapsed: 14,
-  monthDaysTotal: 31,
+  monthDaysElapsed: 11,
+  monthDaysTotal: 30,
   openSessionLabel: "Sesión abierta · Turno 1",
-  productsSold: 27,
+  productsSold: 66,
   revenueMonthProjected: 21319.36,
   revenueMonthToDate: 9628.1,
-  revenueToday: 305.0,
+  revenueToday: 595.0,
   revenueVsLastWeek: 250.6,
   staleSession: null,
   sessionHistory: MOCK_SESSION_HISTORY,
   topProduct: { name: "IMPRESION Y COPIA T/C", category: "Oficina", units: 15 },
-  transactionCount: 6,
+  transactionCount: MOCK_TRANSACTIONS.length,
 };
 
 const STALE_SESSION = {
   id: "stale-1",
-  sessionDate: "2026-03-13",
+  sessionDate: "2026-04-10",
   sessionNumber: 1,
 } as const;
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function createQueryClient(data: AdminDashboardData) {
   const qc = new QueryClient({
     defaultOptions: {
-      queries: { retry: false, staleTime: Infinity, gcTime: Infinity },
+      queries: {
+        retry: false,
+        staleTime: Infinity,
+        gcTime: Infinity,
+        refetchInterval: false,
+      },
     },
   });
   qc.setQueryData(adminDashboardQueryKey, data);
@@ -258,6 +299,16 @@ export const NoComparisonData: Story = {
     withData({
       ...BASE_DATA,
       revenueVsLastWeek: null,
+    }),
+  ],
+};
+
+export const NoHistory: Story = {
+  name: "Sin historial de cortes",
+  decorators: [
+    withData({
+      ...BASE_DATA,
+      sessionHistory: [],
     }),
   ],
 };
