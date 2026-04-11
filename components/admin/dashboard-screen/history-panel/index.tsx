@@ -111,7 +111,10 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
 
           <Tabs
             value={historyPeriod}
-            onValueChange={(v) => setHistoryPeriod(v as HistoryPeriod)}
+            onValueChange={(v) => {
+              setHistoryPeriod(v as HistoryPeriod);
+              setPage(0);
+            }}
           >
             <TabsList className="h-auto rounded-full p-1">
               {(["week", "month", "quarter"] as const).map((period) => (
@@ -123,7 +126,13 @@ export function HistoryPanel({ sessionHistory }: HistoryPanelProps) {
           </Tabs>
         </div>
 
-        <Tabs value={historyView} onValueChange={(v) => setHistoryView(v as HistoryView)}>
+        <Tabs
+          value={historyView}
+          onValueChange={(v) => {
+            setHistoryView(v as HistoryView);
+            setPage(0);
+          }}
+        >
           <TabsList className="h-auto rounded-full p-1">
             <TabsTrigger value="graph" className="rounded-full">
               Gráfica
