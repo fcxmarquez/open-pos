@@ -7,7 +7,5 @@ export function adminDashboardQueryOptions() {
   return queryOptions({
     queryKey: adminDashboardQueryKey,
     queryFn: () => getAdminDashboardData(),
-    refetchInterval: 60_000,
-    refetchIntervalInBackground: true,
   });
 }
