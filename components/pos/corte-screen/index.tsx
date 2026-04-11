@@ -18,6 +18,16 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { closeSession } from "@/app/actions/sessions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -105,6 +115,8 @@ function SummaryCard({
 export function CorteScreen() {
   const [showDetail, setShowDetail] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [pendingValues, setPendingValues] = useState<CorteFormValues | null>(null);
   const form = useForm<CorteFormValues>({
     resolver: zodResolver(corteFormSchema),
     defaultValues: corteFormDefaults,
@@ -137,26 +149,28 @@ export function CorteScreen() {
       toast.error("No hay sesión activa");
       return;
     }
+    setPendingValues(values);
+    setShowCloseConfirm(true);
+  };
 
-    const countedTotal = Number.parseFloat(values.countedCash);
-
-    if (window.confirm("Cerrar el corte de caja? Esta accion no se puede deshacer.")) {
-      startTransition(async () => {
-        const result = await closeSession({
-          sessionId: session.id,
-          countedTotal,
-        });
-
-        if (result.success) {
-          toast.success("Corte de caja registrado");
-          form.reset(corteFormDefaults);
-          queryClient.invalidateQueries({ queryKey: openSessionQueryKey });
-          queryClient.invalidateQueries({ queryKey: openSessionSalesQueryKey });
-        } else {
-          toast.error(result.error);
-        }
+  const handleConfirmClose = () => {
+    if (!session || !pendingValues) return;
+    const countedTotal = Number.parseFloat(pendingValues.countedCash);
+    startTransition(async () => {
+      const result = await closeSession({
+        sessionId: session.id,
+        countedTotal,
       });
-    }
+
+      if (result.success) {
+        toast.success("Corte de caja registrado");
+        form.reset(corteFormDefaults);
+        queryClient.invalidateQueries({ queryKey: openSessionQueryKey });
+        queryClient.invalidateQueries({ queryKey: openSessionSalesQueryKey });
+      } else {
+        toast.error(result.error);
+      }
+    });
   };
 
   if (isLoading) {
@@ -402,6 +416,24 @@ export function CorteScreen() {
           </Collapsible>
         )}
       </div>
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Cerrar el corte de caja?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se registrará el cierre de la sesión
+              actual.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmClose}>
+              Sí, cerrar corte
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </ScrollArea>
   );
 }
