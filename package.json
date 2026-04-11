@@ -16,6 +16,9 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@copilotkit/react-core": "^1.55.3",
+    "@copilotkit/react-ui": "^1.55.3",
+    "@copilotkit/runtime": "^1.55.3",
     "@hookform/resolvers": "^3.9.1",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "1.2.2",
