@@ -8,6 +8,16 @@ import { CheckoutDialog } from "@/components/pos/checkout-dialog";
 import { QuickSaleDialog } from "@/components/pos/quick-sale-dialog";
 import { SearchBar } from "@/components/pos/search-bar";
 import { UnregisteredProductSheet } from "@/components/pos/unregistered-product-sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -26,6 +36,7 @@ export function VentasScreen() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [showQuickSale, setShowQuickSale] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const {
     searchForm,
@@ -80,15 +91,13 @@ export function VentasScreen() {
 
   const handleCancelSale = () => {
     if (cart.length === 0) return;
-    if (
-      window.confirm(
-        "Cancelar la venta actual? Se perderan todos los productos del carrito."
-      )
-    ) {
-      clearCart();
-      toast.info("Venta cancelada");
-      focusInput();
-    }
+    setShowCancelConfirm(true);
+  };
+
+  const handleConfirmCancel = () => {
+    clearCart();
+    toast.info("Venta cancelada");
+    focusInput();
   };
 
   const handleSaleComplete = () => {
@@ -334,6 +343,25 @@ export function VentasScreen() {
         }}
         onComplete={focusInput}
       />
+
+      {/* Cancel sale confirmation */}
+      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Cancelar la venta?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Se perderán todos los productos del carrito. Esta acción no se puede
+              deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, continuar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancel}>
+              Sí, cancelar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
