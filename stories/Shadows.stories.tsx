@@ -29,8 +29,8 @@ export const ElevationPolicy: Story = {
           </span>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-24 w-36 items-center justify-center rounded-2xl border border-border bg-card text-xs text-foreground shadow-sm">
-            shadow-sm
+          <div className="flex h-24 w-36 items-center justify-center rounded-2xl border border-border bg-card text-xs text-foreground shadow-xs">
+            shadow-xs
           </div>
           <span className="text-xs font-medium text-foreground">Hover</span>
           <span className="text-xs text-muted-foreground">
@@ -61,7 +61,7 @@ export const ElevationPolicy: Story = {
           <li>
             Use{" "}
             <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs text-foreground">
-              hover:shadow-sm
+              hover:shadow-xs
             </code>{" "}
             only on interactive cards (e.g. product cards with click handlers).
           </li>

@@ -3,7 +3,7 @@ import {
   copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 const builtInAgent = new BuiltInAgent({
   model: "google:gemma-4-31b-it",

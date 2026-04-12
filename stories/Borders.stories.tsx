@@ -83,7 +83,7 @@ export const BorderColors: Story = {
               className={`flex h-16 w-44 items-center justify-center rounded-2xl border bg-card text-xs text-foreground ${cls}`}
             />
             <span className="font-mono text-xs text-foreground">{label}</span>
-            <span className="max-w-[11rem] text-xs text-muted-foreground">{desc}</span>
+            <span className="max-w-44 text-xs text-muted-foreground">{desc}</span>
           </div>
         ))}
       </div>
@@ -154,7 +154,7 @@ export const BorderColors: Story = {
             </code>{" "}
             paired with{" "}
             <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs text-foreground">
-              bg-primary/[0.06]
+              bg-primary/6
             </code>
             .
           </li>

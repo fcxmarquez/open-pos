@@ -6,8 +6,6 @@ import { IOSViewportFix } from "@/components/ios-viewport-fix";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { CopilotKit } from "@copilotkit/react-core";
-import "@copilotkit/react-ui/v2/styles.css"; 
 
 import "./globals.css";
 
@@ -55,9 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body
-        className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}
-      >
+      <body className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}>
         <IOSViewportFix />
         <ThemeProvider
           attribute="class"
@@ -65,12 +61,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <CopilotKit runtimeUrl="/api/copilotkit">
-            <QueryProvider>
-              {children}
-              <Toaster position="top-right" closeButton />
-            </QueryProvider>
-          </CopilotKit>
+          <QueryProvider>
+            {children}
+            <Toaster position="top-right" closeButton />
+          </QueryProvider>
         </ThemeProvider>
         <Analytics />
       </body>

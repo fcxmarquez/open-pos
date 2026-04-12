@@ -1,5 +1,6 @@
 "use client";
 
+import { CopilotSidebar } from "@copilotkit/react-core/v2";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -22,7 +23,6 @@ import { LatestTransactionsPanel } from "./latest-transactions-panel";
 import { DashboardSkeleton } from "./skeleton";
 import { StaleSessionBanner } from "./stale-session-banner";
 import { SummaryCard } from "./summary-card";
-import { CopilotSidebar } from "@copilotkit/react-core/v2";
 
 function formatUpdatedLabel(timestamp: number): string {
   if (timestamp === 0) {
