@@ -65,3 +65,6 @@
 ## 2026-04-09 - Login Username Input UX
 **Learning:** Mobile keyboards often default to capitalizing the first letter of text inputs and attempting to autocorrect. For login fields like 'username' where exact casing and non-dictionary words are common, this causes significant friction and login failures.
 **Action:** Always add `autoCapitalize="none"`, `autoCorrect="off"`, and `spellCheck="false"` to username or non-email identifier inputs to prevent the mobile OS from modifying the user's input automatically.
+## 2026-04-13 - [Add Placeholder to Empty Text Inputs]
+**Learning:** Empty text inputs without placeholders can leave users uncertain about what to enter. Adding a simple placeholder (e.g., `•` for PIN inputs) clarifies the expected input format visually.
+**Action:** Always verify if empty text inputs can benefit from a simple, helpful placeholder to guide the user.

@@ -148,6 +148,7 @@ export function PinDialog({
                 error && "border-destructive focus-visible:ring-destructive"
               )}
               autoComplete="off"
+              placeholder="•"
             />
           ))}
         </div>
