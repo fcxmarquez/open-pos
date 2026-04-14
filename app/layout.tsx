@@ -6,6 +6,7 @@ import { IOSViewportFix } from "@/components/ios-viewport-fix";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import "@copilotkit/react-ui/v2/styles.css";
 
 import "./globals.css";
 
