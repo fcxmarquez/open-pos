@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@copilotkit/react-ui/v2/styles.css";
 
 @source "../*.{js,ts,jsx,tsx,mdx}";
 
