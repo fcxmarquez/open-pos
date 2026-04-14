@@ -54,7 +54,7 @@ import { useProductosRouteFilters } from "./use-productos-route-filters";
 
 const SELECT_PAGE_BTN_BASE_CLS =
   "shrink-0 rounded-2xl border-[1.5px] px-4 text-sm font-medium text-foreground transition-colors duration-150";
-const SELECT_PAGE_BTN_SELECTED_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-primary/20 bg-primary/[0.06] hover:border-primary/25 hover:bg-primary/[0.08] hover:text-foreground active:border-primary/30 active:bg-primary/[0.12] active:text-foreground`;
+const SELECT_PAGE_BTN_SELECTED_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-primary/20 bg-primary/6 hover:border-primary/25 hover:bg-primary/8 hover:text-foreground active:border-primary/30 active:bg-primary/12 active:text-foreground`;
 const SELECT_PAGE_BTN_DEFAULT_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-foreground/15 bg-card hover:border-foreground/20 hover:bg-muted/60 hover:text-foreground active:border-foreground/25 active:bg-muted active:text-foreground`;
 
 export function ProductosScreen() {

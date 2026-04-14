@@ -235,7 +235,7 @@ export function VentasScreen() {
                 key={product.id}
                 onClick={() => handleProductClick(product)}
                 aria-label={`Agregar ${product.name} al carrito por ${formatCurrency(product.price)}`}
-                className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all hover:border-primary/40 hover:shadow-sm active:scale-[0.98]"
+                className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all hover:border-primary/40 hover:shadow-xs active:scale-[0.98]"
               >
                 <div
                   className="w-1.5 shrink-0"

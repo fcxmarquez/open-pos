@@ -102,7 +102,7 @@ function NavigationSidebarContent({
             className={cn(
               "min-w-0 overflow-hidden transition-all duration-300 ease-in-out",
               expanded
-                ? "max-w-[9rem] translate-x-0 opacity-100"
+                ? "max-w-36 translate-x-0 opacity-100"
                 : "pointer-events-none max-w-0 -translate-x-2 opacity-0"
             )}
           >
@@ -194,7 +194,7 @@ function NavigationSidebarContent({
                   className={cn(
                     "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
                     expanded
-                      ? "max-w-[9rem] translate-x-0 opacity-100"
+                      ? "max-w-36 translate-x-0 opacity-100"
                       : "pointer-events-none max-w-0 -translate-x-2 opacity-0"
                   )}
                 >
@@ -227,7 +227,7 @@ function NavigationSidebarContent({
               className={cn(
                 "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
                 expanded
-                  ? "max-w-[9rem] translate-x-0 opacity-100"
+                  ? "max-w-36 translate-x-0 opacity-100"
                   : "pointer-events-none max-w-0 -translate-x-2 opacity-0"
               )}
             >

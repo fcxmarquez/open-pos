@@ -1342,7 +1342,7 @@
                     "fill": "#E4E4E7"
                   },
                   "effect": {
-                    "type": "shadow",
+                    "type": "shadow-sm",
                     "shadowType": "outer",
                     "enabled": false,
                     "color": "#000000"
@@ -1633,7 +1633,7 @@
                     "fill": "#000000"
                   },
                   "effect": {
-                    "type": "shadow",
+                    "type": "shadow-sm",
                     "shadowType": "outer",
                     "enabled": false,
                     "color": "#000000"
@@ -1756,7 +1756,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -1830,7 +1830,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -1904,7 +1904,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -1978,7 +1978,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2061,7 +2061,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2135,7 +2135,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2209,7 +2209,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2283,7 +2283,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2366,7 +2366,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2440,7 +2440,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2514,7 +2514,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2588,7 +2588,7 @@
                             "fill": "#E5E7EB"
                           },
                           "effect": {
-                            "type": "shadow",
+                            "type": "shadow-sm",
                             "shadowType": "outer",
                             "enabled": false,
                             "color": "#000000"
@@ -2684,7 +2684,7 @@
                 "fill": "#E5E7EB"
               },
               "effect": {
-                "type": "shadow",
+                "type": "shadow-sm",
                 "shadowType": "outer",
                 "enabled": false,
                 "color": "#000000"
@@ -2961,7 +2961,7 @@
                       "fill": "#000000",
                       "cornerRadius": 16,
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "enabled": false,
                         "color": "#000000"
@@ -3135,7 +3135,7 @@
                     "thickness": 0
                   },
                   "effect": {
-                    "type": "shadow",
+                    "type": "shadow-sm",
                     "shadowType": "outer",
                     "enabled": false,
                     "color": "#000000"
@@ -3582,7 +3582,7 @@
                         "fill": "#000000"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "enabled": false,
                         "color": "#000000"
@@ -4290,7 +4290,7 @@
                     "fill": "#00000000"
                   },
                   "effect": {
-                    "type": "shadow",
+                    "type": "shadow-sm",
                     "shadowType": "outer",
                     "enabled": false,
                     "color": "#000000"
@@ -5825,14 +5825,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
@@ -5950,14 +5950,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
@@ -6029,14 +6029,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
@@ -6108,14 +6108,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
@@ -7407,14 +7407,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
@@ -7532,14 +7532,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
@@ -7611,14 +7611,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
@@ -7690,14 +7690,14 @@
                         "fill": "#E5E7EB"
                       },
                       "effect": {
-                        "type": "shadow",
+                        "type": "shadow-sm",
                         "shadowType": "outer",
                         "color": "#0000000A",
                         "offset": {
                           "x": 0,
                           "y": 1
                         },
-                        "blur": 4
+                        "blur-sm": 4
                       },
                       "layout": "vertical",
                       "padding": 24,
