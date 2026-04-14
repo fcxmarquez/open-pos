@@ -201,7 +201,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       ? ((revenueToday - lastWeekRevenue) / lastWeekRevenue) * 100
       : null;
 
-  const latestTransactions = todaySalesRows.slice(0, 5).map((sale) => ({
+  const latestTransactions = todaySalesRows.map((sale) => ({
     createdAt: new Date(sale.createdAt).toISOString(),
     id: sale.id,
     items: itemsBySaleId.get(sale.id) ?? [],
