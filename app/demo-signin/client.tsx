@@ -3,23 +3,30 @@
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { DEMO_CREDENTIALS } from "@/lib/demo";
 
 export function DemoSignInClient() {
   const [error, setError] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    signIn("credentials", {
-      username: "demo",
-      password: "demo",
-      redirect: false,
-    }).then((result) => {
-      if (result?.ok) {
-        router.replace("/ventas");
-      } else {
+    async function autoSignIn() {
+      try {
+        const result = await signIn("credentials", {
+          username: DEMO_CREDENTIALS.username,
+          password: DEMO_CREDENTIALS.password,
+          redirect: false,
+        });
+        if (result?.ok) {
+          router.replace("/ventas");
+        } else {
+          setError(true);
+        }
+      } catch {
         setError(true);
       }
-    });
+    }
+    autoSignIn();
   }, [router]);
 
   if (error) {

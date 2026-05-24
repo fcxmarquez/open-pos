@@ -73,6 +73,10 @@ BEGIN
         ORDER  BY random()
         LIMIT  1;
 
+        IF NOT FOUND OR p_id IS NULL THEN
+          RAISE EXCEPTION 'No active products available for seeding. Ensure products exist before running this script.';
+        END IF;
+
         qty        := CASE WHEN random() > 0.75 THEN 2 ELSE 1 END;
         subtotal   := p_price * qty;
         sale_total := sale_total + subtotal;

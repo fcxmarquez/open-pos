@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { isAuthBypassEnabled, TESTING_BYPASS_EMAIL } from "@/lib/auth/bypass";
 import { type AppRole, getRoleForEmail, normalizeEmails } from "@/lib/auth/roles";
-import { DEMO_USER_EMAIL, isDemoMode } from "@/lib/demo";
+import { DEMO_CREDENTIALS, DEMO_USER_EMAIL, isDemoMode } from "@/lib/demo";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -17,8 +17,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!credentials?.username || !credentials?.password) return null;
         if (
           isDemoMode() &&
-          credentials.username === "demo" &&
-          credentials.password === "demo"
+          credentials.username === DEMO_CREDENTIALS.username &&
+          credentials.password === DEMO_CREDENTIALS.password
         ) {
           return { id: "demo-user", name: "Demo", email: DEMO_USER_EMAIL };
         }

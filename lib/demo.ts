@@ -1,4 +1,5 @@
 export const DEMO_USER_EMAIL = "demo@preview.local";
+export const DEMO_CREDENTIALS = { username: "demo", password: "demo" } as const;
 
 /**
  * Demo mode requires TWO env vars to be set intentionally:
