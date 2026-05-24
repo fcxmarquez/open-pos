@@ -19,6 +19,7 @@ import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { ThemeToggle } from "@/components/pos/theme-toggle";
 import { Spinner } from "@/components/ui/spinner";
+import { STORE_NAME } from "@/lib/constants/store";
 import { cn } from "@/lib/utils";
 
 type Screen = "ventas" | "productos" | "corte";
@@ -166,7 +167,7 @@ export function AppShell({
       <NavigationSidebar
         action={logoutAction}
         allowExpandedDesktop={false}
-        brandLabel="Papeleria Luna"
+        brandLabel={STORE_NAME}
         defaultExpanded={false}
         items={[
           ...navItems.map((item) => ({

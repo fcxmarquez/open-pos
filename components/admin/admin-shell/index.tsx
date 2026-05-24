@@ -15,6 +15,7 @@ import {
 } from "@/components/navigation-sidebar";
 import { ThemeToggle, ThemeToggleSidebarRow } from "@/components/pos/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { STORE_NAME } from "@/lib/constants/store";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -119,7 +120,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <NavigationSidebar
         action={logoutAction}
         brandLabel="POS Admin"
-        brandSubtitle="Papelería Luna"
+        brandSubtitle={STORE_NAME}
         defaultExpanded
         expanded={sidebarExpanded}
         items={items}
@@ -129,7 +130,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <MobileNavigationSidebar
         action={logoutAction}
         brandLabel="POS Admin"
-        brandSubtitle="Papelería Luna"
+        brandSubtitle={STORE_NAME}
         footer={<ThemeToggleSidebarRow />}
         items={items}
         open={mobileOpen}

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { isAuthBypassEnabled } from "@/lib/auth/bypass";
 import { getDefaultRouteForRole } from "@/lib/auth/roles";
+import { STORE_NAME } from "@/lib/constants/store";
 
 const ERROR_MESSAGES: Record<string, string> = {
   AccessDenied: "Tu cuenta no tiene acceso a este sistema. Contacta al administrador.",
@@ -72,7 +73,7 @@ export default async function LoginPage({
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Store className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle className="text-xl">Papeleria Luna</CardTitle>
+          <CardTitle className="text-xl">{STORE_NAME}</CardTitle>
           <CardDescription>Inicia sesion para acceder al punto de venta</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
