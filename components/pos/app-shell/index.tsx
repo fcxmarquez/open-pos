@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { STORE_NAME } from "@/lib/constants/store";
 import {
   CircleDot,
   LayoutDashboard,
@@ -20,6 +19,7 @@ import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { ThemeToggle } from "@/components/pos/theme-toggle";
 import { Spinner } from "@/components/ui/spinner";
+import { STORE_NAME } from "@/lib/constants/store";
 import { cn } from "@/lib/utils";
 
 type Screen = "ventas" | "productos" | "corte";

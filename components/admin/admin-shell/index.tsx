@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowRightLeft, LayoutDashboard, LogOut, RefreshCw } from "lucide-react";
-import { STORE_NAME } from "@/lib/constants/store";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
@@ -16,6 +15,7 @@ import {
 } from "@/components/navigation-sidebar";
 import { ThemeToggle, ThemeToggleSidebarRow } from "@/components/pos/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { STORE_NAME } from "@/lib/constants/store";
 import { cn } from "@/lib/utils";
 
 const navItems = [

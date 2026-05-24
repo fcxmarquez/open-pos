@@ -2,7 +2,6 @@ import { Store } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
-import { STORE_NAME } from "@/lib/constants/store";
 import { SubmitButton } from "@/components/pos/login/submit-button";
 import {
   Card,
@@ -15,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { isAuthBypassEnabled } from "@/lib/auth/bypass";
 import { getDefaultRouteForRole } from "@/lib/auth/roles";
+import { STORE_NAME } from "@/lib/constants/store";
 
 const ERROR_MESSAGES: Record<string, string> = {
   AccessDenied: "Tu cuenta no tiene acceso a este sistema. Contacta al administrador.",
