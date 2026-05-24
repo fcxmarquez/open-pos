@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { isAuthBypassEnabled } from "@/lib/auth/bypass";
 import { getDefaultRouteForRole } from "@/lib/auth/roles";
 import { STORE_NAME } from "@/lib/constants/store";
+import { isDemoMode } from "@/lib/demo";
 
 const ERROR_MESSAGES: Record<string, string> = {
   AccessDenied: "Tu cuenta no tiene acceso a este sistema. Contacta al administrador.",
@@ -53,13 +54,16 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
+  const params = await searchParams;
+  const errorCode = params.error;
+
+  // Skip redirect if there's an error — prevents loop when demo sign-in fails.
+  if (isDemoMode() && !errorCode) redirect("/demo-signin");
+
   const session = await auth();
   if (session) {
     redirect(getDefaultRouteForRole(session.user?.role));
   }
-
-  const params = await searchParams;
-  const errorCode = params.error;
   const errorMessage = errorCode
     ? (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.Default)
     : null;

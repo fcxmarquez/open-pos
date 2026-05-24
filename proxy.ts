@@ -5,7 +5,10 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
 
   // Public routes that don't require authentication
-  const isPublicRoute = pathname === "/login" || pathname.startsWith("/api/auth");
+  const isPublicRoute =
+    pathname === "/login" ||
+    pathname === "/demo-signin" ||
+    pathname.startsWith("/api/auth");
 
   if (isPublicRoute) {
     // Redirect authenticated users away from /login to the app
