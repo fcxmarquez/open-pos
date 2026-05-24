@@ -2,6 +2,7 @@ import { Store } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
+import { STORE_NAME } from "@/lib/constants/store";
 import { SubmitButton } from "@/components/pos/login/submit-button";
 import {
   Card,
@@ -72,7 +73,7 @@ export default async function LoginPage({
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Store className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle className="text-xl">Papeleria Luna</CardTitle>
+          <CardTitle className="text-xl">{STORE_NAME}</CardTitle>
           <CardDescription>Inicia sesion para acceder al punto de venta</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
