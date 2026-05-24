@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { isAuthBypassEnabled, TESTING_BYPASS_EMAIL } from "@/lib/auth/bypass";
 import { type AppRole, getRoleForEmail, normalizeEmails } from "@/lib/auth/roles";
+import { DEMO_USER_EMAIL, isDemoMode } from "@/lib/demo";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -13,8 +14,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
-        if (!isAuthBypassEnabled()) return null;
         if (!credentials?.username || !credentials?.password) return null;
+        if (
+          isDemoMode() &&
+          credentials.username === "demo" &&
+          credentials.password === "demo"
+        ) {
+          return { id: "demo-user", name: "Demo", email: DEMO_USER_EMAIL };
+        }
+        if (!isAuthBypassEnabled()) return null;
         if (credentials.username === "root" && credentials.password === "testing") {
           return { id: "test-user", name: "Test User", email: TESTING_BYPASS_EMAIL };
         }
@@ -53,9 +61,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.name = user.name;
       }
 
-      // Always re-compute role so changes to ADMIN_EMAILS take effect immediately
+      // Demo user always gets admin role so server actions pass in demo mode
       if (typeof token.email === "string") {
-        token.role = getRoleForEmail(token.email);
+        token.role =
+          isDemoMode() && token.email === DEMO_USER_EMAIL
+            ? "admin"
+            : getRoleForEmail(token.email);
       }
 
       return token;
