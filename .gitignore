@@ -21,3 +21,8 @@ next_output.log
 
 # Agents ignores
 .claude/scheduled_tasks.lock
+
+# LangGraph agent env (secrets — copy from langgraph/.env.example)
+langgraph/.env
+# LangGraph API
+.langgraph_api
