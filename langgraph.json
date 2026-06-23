@@ -1,0 +1,7 @@
+{
+  "node_version": "24",
+  "graphs": {
+    "default": "./langgraph/src/agent.ts:graph"
+  },
+  "env": "langgraph/.env"
+}
