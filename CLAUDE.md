@@ -12,9 +12,12 @@ POS (Point of Sale) system for a stationery store ("Papelería Luna"). Built wit
 - **Build**: `bun run build`
 - **Format**: `bun run format`
 - **Lint**: `bun run lint`
+- **Test**: `bun test` (or `bun run test`)
 - **Install deps**: `bun install --frozen-lockfile`
 
-No test framework is configured.
+Tests use Bun's built-in runner (`bun:test`) — no extra framework. Test files live
+next to the code they cover as `*.test.ts` (e.g.
+`lib/copilotkit/google-aware-langgraph-agent.test.ts`).
 
 ## Architecture
 
@@ -84,6 +87,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
   - `bun run format`
   - `bun run lint`
   - `bunx tsc --noEmit`
+  - `bun test`
   - `bun run build`
 
 - For testing the database. Very important to test over the development database. NEVER test over the production database.
@@ -119,7 +123,7 @@ This mode is enabled via an environment variable in `.env.local`. Check `.env.ex
 - The health endpoint at `/api/health` confirms database connectivity.
 - PIN-protected sections (Productos, Corte de Caja) use PIN `1234`.
 
-### Linting
+### Linting & Testing
 
 - Linter is **Biome** (not ESLint). `bun run lint` runs `biome check .`.
-- No test framework is configured; quality checks are `bun run lint`, `bunx tsc --noEmit`, and `bun run build`.
+- Tests use Bun's built-in runner: `bun test` (`*.test.ts` files). Quality checks are `bun run lint`, `bunx tsc --noEmit`, `bun test`, and `bun run build`.
