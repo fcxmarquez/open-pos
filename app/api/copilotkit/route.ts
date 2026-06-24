@@ -1,18 +1,22 @@
-import {
-  CopilotRuntime,
-  copilotRuntimeNextJSAppRouterEndpoint,
-} from "@copilotkit/runtime";
-import { BuiltInAgent } from "@copilotkit/runtime/v2";
+import { CopilotRuntime, createCopilotRuntimeHandler } from "@copilotkit/runtime/v2";
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { isAdminRole } from "@/lib/auth/roles";
-
-const builtInAgent = new BuiltInAgent({
-  model: "google:gemma-4-31b-it",
-});
+import { GoogleAwareLangGraphAgent } from "@/lib/copilotkit/google-aware-langgraph-agent";
 
 const runtime = new CopilotRuntime({
-  agents: { default: builtInAgent },
+  agents: {
+    default: new GoogleAwareLangGraphAgent({
+      deploymentUrl: process.env.LANGGRAPH_DEPLOYMENT_URL ?? "http://localhost:8123",
+      graphId: "default",
+    }),
+  },
+});
+
+const handler = createCopilotRuntimeHandler({
+  runtime,
+  basePath: "/api/copilotkit",
+  mode: "single-route",
 });
 
 export const POST = async (req: NextRequest) => {
@@ -22,10 +26,5 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
-    runtime,
-    endpoint: "/api/copilotkit",
-  });
-
-  return handleRequest(req);
+  return handler(req);
 };
