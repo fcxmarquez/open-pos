@@ -5,8 +5,15 @@ import {
   getSalesTimeseries,
   getTopProducts,
 } from "../../../lib/server/queries/analytics";
+import { toolError } from "./tool-error";
 
-const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD");
+const dateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD")
+  .refine((value) => {
+    const parsed = new Date(`${value}T00:00:00Z`);
+    return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+  }, "Must be a real calendar date");
 
 function validateDateRange(startDate: string, endDate: string): string | null {
   if (startDate > endDate) return "startDate must be ≤ endDate";
@@ -25,7 +32,7 @@ export const getSalesTimeseriesTool = tool(
       const data = await getSalesTimeseries({ startDate, endDate, granularity });
       return { ok: true as const, data };
     } catch (err) {
-      return { ok: false as const, error: String(err) };
+      return toolError("get_sales_timeseries", err);
     }
   },
   {
@@ -48,7 +55,7 @@ export const getTopProductsTool = tool(
       const data = await getTopProducts({ startDate, endDate, limit, category });
       return { ok: true as const, data };
     } catch (err) {
-      return { ok: false as const, error: String(err) };
+      return toolError("get_top_products", err);
     }
   },
   {
@@ -78,7 +85,7 @@ export const getCategoryPerformanceTool = tool(
       const data = await getCategoryPerformance({ startDate, endDate });
       return { ok: true as const, data };
     } catch (err) {
-      return { ok: false as const, error: String(err) };
+      return toolError("get_category_performance", err);
     }
   },
   {

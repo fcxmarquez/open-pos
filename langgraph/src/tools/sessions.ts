@@ -1,6 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { getSessionHealth } from "../../../lib/server/queries/analytics";
+import { toolError } from "./tool-error";
 
 export const getSessionHealthTool = tool(
   async ({ closedLimit }) => {
@@ -8,7 +9,7 @@ export const getSessionHealthTool = tool(
       const data = await getSessionHealth({ closedLimit });
       return { ok: true as const, data };
     } catch (err) {
-      return { ok: false as const, error: String(err) };
+      return toolError("get_session_health", err);
     }
   },
   {

@@ -1,6 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { getAdminDashboardData } from "../../../lib/server/queries/admin-dashboard";
+import { toolError } from "./tool-error";
 
 export const getDashboardSnapshot = tool(
   async () => {
@@ -8,7 +9,7 @@ export const getDashboardSnapshot = tool(
       const data = await getAdminDashboardData();
       return { ok: true as const, data };
     } catch (err) {
-      return { ok: false as const, error: String(err) };
+      return toolError("get_dashboard_snapshot", err);
     }
   },
   {
