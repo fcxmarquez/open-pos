@@ -6,6 +6,7 @@ import { IOSViewportFix } from "@/components/ios-viewport-fix";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { STORE_NAME } from "@/lib/constants/store";
 import "./globals.css";
 
 const plusJakartaSans = localFont({
@@ -35,7 +36,7 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Papeleria Luna - Punto de Venta",
+  title: `${STORE_NAME} - Punto de Venta`,
   description: "Sistema de punto de venta para papeleria",
 };
 

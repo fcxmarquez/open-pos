@@ -16,9 +16,11 @@ import { signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { NavigationSidebar } from "@/components/navigation-sidebar";
 import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
+import { DemoBanner } from "@/components/pos/demo-banner";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { ThemeToggle } from "@/components/pos/theme-toggle";
 import { Spinner } from "@/components/ui/spinner";
+import { STORE_NAME } from "@/lib/constants/store";
 import { cn } from "@/lib/utils";
 
 type Screen = "ventas" | "productos" | "corte";
@@ -68,9 +70,11 @@ function pathToScreen(pathname: string): Screen {
 export function AppShell({
   children,
   isAdmin = false,
+  isDemoMode = false,
 }: {
   children: React.ReactNode;
   isAdmin?: boolean;
+  isDemoMode?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -83,7 +87,7 @@ export function AppShell({
   const isLoggingOut = useRef(false);
 
   const [dateStr, setDateStr] = useState(formatDate);
-  const canAccessProtectedScreens = isAdmin || adminUnlocked;
+  const canAccessProtectedScreens = isDemoMode || isAdmin || adminUnlocked;
 
   useEffect(() => {
     const timer = window.setInterval(() => setDateStr(formatDate()), 60_000);
@@ -164,9 +168,9 @@ export function AppShell({
   return (
     <div className="flex h-dvh flex-col overflow-hidden md:flex-row md:gap-4 md:pr-4">
       <NavigationSidebar
-        action={logoutAction}
+        action={isDemoMode ? null : logoutAction}
         allowExpandedDesktop={false}
-        brandLabel="Papeleria Luna"
+        brandLabel={STORE_NAME}
         defaultExpanded={false}
         items={[
           ...navItems.map((item) => ({
@@ -224,6 +228,9 @@ export function AppShell({
           </div>
         </header>
 
+        {/* Demo banner */}
+        {isDemoMode && <DemoBanner />}
+
         {/* Screen content */}
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
@@ -265,16 +272,18 @@ export function AppShell({
             </button>
           ) : null}
 
-          <button
-            type="button"
-            onClick={logoutAction.onSelect}
-            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
-            aria-label="Cerrar sesión"
-            title="Cerrar sesión"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Salir</span>
-          </button>
+          {!isDemoMode && (
+            <button
+              type="button"
+              onClick={logoutAction.onSelect}
+              className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Salir</span>
+            </button>
+          )}
         </div>
       </nav>
 

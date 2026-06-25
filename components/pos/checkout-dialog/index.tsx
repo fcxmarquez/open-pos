@@ -159,7 +159,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
                 aria-live="polite"
                 className={`rounded-lg p-3 text-center text-lg font-semibold ${
                   change >= 0
-                    ? "bg-muted text-success-foreground"
+                    ? "bg-muted text-success-text"
                     : "bg-destructive/10 text-destructive"
                 }`}
               >
