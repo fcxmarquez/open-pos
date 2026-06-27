@@ -20,6 +20,10 @@ const handler = createCopilotRuntimeHandler({
 });
 
 export const POST = async (req: NextRequest) => {
+  if (process.env.NEXT_PUBLIC_COPILOT_ENABLED !== "true") {
+    return NextResponse.json({ error: "Not Found" }, { status: 404 });
+  }
+
   const session = await auth();
 
   if (!isAdminRole(session?.user?.role)) {
