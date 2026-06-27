@@ -12,6 +12,7 @@ POS (Point of Sale) system for a stationery store ("Papelería Luna"). Built wit
 - **Build**: `bun run build`
 - **Format**: `bun run format`
 - **Lint**: `bun run lint`
+- **Typecheck**: `bun run typecheck` (app + langgraph agent; `typecheck:app` / `typecheck:agent` run them individually)
 - **Test**: `bun test` (or `bun run test`)
 - **Install deps**: `bun install --frozen-lockfile`
 
@@ -86,7 +87,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
 - After each finished task, run:
   - `bun run format`
   - `bun run lint`
-  - `bunx tsc --noEmit`
+  - `bun run typecheck`
   - `bun test`
   - `bun run build`
 
@@ -126,4 +127,5 @@ This mode is enabled via an environment variable in `.env.local`. Check `.env.ex
 ### Linting & Testing
 
 - Linter is **Biome** (not ESLint). `bun run lint` runs `biome check .`.
-- Tests use Bun's built-in runner: `bun test` (`*.test.ts` files). Quality checks are `bun run lint`, `bunx tsc --noEmit`, `bun test`, and `bun run build`.
+- Tests use Bun's built-in runner: `bun test` (`*.test.ts` files). Quality checks are `bun run lint`, `bun run typecheck`, `bun test`, and `bun run build`.
+- `bun run typecheck` covers both the Next.js app (`tsc --noEmit`) and the LangGraph agent (`tsc -p langgraph/tsconfig.json`); the agent has its own tsconfig because it runs on Node, not in the browser. `bun run build` does **not** catch type errors (`next.config.mjs` sets `typescript.ignoreBuildErrors: true`), so `typecheck` is the real type gate.
