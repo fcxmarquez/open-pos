@@ -73,7 +73,7 @@ export interface TopProductRow {
   productId: string | null;
   barcode: string | null;
   name: string;
-  category: string | null;
+  category: string;
   unitsSold: number;
   revenue: number;
 }
@@ -86,7 +86,7 @@ export async function getTopProducts(p: TopProductsParams): Promise<TopProductRo
       productId: saleItems.productId,
       barcode: saleItems.barcode,
       name: saleItems.productName,
-      category: products.category,
+      category: sql<string>`COALESCE(${products.category}, 'Sin categoría')`,
       unitsSold: sql<number>`SUM(${saleItems.quantity})::int`,
       revenue: sql<number>`SUM(${saleItems.subtotal}::numeric)::float`,
     })
@@ -98,14 +98,16 @@ export async function getTopProducts(p: TopProductsParams): Promise<TopProductRo
       and(
         gte(salesSessions.sessionDate, p.startDate),
         lte(salesSessions.sessionDate, p.endDate),
-        p.category ? eq(products.category, p.category) : undefined
+        p.category
+          ? sql`COALESCE(${products.category}, 'Sin categoría') = ${p.category}`
+          : undefined
       )
     )
     .groupBy(
       saleItems.productName,
       saleItems.productId,
       saleItems.barcode,
-      products.category
+      sql`COALESCE(${products.category}, 'Sin categoría')`
     )
     .orderBy(
       sql`SUM(${saleItems.subtotal}::numeric) DESC`,
@@ -117,7 +119,7 @@ export async function getTopProducts(p: TopProductsParams): Promise<TopProductRo
     productId: row.productId ?? null,
     barcode: row.barcode ?? null,
     name: row.name,
-    category: row.category ?? null,
+    category: row.category,
     unitsSold: Number(row.unitsSold),
     revenue: Number(row.revenue),
   }));
