@@ -58,9 +58,16 @@ class StreamingChatGoogleGenerativeAI extends ChatGoogleGenerativeAI {
 }
 
 export function makeModel() {
+  const apiKey = process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "GOOGLE_API_KEY is not set. Add it to langgraph/.env before starting the agent."
+    );
+  }
   return new StreamingChatGoogleGenerativeAI({
+    // Pinned by product decision — do NOT move to env config.
     model: "gemma-4-31b-it",
-    apiKey: process.env.GOOGLE_API_KEY,
+    apiKey,
     thinkingConfig: { includeThoughts: true },
   });
 }
