@@ -30,7 +30,7 @@ export function StaleSessionBanner({
     <div
       role="alert"
       className={cn(
-        "flex items-start justify-between gap-3 rounded-2xl border border-warning-border/45 bg-card px-4 py-3 text-foreground shadow-sm",
+        "flex items-start justify-between gap-3 rounded-2xl border border-warning-border/45 bg-card px-4 py-3 text-foreground shadow-xs",
         className
       )}
     >

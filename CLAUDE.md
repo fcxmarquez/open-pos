@@ -12,9 +12,13 @@ POS (Point of Sale) system for a stationery store ("Papelería Luna"). Built wit
 - **Build**: `bun run build`
 - **Format**: `bun run format`
 - **Lint**: `bun run lint`
+- **Typecheck**: `bun run typecheck` (app + langgraph agent; `typecheck:app` / `typecheck:agent` run them individually)
+- **Test**: `bun test` (or `bun run test`)
 - **Install deps**: `bun install --frozen-lockfile`
 
-No test framework is configured.
+Tests use Bun's built-in runner (`bun:test`) — no extra framework. Test files live
+next to the code they cover as `*.test.ts` (e.g.
+`lib/copilotkit/google-aware-langgraph-agent.test.ts`).
 
 ## Architecture
 
@@ -83,7 +87,8 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint and build on push/PR to `m
 - After each finished task, run:
   - `bun run format`
   - `bun run lint`
-  - `bunx tsc --noEmit`
+  - `bun run typecheck`
+  - `bun test`
   - `bun run build`
 
 - For testing the database. Very important to test over the development database. NEVER test over the production database.
@@ -119,7 +124,8 @@ This mode is enabled via an environment variable in `.env.local`. Check `.env.ex
 - The health endpoint at `/api/health` confirms database connectivity.
 - PIN-protected sections (Productos, Corte de Caja) use PIN `1234`.
 
-### Linting
+### Linting & Testing
 
 - Linter is **Biome** (not ESLint). `bun run lint` runs `biome check .`.
-- No test framework is configured; quality checks are `bun run lint`, `bunx tsc --noEmit`, and `bun run build`.
+- Tests use Bun's built-in runner: `bun test` (`*.test.ts` files). Quality checks are `bun run lint`, `bun run typecheck`, `bun test`, and `bun run build`.
+- `bun run typecheck` covers both the Next.js app (`tsc --noEmit`) and the LangGraph agent (`tsc -p langgraph/tsconfig.json`); the agent has its own tsconfig because it runs on Node, not in the browser. `bun run build` does **not** catch type errors (`next.config.mjs` sets `typescript.ignoreBuildErrors: true`), so `typecheck` is the real type gate.

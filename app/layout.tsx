@@ -7,7 +7,6 @@ import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { STORE_NAME } from "@/lib/constants/store";
-
 import "./globals.css";
 
 const plusJakartaSans = localFont({
