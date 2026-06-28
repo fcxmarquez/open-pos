@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { EventType } from "@ag-ui/client";
 import {
   filterUnsupportedAgUiRoles,
@@ -27,6 +27,40 @@ type RecordedEvent = {
   messageId?: string;
   delta?: string;
 };
+
+// --- Spying on the base agent's overridden methods -------------------------
+// The adapter's prepareStream()/handleSingleEvent() overrides both call
+// super.<method>(). Walk up from the adapter prototype to the base prototype
+// that actually owns each method, so a spy there intercepts the super call
+// regardless of which base (CopilotKit or @ag-ui/langgraph) defines it.
+type BaseAgentProto = {
+  prepareStream: (input: unknown, streamMode: unknown) => Promise<unknown>;
+  handleSingleEvent: (t: unknown) => boolean;
+};
+
+function basePrototypeOwning(method: keyof BaseAgentProto): BaseAgentProto {
+  let proto: object | null = Object.getPrototypeOf(GoogleAwareLangGraphAgent.prototype);
+  while (proto && !Object.hasOwn(proto, method)) {
+    proto = Object.getPrototypeOf(proto) as object | null;
+  }
+  if (!proto) {
+    throw new Error(`Expected a base prototype to define ${String(method)}`);
+  }
+  return proto as unknown as BaseAgentProto;
+}
+
+const activeSpies: Array<{ mockRestore: () => void }> = [];
+afterEach(() => {
+  while (activeSpies.length > 0) {
+    activeSpies.pop()?.mockRestore();
+  }
+});
+
+function spyOnBase<K extends keyof BaseAgentProto>(method: K) {
+  const spy = spyOn(basePrototypeOwning(method), method);
+  activeSpies.push(spy);
+  return spy;
+}
 
 describe("filtering unsupported AG-UI roles", () => {
   test("drops reasoning, activity, and developer roles", () => {
@@ -176,5 +210,117 @@ describe("dispatchEvent unified reasoning", () => {
     // The second message id never leaks into the forwarded stream.
     expect(captured.some((event) => event.messageId === B)).toBe(false);
     expect(byType(EventType.RUN_FINISHED)).toHaveLength(1);
+  });
+});
+
+describe("prepareStream override", () => {
+  test("strips unsupported AG-UI roles before delegating to the base", async () => {
+    const agent = makeAgent();
+    const superPrepare = spyOnBase("prepareStream").mockResolvedValue("BASE_STREAM");
+
+    const input = {
+      threadId: "thread-1",
+      messages: [
+        { role: "user", content: "hi" },
+        { role: "reasoning", content: "thinking" },
+        { role: "assistant", content: "ok" },
+        { role: "developer", content: "sys" },
+        { role: "activity", content: "..." },
+      ],
+    };
+    const result = await agent.prepareStream(input, "values");
+
+    expect(result).toBe("BASE_STREAM");
+    expect(superPrepare).toHaveBeenCalledTimes(1);
+
+    const [forwardedInput, forwardedMode] = superPrepare.mock.calls[0] as [
+      { threadId: string; messages: Array<{ role: string }> },
+      string,
+    ];
+    expect(forwardedMode).toBe("values");
+    // Unsupported roles dropped; the rest of the input preserved.
+    expect(forwardedInput.messages.map((m) => m.role)).toEqual(["user", "assistant"]);
+    expect(forwardedInput.threadId).toBe("thread-1");
+  });
+
+  test("passes input through unchanged when there is no messages array", async () => {
+    const agent = makeAgent();
+    const superPrepare = spyOnBase("prepareStream").mockResolvedValue("BASE_STREAM");
+
+    const input = { threadId: "thread-2" };
+    const result = await agent.prepareStream(input, "messages");
+
+    expect(result).toBe("BASE_STREAM");
+    expect(superPrepare).toHaveBeenCalledTimes(1);
+    // Same object forwarded, no filtering/copy.
+    expect(superPrepare.mock.calls[0][0]).toBe(input);
+    expect(superPrepare.mock.calls[0][1]).toBe("messages");
+  });
+});
+
+describe("handleSingleEvent override", () => {
+  function toolCallStreamEvent() {
+    return {
+      event: "on_chat_model_stream",
+      data: {
+        chunk: {
+          content: "partial answer",
+          tool_call_chunks: [{ name: "search_catalog", args: "{}" }],
+        },
+      },
+    };
+  }
+
+  test("forwards a normal text chunk without an extra flush", () => {
+    const agent = makeAgent();
+    const superHandle = spyOnBase("handleSingleEvent").mockReturnValue(true);
+
+    const event = {
+      event: "on_chat_model_stream",
+      data: { chunk: { content: "hello", tool_call_chunks: undefined } },
+    };
+    agent.handleSingleEvent(event);
+
+    // No tool call starting → nothing to flush, just forward once.
+    expect(superHandle).toHaveBeenCalledTimes(1);
+    expect(superHandle.mock.calls[0][0]).toBe(event);
+  });
+
+  test("flushes an in-progress text message before a starting tool call", () => {
+    const agent = makeAgent();
+    const superHandle = spyOnBase("handleSingleEvent").mockReturnValue(true);
+    // Base internals the override inspects: a text message (id, no toolCallId)
+    // is mid-stream when a tool call begins.
+    Reflect.set(agent, "activeRun", { id: "run-1" });
+    Reflect.set(agent, "getMessageInProgress", () => ({
+      id: "msg-1",
+      toolCallId: undefined,
+    }));
+
+    const event = toolCallStreamEvent();
+    agent.handleSingleEvent(event);
+
+    expect(superHandle).toHaveBeenCalledTimes(2);
+    // First: an artificial empty chunk that closes the text message...
+    const flushed = superHandle.mock.calls[0][0] as {
+      data: { chunk: { content: string; tool_call_chunks: unknown } };
+    };
+    expect(flushed.data.chunk.content).toBe("");
+    expect(flushed.data.chunk.tool_call_chunks).toBeUndefined();
+    // ...then the original tool-call event, untouched.
+    expect(superHandle.mock.calls[1][0]).toBe(event);
+  });
+
+  test("does not flush when no text message is in progress", () => {
+    const agent = makeAgent();
+    const superHandle = spyOnBase("handleSingleEvent").mockReturnValue(true);
+    Reflect.set(agent, "activeRun", { id: "run-1" });
+    Reflect.set(agent, "getMessageInProgress", () => undefined);
+
+    const event = toolCallStreamEvent();
+    agent.handleSingleEvent(event);
+
+    expect(superHandle).toHaveBeenCalledTimes(1);
+    expect(superHandle.mock.calls[0][0]).toBe(event);
   });
 });
