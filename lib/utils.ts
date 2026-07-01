@@ -52,8 +52,20 @@ export function getMonthProgress(dateString: string): {
   monthDaysElapsed: number;
   monthDaysTotal: number;
 } {
-  const [year, month] = dateString.split("-").map(Number);
-  const monthDaysElapsed = Number(dateString.slice(8, 10));
+  const [year, month, day] = dateString.split("-").map(Number);
   const monthDaysTotal = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  return { monthDaysElapsed, monthDaysTotal };
+  return { monthDaysElapsed: day, monthDaysTotal };
+}
+
+/**
+ * Anchors a Date on Mexico City's calendar date, reconstructed as noon in
+ * the current runtime's local time (not noon UTC — plain "YYYY-MM-DDTHH:mm:ss"
+ * strings parse as local time per the Date Time String Format). Since callers
+ * format the result with local getters too, server (UTC) and client renders
+ * produce the same calendar-date string regardless of either runtime's
+ * timezone offset.
+ */
+export function mexicoAnchoredDate(date: Date): Date {
+  const [year, month, day] = toMexicoDateString(date).split("-").map(Number);
+  return new Date(year, month - 1, day, 12);
 }
