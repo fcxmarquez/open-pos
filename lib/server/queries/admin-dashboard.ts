@@ -4,7 +4,7 @@ import { and, count, desc, eq, gte, inArray, lt, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { products, saleItems, sales, salesSessions } from "@/db/schema";
 import { getOpenSession } from "@/lib/server/queries/sessions";
-import { getTodayDateString, toMexicoDateString } from "@/lib/utils";
+import { getMonthProgress, getTodayDateString, toMexicoDateString } from "@/lib/utils";
 
 export interface AdminDashboardData {
   comparisonLabel: string;
@@ -189,9 +189,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   );
   const lastWeekRevenue = Number(lastWeekSalesRows[0]?.revenue ?? 0);
   const revenueMonthToDate = Number(monthSalesRows[0]?.revenue ?? 0);
-  const now = new Date();
-  const monthDaysElapsed = now.getDate();
-  const monthDaysTotal = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const { monthDaysElapsed, monthDaysTotal } = getMonthProgress(today);
   const revenueMonthProjected =
     monthDaysElapsed > 0 ? (revenueMonthToDate / monthDaysElapsed) * monthDaysTotal : 0;
   const productsSold = todaySaleItems.reduce((sum, item) => sum + item.quantity, 0);

@@ -17,7 +17,7 @@ import { DemoBanner } from "@/components/pos/demo-banner";
 import { ThemeToggle, ThemeToggleSidebarRow } from "@/components/pos/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { STORE_NAME } from "@/lib/constants/store";
-import { cn } from "@/lib/utils";
+import { cn, mexicoAnchoredDate } from "@/lib/utils";
 
 const navItems = [
   {
@@ -37,11 +37,11 @@ const navItems = [
 ] as const;
 
 function formatShortDate(date: Date): string {
-  return format(date, "d MMM yyyy", { locale: es });
+  return format(mexicoAnchoredDate(date), "d MMM yyyy", { locale: es });
 }
 
 function formatLongDate(date: Date): string {
-  return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
+  return format(mexicoAnchoredDate(date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
 }
 
 export function AdminShell({
