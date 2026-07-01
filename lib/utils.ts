@@ -42,3 +42,18 @@ export function toMexicoDateString(date: Date): string {
 export function getTodayDateString(): string {
   return toMexicoDateString(new Date());
 }
+
+/**
+ * Returns the day-of-month and total days in that month for a "YYYY-MM-DD"
+ * date string. Derived from the date string itself (not `new Date()`) so it
+ * stays correct regardless of the runtime's local timezone.
+ */
+export function getMonthProgress(dateString: string): {
+  monthDaysElapsed: number;
+  monthDaysTotal: number;
+} {
+  const [year, month] = dateString.split("-").map(Number);
+  const monthDaysElapsed = Number(dateString.slice(8, 10));
+  const monthDaysTotal = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return { monthDaysElapsed, monthDaysTotal };
+}

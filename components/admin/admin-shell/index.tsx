@@ -17,7 +17,7 @@ import { DemoBanner } from "@/components/pos/demo-banner";
 import { ThemeToggle, ThemeToggleSidebarRow } from "@/components/pos/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { STORE_NAME } from "@/lib/constants/store";
-import { cn } from "@/lib/utils";
+import { cn, toMexicoDateString } from "@/lib/utils";
 
 const navItems = [
   {
@@ -36,12 +36,19 @@ const navItems = [
   },
 ] as const;
 
+// Anchors on Mexico City's calendar date (via noon UTC) so server (UTC) and
+// client renders produce the same string, regardless of `new Date()`'s
+// runtime timezone.
+function mexicoAnchoredDate(date: Date): Date {
+  return new Date(`${toMexicoDateString(date)}T12:00:00`);
+}
+
 function formatShortDate(date: Date): string {
-  return format(date, "d MMM yyyy", { locale: es });
+  return format(mexicoAnchoredDate(date), "d MMM yyyy", { locale: es });
 }
 
 function formatLongDate(date: Date): string {
-  return format(date, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
+  return format(mexicoAnchoredDate(date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
 }
 
 export function AdminShell({
