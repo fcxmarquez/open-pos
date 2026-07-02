@@ -48,6 +48,7 @@ interface PosStore {
   setDiscountPercent: (percent: number) => void;
   clearCart: () => void;
   getCartSubtotal: () => number;
+  getDiscountBreakdown: () => ReturnType<typeof computeDiscountBreakdown>;
   getDiscountAmount: () => number;
   getCartTotal: () => number;
 }
@@ -75,9 +76,11 @@ export const useStore = create<PosStore>()((set, get) => ({
   },
 
   removeFromCart: (productId) => {
-    set((state) => ({
-      cart: state.cart.filter((item) => item.product.id !== productId),
-    }));
+    set((state) => {
+      const cart = state.cart.filter((item) => item.product.id !== productId);
+      // cart-percentage-discount.DISCOUNT_INPUT.4 — an empty cart can't carry a discount
+      return cart.length === 0 ? { cart, discountPercent: 0 } : { cart };
+    });
   },
 
   updateCartQuantity: (productId, quantity) => {
@@ -116,13 +119,12 @@ export const useStore = create<PosStore>()((set, get) => ({
   },
 
   // cart-percentage-discount.CART_TOTALS.5 — always derived from the current subtotal
-  getDiscountAmount: () => {
+  getDiscountBreakdown: () => {
     const { getCartSubtotal, discountPercent } = get();
-    return computeDiscountBreakdown(getCartSubtotal(), discountPercent).discountAmount;
+    return computeDiscountBreakdown(getCartSubtotal(), discountPercent);
   },
 
-  getCartTotal: () => {
-    const { getCartSubtotal, discountPercent } = get();
-    return computeDiscountBreakdown(getCartSubtotal(), discountPercent).total;
-  },
+  getDiscountAmount: () => get().getDiscountBreakdown().discountAmount,
+
+  getCartTotal: () => get().getDiscountBreakdown().total,
 }));
