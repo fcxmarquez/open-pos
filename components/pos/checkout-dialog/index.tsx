@@ -46,9 +46,11 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
   });
 
   const cart = useStore((s) => s.cart);
+  const discountPercent = useStore((s) => s.discountPercent);
   const getCartTotal = useStore((s) => s.getCartTotal);
   const clearCart = useStore((s) => s.clearCart);
 
+  // cart-percentage-discount.CHECKOUT.1, cart-percentage-discount.CHECKOUT.2 — post-discount total
   const total = getCartTotal();
   const payment = form.watch("payment");
   const paymentNum = parseFloat(payment) || 0;
@@ -90,7 +92,11 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
         quantity: item.quantity,
       }));
 
-      const result = await completeSale({ items, payment: submittedPayment });
+      const result = await completeSale({
+        items,
+        payment: submittedPayment,
+        discountPercent,
+      });
 
       if (!result.success) {
         toast.error(result.error);

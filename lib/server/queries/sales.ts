@@ -12,6 +12,7 @@ export async function getOpenSessionSales() {
 
   if (!session) return [];
 
+  // cart-percentage-discount.SERVER.2 — subtotal/discount columns come back on every row
   const saleRows = await db
     .select()
     .from(sales)

@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { CartItemRow } from "./cart-item";
+import { DiscountControl } from "./discount-control";
 
 interface CartPanelProps {
   onCheckout: () => void;
@@ -19,9 +20,15 @@ export function CartPanel({ onCheckout, onCancelSale, onClose }: CartPanelProps)
   const removeFromCart = useStore((s) => s.removeFromCart);
   const updateCartQuantity = useStore((s) => s.updateCartQuantity);
   const updateCartItemPrice = useStore((s) => s.updateCartItemPrice);
+  const getCartSubtotal = useStore((s) => s.getCartSubtotal);
+  const getDiscountAmount = useStore((s) => s.getDiscountAmount);
   const getCartTotal = useStore((s) => s.getCartTotal);
+  const discountPercent = useStore((s) => s.discountPercent);
 
+  const cartSubtotal = getCartSubtotal();
+  const discountAmount = getDiscountAmount();
   const cartTotal = getCartTotal();
+  const hasDiscount = discountAmount > 0;
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -45,6 +52,8 @@ export function CartPanel({ onCheckout, onCancelSale, onClose }: CartPanelProps)
           </Button>
         )}
       </div>
+
+      <DiscountControl />
 
       <ScrollArea className="flex-1">
         {cart.length === 0 ? (
@@ -76,6 +85,21 @@ export function CartPanel({ onCheckout, onCancelSale, onClose }: CartPanelProps)
       </ScrollArea>
 
       <div className="px-5 py-4">
+        {/* cart-percentage-discount.CART_TOTALS.1, cart-percentage-discount.CART_TOTALS.2, cart-percentage-discount.CART_TOTALS.4 (hidden when no discount, matching prior behavior) */}
+        {hasDiscount && (
+          <div className="mb-3 space-y-1 px-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Subtotal</span>
+              <span>{formatCurrency(cartSubtotal)}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Descuento ({discountPercent}%)</span>
+              <span>-{formatCurrency(discountAmount)}</span>
+            </div>
+          </div>
+        )}
+
+        {/* cart-percentage-discount.CART_TOTALS.3 */}
         <div className="mb-3 flex items-center justify-between rounded-xl bg-muted px-3 py-2.5">
           <span className="text-sm font-bold text-foreground">Total</span>
           <span className="text-4xl font-extrabold leading-none tracking-[-1px] text-foreground">

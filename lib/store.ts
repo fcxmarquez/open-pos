@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { clampDiscountPercent, computeDiscountBreakdown } from "@/lib/discount";
 
 export type Category =
   | "General"
@@ -39,16 +40,21 @@ export interface CartItem {
 
 interface PosStore {
   cart: CartItem[];
+  discountPercent: number;
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   updateCartItemPrice: (productId: string, price: number) => void;
+  setDiscountPercent: (percent: number) => void;
   clearCart: () => void;
+  getCartSubtotal: () => number;
+  getDiscountAmount: () => number;
   getCartTotal: () => number;
 }
 
 export const useStore = create<PosStore>()((set, get) => ({
   cart: [],
+  discountPercent: 0,
 
   addToCart: (product, quantity = 1) => {
     set((state) => {
@@ -97,9 +103,26 @@ export const useStore = create<PosStore>()((set, get) => ({
     }));
   },
 
-  clearCart: () => set({ cart: [] }),
+  // cart-percentage-discount.RULES.1, cart-percentage-discount.RULES.2, cart-percentage-discount.RULES.3
+  setDiscountPercent: (percent) => {
+    set({ discountPercent: clampDiscountPercent(percent) });
+  },
+
+  // cart-percentage-discount.DISCOUNT_INPUT.4 — resets alongside the cart on clear/cancel
+  clearCart: () => set({ cart: [], discountPercent: 0 }),
+
+  getCartSubtotal: () => {
+    return get().cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  },
+
+  // cart-percentage-discount.CART_TOTALS.5 — always derived from the current subtotal
+  getDiscountAmount: () => {
+    const { getCartSubtotal, discountPercent } = get();
+    return computeDiscountBreakdown(getCartSubtotal(), discountPercent).discountAmount;
+  },
 
   getCartTotal: () => {
-    return get().cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+    const { getCartSubtotal, discountPercent } = get();
+    return computeDiscountBreakdown(getCartSubtotal(), discountPercent).total;
   },
 }));
