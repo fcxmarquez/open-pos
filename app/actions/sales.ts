@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { products, saleItems, sales, salesSessions } from "@/db/schema";
+import {
+  clampDiscountPercent,
+  computeDiscountBreakdown,
+  parseDiscountPercentInput,
+} from "@/lib/discount";
 import type { ActionResult } from "@/lib/types";
 import { formatZodError } from "@/lib/types";
 import { getTodayDateString } from "@/lib/utils";
@@ -18,8 +23,11 @@ const cartItemSchema = z.object({
 });
 
 const completeSaleSchema = z.object({
+  // cart-percentage-discount.RULES.5 — empty carts are already rejected by min(1) + positive prices
   items: z.array(cartItemSchema).min(1, "El carrito no puede estar vacio"),
   payment: z.coerce.number().positive("El pago debe ser mayor a 0"),
+  // cart-percentage-discount.SERVER.1 — raw input only, re-clamped and recomputed below
+  discountPercent: z.preprocess(parseDiscountPercentInput, z.number()),
 });
 
 interface CompleteSaleResult {
@@ -107,9 +115,15 @@ export async function completeSale(
     return { success: false, data: null, error: formatZodError(parsed.error) };
   }
 
-  const { items, payment } = parsed.data;
+  const { items, payment, discountPercent } = parsed.data;
 
-  const total = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  // cart-percentage-discount.SERVER.1 — subtotal is derived from items server-side, never trusted from the client
+  const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const breakdown = computeDiscountBreakdown(
+    subtotal,
+    clampDiscountPercent(discountPercent)
+  );
+  const total = breakdown.total;
 
   if (payment < total) {
     return {
@@ -129,6 +143,13 @@ export async function completeSale(
         .insert(sales)
         .values({
           sessionId,
+          // cart-percentage-discount.PERSISTENCE.1, cart-percentage-discount.PERSISTENCE.2
+          subtotal: breakdown.subtotal.toFixed(2),
+          discountType: breakdown.discountAmount > 0 ? "percentage" : null,
+          discountValue:
+            breakdown.discountAmount > 0 ? breakdown.discountPercent.toFixed(2) : null,
+          discountAmount: breakdown.discountAmount.toFixed(2),
+          // cart-percentage-discount.CHECKOUT.3
           total: total.toFixed(2),
           paymentAmount: payment.toFixed(2),
           changeAmount: change.toFixed(2),
@@ -141,12 +162,14 @@ export async function completeSale(
           productId: item.productId,
           barcode: item.barcode,
           productName: item.productName,
+          // cart-percentage-discount.PERSISTENCE.3 — real unit price, unaffected by the cart-level discount
           unitPrice: item.unitPrice.toFixed(2),
           quantity: item.quantity,
           subtotal: (item.unitPrice * item.quantity).toFixed(2),
         }))
       );
 
+      // cart-percentage-discount.RECONCILIATION.1 — accumulates the post-discount total
       await tx
         .update(salesSessions)
         .set({

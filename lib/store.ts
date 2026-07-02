@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { clampDiscountPercent, computeDiscountBreakdown } from "@/lib/discount";
 
 export type Category =
   | "General"
@@ -39,16 +40,22 @@ export interface CartItem {
 
 interface PosStore {
   cart: CartItem[];
+  discountPercent: number;
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   updateCartItemPrice: (productId: string, price: number) => void;
+  setDiscountPercent: (percent: number) => void;
   clearCart: () => void;
+  getCartSubtotal: () => number;
+  getDiscountBreakdown: () => ReturnType<typeof computeDiscountBreakdown>;
+  getDiscountAmount: () => number;
   getCartTotal: () => number;
 }
 
 export const useStore = create<PosStore>()((set, get) => ({
   cart: [],
+  discountPercent: 0,
 
   addToCart: (product, quantity = 1) => {
     set((state) => {
@@ -69,9 +76,11 @@ export const useStore = create<PosStore>()((set, get) => ({
   },
 
   removeFromCart: (productId) => {
-    set((state) => ({
-      cart: state.cart.filter((item) => item.product.id !== productId),
-    }));
+    set((state) => {
+      const cart = state.cart.filter((item) => item.product.id !== productId);
+      // cart-percentage-discount.DISCOUNT_INPUT.4 — an empty cart can't carry a discount
+      return cart.length === 0 ? { cart, discountPercent: 0 } : { cart };
+    });
   },
 
   updateCartQuantity: (productId, quantity) => {
@@ -97,9 +106,25 @@ export const useStore = create<PosStore>()((set, get) => ({
     }));
   },
 
-  clearCart: () => set({ cart: [] }),
+  // cart-percentage-discount.RULES.1, cart-percentage-discount.RULES.2, cart-percentage-discount.RULES.3
+  setDiscountPercent: (percent) => {
+    set({ discountPercent: clampDiscountPercent(percent) });
+  },
 
-  getCartTotal: () => {
+  // cart-percentage-discount.DISCOUNT_INPUT.4 — resets alongside the cart on clear/cancel
+  clearCart: () => set({ cart: [], discountPercent: 0 }),
+
+  getCartSubtotal: () => {
     return get().cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
   },
+
+  // cart-percentage-discount.CART_TOTALS.5 — always derived from the current subtotal
+  getDiscountBreakdown: () => {
+    const { getCartSubtotal, discountPercent } = get();
+    return computeDiscountBreakdown(getCartSubtotal(), discountPercent);
+  },
+
+  getDiscountAmount: () => get().getDiscountBreakdown().discountAmount,
+
+  getCartTotal: () => get().getDiscountBreakdown().total,
 }));

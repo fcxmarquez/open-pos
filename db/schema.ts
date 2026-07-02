@@ -64,6 +64,16 @@ export const sales = pgTable(
     sessionId: uuid("session_id")
       .references(() => salesSessions.id)
       .notNull(),
+    // cart-percentage-discount.PERSISTENCE.1
+    subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+    // cart-percentage-discount.PERSISTENCE.2 — null when no discount was applied
+    // cart-percentage-discount.RULES.4 — a single column per sale structurally allows at most one discount
+    discountType: text("discount_type"),
+    discountValue: decimal("discount_value", { precision: 5, scale: 2 }),
+    discountAmount: decimal("discount_amount", { precision: 10, scale: 2 })
+      .notNull()
+      .default("0"),
+    // cart-percentage-discount.SERVER.2 — subtotal/discount columns above are plain, independently queryable columns
     total: decimal("total", { precision: 10, scale: 2 }).notNull(),
     paymentAmount: decimal("payment_amount", {
       precision: 10,

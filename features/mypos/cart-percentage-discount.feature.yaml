@@ -1,0 +1,70 @@
+feature:
+  name: cart-percentage-discount
+  product: mypos
+  description: |
+    Allow a cashier to apply a single percentage discount to the whole cart
+    during an in-progress sale. The discounted total flows through checkout,
+    the recorded sale, and the daily cash reconciliation (Corte). The discount
+    is persisted explicitly so it stays auditable and reportable, while each
+    product's real unit price is preserved.
+
+components:
+  DISCOUNT_INPUT:
+    name: Cart-level discount control
+    description: UI control in the cart panel where the cashier enters a percentage discount for the entire sale.
+    requirements:
+      1: Cashier can enter a discount as a percentage of the cart subtotal.
+      1-1: Only percentage discounts are supported in this iteration (no absolute amount).
+      2: The discount applies to the whole cart total, not to individual line items.
+      3: The discount control is only actionable when the cart has at least one item.
+      4: Clearing or cancelling the sale resets the discount along with the cart.
+
+  CART_TOTALS:
+    name: Subtotal, discount, and total breakdown
+    description: The cart panel shows the price breakdown so the cashier sees the effect of the discount before charging.
+    requirements:
+      1: Cart shows the pre-discount subtotal.
+      2: Cart shows the discount amount in currency.
+      3: Cart shows the final total after the discount.
+      4: When the discount is 0, blank, or removed, the cart behaves exactly as today.
+      5: Changing cart contents (items or quantities) recalculates the percentage discount against the new subtotal automatically.
+
+  CHECKOUT:
+    name: Checkout uses the discounted total
+    description: The checkout and payment flow charges and computes change based on the discounted total.
+    requirements:
+      1: The amount to charge equals the post-discount total.
+      2: The change calculation uses the post-discount total.
+      3: The registered sale stores the post-discount total as its final amount.
+
+  PERSISTENCE:
+    name: Discount stored per sale
+    description: The completed sale records the discount explicitly, keeping original prices intact.
+    requirements:
+      1: Each sale stores the pre-discount subtotal.
+      2: Each sale stores the discount type, the entered value, and the computed discount amount.
+      3: Product unit prices recorded on the sale remain the real prices (not silently lowered).
+
+  RECONCILIATION:
+    name: Corte reflects discounted totals
+    description: The daily cash reconciliation stays accurate when discounts are applied.
+    requirements:
+      1: The session system total reflects the post-discount sale total.
+
+constraints:
+  RULES:
+    requirements:
+      1: A discount is a percentage between 0 and 60 inclusive.
+      2: Values above 60% are rejected or clamped to 60%; the sale never charges below the allowed floor.
+      3: Negative, blank, or non-numeric values are ignored; the total never exceeds the subtotal.
+      4: At most one discount per sale.
+      5: A discount cannot be applied to an empty ($0) cart.
+
+  ROUNDING:
+    requirements:
+      1: The discounted total is rounded to 2 decimals consistently between the displayed total and the recorded total so checkout change is always correct.
+
+  SERVER:
+    requirements:
+      1: The discount amount and final total are computed and validated on the server, not trusted from the client.
+      2: Discount data (type, value, and amount) and the pre-discount subtotal must be independently retrievable from a persisted sale record.
