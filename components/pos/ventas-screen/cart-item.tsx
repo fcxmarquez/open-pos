@@ -69,7 +69,7 @@ export function CartItemRow({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                className="h-5 w-5 text-muted-foreground hover:bg-muted hover:text-foreground"
                 onClick={() => {
                   setDraftPrice(String(item.unitPrice));
                   setIsEditingPrice(true);
