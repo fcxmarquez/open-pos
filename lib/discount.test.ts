@@ -62,4 +62,20 @@ describe("computeDiscountBreakdown", () => {
     expect(result.discountAmount).toBe(0);
     expect(result.total).toBe(0);
   });
+
+  test("cart-percentage-discount.ROUNDING.1 stays penny-accurate where naive float multiplication misrounds", () => {
+    // subtotal * (percent / 100) in floating-point dollars misrounds this combination down a cent
+    expect(computeDiscountBreakdown(0.29, 50)).toMatchObject({
+      discountAmount: 0.15,
+      total: 0.14,
+    });
+    expect(computeDiscountBreakdown(4.27, 50)).toMatchObject({
+      discountAmount: 2.14,
+      total: 2.13,
+    });
+    expect(computeDiscountBreakdown(0.5, 57)).toMatchObject({
+      discountAmount: 0.29,
+      total: 0.21,
+    });
+  });
 });

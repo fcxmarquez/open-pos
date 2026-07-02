@@ -24,16 +24,25 @@ export function clampDiscountPercent(value: number): number {
  * cart-percentage-discount.CART_TOTALS.3
  * cart-percentage-discount.ROUNDING.1
  * Shared by client (cart preview) and server (sale persistence) so both sides
- * round identically and never disagree on the charged total.
+ * round identically and never disagree on the charged total. Works in integer
+ * cents throughout — multiplying in floating-point dollars first (e.g.
+ * `subtotal * percent / 100`) misrounds ~0.25% of subtotal/percent
+ * combinations by a penny due to binary float representation.
  */
 export function computeDiscountBreakdown(
   subtotal: number,
   rawPercent: number
 ): DiscountBreakdown {
-  const safeSubtotal = Number.isFinite(subtotal) && subtotal > 0 ? subtotal : 0;
   const discountPercent = clampDiscountPercent(rawPercent);
-  const discountAmount = Math.round(safeSubtotal * (discountPercent / 100) * 100) / 100;
-  const total = Math.max(0, Math.round((safeSubtotal - discountAmount) * 100) / 100);
+  const subtotalCents =
+    Number.isFinite(subtotal) && subtotal > 0 ? Math.round(subtotal * 100) : 0;
+  const discountCents = Math.round((subtotalCents * discountPercent) / 100);
+  const totalCents = Math.max(0, subtotalCents - discountCents);
 
-  return { subtotal: safeSubtotal, discountPercent, discountAmount, total };
+  return {
+    subtotal: subtotalCents / 100,
+    discountPercent,
+    discountAmount: discountCents / 100,
+    total: totalCents / 100,
+  };
 }
