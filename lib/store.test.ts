@@ -75,6 +75,11 @@ describe("setDiscountPercent", () => {
     useStore.getState().setDiscountPercent(-5);
     expect(useStore.getState().discountPercent).toBe(0);
   });
+
+  test("normalizes the stored discount to the persisted 2-decimal precision", () => {
+    useStore.getState().setDiscountPercent(12.345);
+    expect(useStore.getState().discountPercent).toBe(12.35);
+  });
 });
 
 describe("clearCart", () => {

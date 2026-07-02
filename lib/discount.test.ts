@@ -1,5 +1,27 @@
 import { describe, expect, test } from "bun:test";
-import { clampDiscountPercent, computeDiscountBreakdown } from "./discount";
+import {
+  clampDiscountPercent,
+  computeDiscountBreakdown,
+  parseDiscountPercentInput,
+} from "./discount";
+
+describe("parseDiscountPercentInput", () => {
+  test("cart-percentage-discount.RULES.3 accepts plain positive decimal input", () => {
+    expect(parseDiscountPercentInput("15")).toBe(15);
+    expect(parseDiscountPercentInput("12.5")).toBe(12.5);
+    expect(parseDiscountPercentInput(".5")).toBe(0.5);
+    expect(parseDiscountPercentInput("15%")).toBe(15);
+  });
+
+  test("cart-percentage-discount.RULES.3 ignores negative, blank, and mixed non-numeric strings", () => {
+    expect(parseDiscountPercentInput("-5")).toBe(0);
+    expect(parseDiscountPercentInput("")).toBe(0);
+    expect(parseDiscountPercentInput("abc5")).toBe(0);
+    expect(parseDiscountPercentInput("1e2")).toBe(0);
+    expect(parseDiscountPercentInput(Number.NaN)).toBe(0);
+    expect(parseDiscountPercentInput(Number.POSITIVE_INFINITY)).toBe(0);
+  });
+});
 
 describe("clampDiscountPercent", () => {
   test("cart-percentage-discount.RULES.1 keeps values within the 0-60 range unchanged", () => {
@@ -11,6 +33,12 @@ describe("clampDiscountPercent", () => {
   test("cart-percentage-discount.RULES.2 clamps values above 60 down to 60", () => {
     expect(clampDiscountPercent(61)).toBe(60);
     expect(clampDiscountPercent(100)).toBe(60);
+  });
+
+  test("normalizes percentages to the persisted 2-decimal precision", () => {
+    expect(clampDiscountPercent(12.345)).toBe(12.35);
+    expect(clampDiscountPercent(10.004)).toBe(10);
+    expect(clampDiscountPercent(10.005)).toBe(10.01);
   });
 
   test("cart-percentage-discount.RULES.3 treats negative, NaN, and non-finite values as 0", () => {
@@ -76,6 +104,28 @@ describe("computeDiscountBreakdown", () => {
     expect(computeDiscountBreakdown(0.5, 57)).toMatchObject({
       discountAmount: 0.29,
       total: 0.21,
+    });
+  });
+
+  test("uses the persisted percent precision before calculating discount amount", () => {
+    expect(computeDiscountBreakdown(1000, 10.004)).toMatchObject({
+      discountPercent: 10,
+      discountAmount: 100,
+      total: 900,
+    });
+
+    const result = computeDiscountBreakdown(9999.99, 12.345);
+    expect(result).toMatchObject({
+      discountPercent: 12.35,
+      discountAmount: 1235,
+      total: 8764.99,
+    });
+
+    expect(
+      computeDiscountBreakdown(result.subtotal, result.discountPercent)
+    ).toMatchObject({
+      discountAmount: result.discountAmount,
+      total: result.total,
     });
   });
 });

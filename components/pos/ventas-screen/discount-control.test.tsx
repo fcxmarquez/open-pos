@@ -85,6 +85,38 @@ describe("DiscountControl", () => {
     expect(useStore.getState().discountPercent).toBe(0);
   });
 
+  test("cart-percentage-discount.RULES.3 negative input is ignored instead of becoming positive", async () => {
+    const user = userEvent.setup();
+    setCart([{ product, quantity: 1, unitPrice: 7 }]);
+    render(<DiscountControl />);
+
+    await user.click(screen.getByRole("button", { name: "Descuento" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Porcentaje de descuento" }),
+      "-5"
+    );
+    await user.click(screen.getByRole("button", { name: "Aplicar" }));
+
+    expect(screen.getByRole("button", { name: "Descuento" })).toBeInTheDocument();
+    expect(useStore.getState().discountPercent).toBe(0);
+  });
+
+  test("cart-percentage-discount.RULES.3 mixed non-numeric input is ignored", async () => {
+    const user = userEvent.setup();
+    setCart([{ product, quantity: 1, unitPrice: 7 }]);
+    render(<DiscountControl />);
+
+    await user.click(screen.getByRole("button", { name: "Descuento" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Porcentaje de descuento" }),
+      "abc5"
+    );
+    await user.click(screen.getByRole("button", { name: "Aplicar" }));
+
+    expect(screen.getByRole("button", { name: "Descuento" })).toBeInTheDocument();
+    expect(useStore.getState().discountPercent).toBe(0);
+  });
+
   test("cart-percentage-discount.RULES.2 clamps a value above 60 down to 60 on apply", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
@@ -99,6 +131,22 @@ describe("DiscountControl", () => {
 
     expect(screen.getByRole("button", { name: "60% aplicado" })).toBeInTheDocument();
     expect(useStore.getState().discountPercent).toBe(60);
+  });
+
+  test("rounds applied discount percent to the persisted precision", async () => {
+    const user = userEvent.setup();
+    setCart([{ product, quantity: 1, unitPrice: 7 }]);
+    render(<DiscountControl />);
+
+    await user.click(screen.getByRole("button", { name: "Descuento" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Porcentaje de descuento" }),
+      "10.005"
+    );
+    await user.click(screen.getByRole("button", { name: "Aplicar" }));
+
+    expect(screen.getByRole("button", { name: "10.01% aplicado" })).toBeInTheDocument();
+    expect(useStore.getState().discountPercent).toBe(10.01);
   });
 
   test("pressing Enter in the input applies the draft without clicking Aplicar", async () => {

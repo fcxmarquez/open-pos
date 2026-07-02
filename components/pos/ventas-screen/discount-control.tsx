@@ -5,14 +5,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { parseDiscountPercentInput } from "@/lib/discount";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-
-function parseDiscountPercentInput(rawValue: string) {
-  const sanitized = rawValue.replace(/[^\d.]/g, "");
-  const parsed = Number.parseFloat(sanitized);
-  return Number.isNaN(parsed) ? 0 : parsed;
-}
 
 export function DiscountControl() {
   const cartIsEmpty = useStore((s) => s.cart.length === 0);

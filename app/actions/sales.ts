@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { products, saleItems, sales, salesSessions } from "@/db/schema";
-import { clampDiscountPercent, computeDiscountBreakdown } from "@/lib/discount";
+import {
+  clampDiscountPercent,
+  computeDiscountBreakdown,
+  parseDiscountPercentInput,
+} from "@/lib/discount";
 import type { ActionResult } from "@/lib/types";
 import { formatZodError } from "@/lib/types";
 import { getTodayDateString } from "@/lib/utils";
@@ -23,7 +27,7 @@ const completeSaleSchema = z.object({
   items: z.array(cartItemSchema).min(1, "El carrito no puede estar vacio"),
   payment: z.coerce.number().positive("El pago debe ser mayor a 0"),
   // cart-percentage-discount.SERVER.1 — raw input only, re-clamped and recomputed below
-  discountPercent: z.coerce.number().optional().default(0),
+  discountPercent: z.preprocess(parseDiscountPercentInput, z.number()),
 });
 
 interface CompleteSaleResult {
