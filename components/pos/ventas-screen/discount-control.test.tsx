@@ -69,6 +69,71 @@ describe("DiscountControl", () => {
     expect(useStore.getState().discountPercent).toBe(15);
   });
 
+  test("cart-percentage-discount.RULES.3 non-numeric input is ignored, applying no discount", async () => {
+    const user = userEvent.setup();
+    setCart([{ product, quantity: 1, unitPrice: 7 }]);
+    render(<DiscountControl />);
+
+    await user.click(screen.getByRole("button", { name: "Descuento" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Porcentaje de descuento" }),
+      "abc"
+    );
+    await user.click(screen.getByRole("button", { name: "Aplicar" }));
+
+    expect(screen.getByRole("button", { name: "Descuento" })).toBeInTheDocument();
+    expect(useStore.getState().discountPercent).toBe(0);
+  });
+
+  test("cart-percentage-discount.RULES.2 clamps a value above 60 down to 60 on apply", async () => {
+    const user = userEvent.setup();
+    setCart([{ product, quantity: 1, unitPrice: 7 }]);
+    render(<DiscountControl />);
+
+    await user.click(screen.getByRole("button", { name: "Descuento" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Porcentaje de descuento" }),
+      "150"
+    );
+    await user.click(screen.getByRole("button", { name: "Aplicar" }));
+
+    expect(screen.getByRole("button", { name: "60% aplicado" })).toBeInTheDocument();
+    expect(useStore.getState().discountPercent).toBe(60);
+  });
+
+  test("pressing Enter in the input applies the draft without clicking Aplicar", async () => {
+    const user = userEvent.setup();
+    setCart([{ product, quantity: 1, unitPrice: 7 }]);
+    render(<DiscountControl />);
+
+    await user.click(screen.getByRole("button", { name: "Descuento" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Porcentaje de descuento" }),
+      "25{Enter}"
+    );
+
+    expect(screen.getByRole("button", { name: "25% aplicado" })).toBeInTheDocument();
+    expect(useStore.getState().discountPercent).toBe(25);
+  });
+
+  test("pressing Escape closes the popover without applying the draft", async () => {
+    const user = userEvent.setup();
+    setCart([{ product, quantity: 1, unitPrice: 7 }]);
+    render(<DiscountControl />);
+
+    await user.click(screen.getByRole("button", { name: "Descuento" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Porcentaje de descuento" }),
+      "40{Escape}"
+    );
+
+    expect(
+      screen.queryByRole("textbox", { name: "Porcentaje de descuento" })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Descuento" })).toBeInTheDocument();
+    expect(useStore.getState().discountPercent).toBe(0);
+  });
+
   test("edit reopens the popover prefilled with the current discount", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }], 15);
