@@ -8,6 +8,7 @@
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun --env-file=.env.local drizzle-kit migrate",
+    "db:migrate:deploy": "drizzle-kit migrate",
     "db:push": "bun --env-file=.env.local drizzle-kit push",
     "lint": "biome check .",
     "format": "biome format --write .",
