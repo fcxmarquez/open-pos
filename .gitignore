@@ -26,3 +26,4 @@ next_output.log
 langgraph/.env
 # LangGraph API
 .langgraph_api
+.vercel
