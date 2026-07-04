@@ -271,6 +271,90 @@ describe("dispatchEvent unified reasoning", () => {
     expect(byType(EventType.REASONING_END)).toHaveLength(1);
     expect(byType(EventType.REASONING_MESSAGE_END)[0].messageId).toBe(reasoningId);
   });
+
+  test("keeps multi-phase ReAct reasoning open until the final text answer starts", () => {
+    const agent = makeAgent();
+    const captured: RecordedEvent[] = [];
+    Reflect.set(agent, "subscriber", {
+      next: (event: RecordedEvent) => captured.push(event),
+      error: () => {},
+      complete: () => {},
+    });
+
+    const A = "reason-A";
+    const B = "reason-B";
+    const textId = "answer-A";
+    const toolCallId = "tool-call-A";
+    const sequence = [
+      { type: EventType.RUN_STARTED, threadId: "t", runId: "r" },
+      { type: EventType.REASONING_START, messageId: A },
+      { type: EventType.REASONING_MESSAGE_START, messageId: A, role: "reasoning" },
+      { type: EventType.REASONING_MESSAGE_CONTENT, messageId: A, delta: "plan tool" },
+      { type: EventType.REASONING_MESSAGE_END, messageId: A },
+      { type: EventType.REASONING_END, messageId: A },
+      {
+        type: EventType.TOOL_CALL_START,
+        toolCallId,
+        toolCallName: "get_dashboard_snapshot",
+      },
+      { type: EventType.TOOL_CALL_ARGS, toolCallId, delta: "{}" },
+      { type: EventType.TOOL_CALL_END, toolCallId },
+      {
+        type: EventType.TOOL_CALL_RESULT,
+        messageId: "tool-result-A",
+        toolCallId,
+        content: "snapshot result",
+      },
+      { type: EventType.REASONING_START, messageId: B },
+      { type: EventType.REASONING_MESSAGE_START, messageId: B, role: "reasoning" },
+      {
+        type: EventType.REASONING_MESSAGE_CONTENT,
+        messageId: B,
+        delta: "answer from result",
+      },
+      { type: EventType.REASONING_MESSAGE_END, messageId: B },
+      { type: EventType.REASONING_END, messageId: B },
+      { type: EventType.TEXT_MESSAGE_START, messageId: textId, role: "assistant" },
+      { type: EventType.TEXT_MESSAGE_CONTENT, messageId: textId, delta: "Done" },
+      { type: EventType.TEXT_MESSAGE_END, messageId: textId },
+      { type: EventType.RUN_FINISHED, threadId: "t", runId: "r" },
+    ];
+    for (const event of sequence) {
+      agent.dispatchEvent(event as unknown as Parameters<typeof agent.dispatchEvent>[0]);
+    }
+
+    const byType = (type: EventType) => captured.filter((event) => event.type === type);
+    const indexOf = (type: EventType) =>
+      captured.findIndex((event) => event.type === type);
+    const lastIndexOf = (type: EventType) =>
+      captured.findLastIndex((event) => event.type === type);
+
+    expect(byType(EventType.REASONING_START)).toHaveLength(1);
+    expect(byType(EventType.REASONING_MESSAGE_START)).toHaveLength(1);
+    expect(byType(EventType.REASONING_MESSAGE_END)).toHaveLength(1);
+    expect(byType(EventType.REASONING_END)).toHaveLength(1);
+
+    expect(indexOf(EventType.REASONING_MESSAGE_END)).toBeGreaterThan(
+      indexOf(EventType.TOOL_CALL_RESULT)
+    );
+    expect(indexOf(EventType.REASONING_MESSAGE_END)).toBeGreaterThan(
+      lastIndexOf(EventType.REASONING_MESSAGE_CONTENT)
+    );
+    expect(indexOf(EventType.REASONING_MESSAGE_END)).toBeLessThan(
+      indexOf(EventType.TEXT_MESSAGE_START)
+    );
+    expect(indexOf(EventType.REASONING_END)).toBeLessThan(
+      indexOf(EventType.TEXT_MESSAGE_START)
+    );
+
+    const contents = byType(EventType.REASONING_MESSAGE_CONTENT);
+    expect(contents.map((event) => event.delta)).toEqual([
+      "plan tool",
+      "answer from result",
+    ]);
+    expect(contents.every((event) => event.messageId === A)).toBe(true);
+    expect(captured.some((event) => event.messageId === B)).toBe(false);
+  });
 });
 
 describe("prepareStream override", () => {
