@@ -153,6 +153,17 @@ export class GoogleAwareLangGraphAgent extends LangGraphAgent {
       case EventType.REASONING_END:
         return this.unifiedReasoning ? true : super.dispatchEvent(event);
 
+      // The model has stopped reasoning and started its final answer, so end the
+      // reasoning section now rather than waiting for RUN_FINISHED, which only
+      // fires after the whole answer has already streamed. Waiting that long
+      // left the UI holding a fully-generated answer behind an unclosed
+      // reasoning bubble.
+      case EventType.TEXT_MESSAGE_START:
+        if (this.unifiedReasoning) {
+          this.finishUnifiedReasoning();
+        }
+        return super.dispatchEvent(event);
+
       case EventType.RUN_FINISHED:
       case EventType.RUN_ERROR:
         this.finishUnifiedReasoning();
