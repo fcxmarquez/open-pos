@@ -7,13 +7,17 @@ import {
 } from "../../../lib/server/queries/analytics";
 import { toolError } from "./tool-error";
 
-const dateSchema = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD")
-  .refine((value) => {
-    const parsed = new Date(`${value}T00:00:00Z`);
-    return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
-  }, "Must be a real calendar date");
+function dateSchema() {
+  return z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD")
+    .refine((value) => {
+      const parsed = new Date(`${value}T00:00:00Z`);
+      return (
+        !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
+      );
+    }, "Must be a real calendar date");
+}
 
 function validateDateRange(startDate: string, endDate: string): string | null {
   if (startDate > endDate) return "startDate must be ≤ endDate";
@@ -40,8 +44,8 @@ export const getSalesTimeseriesTool = tool(
     description:
       "Returns revenue, transaction count, and units sold bucketed by day, week, or month for a given date range. Use for trend and comparison questions.",
     schema: z.object({
-      startDate: dateSchema.describe("Start date inclusive (YYYY-MM-DD, Mexico TZ)"),
-      endDate: dateSchema.describe("End date inclusive (YYYY-MM-DD, Mexico TZ)"),
+      startDate: dateSchema().describe("Start date inclusive (YYYY-MM-DD, Mexico TZ)"),
+      endDate: dateSchema().describe("End date inclusive (YYYY-MM-DD, Mexico TZ)"),
       granularity: z.enum(["day", "week", "month"]).describe("Time bucket size"),
     }),
   }
@@ -63,8 +67,8 @@ export const getTopProductsTool = tool(
     description:
       "Returns the top-selling products by revenue for a given date range, optionally filtered by category. Ranked by revenue descending.",
     schema: z.object({
-      startDate: dateSchema.describe("Start date inclusive (YYYY-MM-DD, Mexico TZ)"),
-      endDate: dateSchema.describe("End date inclusive (YYYY-MM-DD, Mexico TZ)"),
+      startDate: dateSchema().describe("Start date inclusive (YYYY-MM-DD, Mexico TZ)"),
+      endDate: dateSchema().describe("End date inclusive (YYYY-MM-DD, Mexico TZ)"),
       limit: z
         .number()
         .int()
@@ -93,8 +97,8 @@ export const getCategoryPerformanceTool = tool(
     description:
       "Returns revenue, units sold, and transaction count grouped by product category for a given date range.",
     schema: z.object({
-      startDate: dateSchema.describe("Start date inclusive (YYYY-MM-DD, Mexico TZ)"),
-      endDate: dateSchema.describe("End date inclusive (YYYY-MM-DD, Mexico TZ)"),
+      startDate: dateSchema().describe("Start date inclusive (YYYY-MM-DD, Mexico TZ)"),
+      endDate: dateSchema().describe("End date inclusive (YYYY-MM-DD, Mexico TZ)"),
     }),
   }
 );
