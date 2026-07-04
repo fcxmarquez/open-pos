@@ -211,6 +211,66 @@ describe("dispatchEvent unified reasoning", () => {
     expect(captured.some((event) => event.messageId === B)).toBe(false);
     expect(byType(EventType.RUN_FINISHED)).toHaveLength(1);
   });
+
+  test("closes the reasoning section when the text answer starts, not at run end", () => {
+    const agent = makeAgent();
+    const captured: RecordedEvent[] = [];
+    Reflect.set(agent, "subscriber", {
+      next: (event: RecordedEvent) => captured.push(event),
+      error: () => {},
+      complete: () => {},
+    });
+
+    const reasoningId = "reason-A";
+    const textId = "answer-A";
+    // Once the model stops reasoning and starts its final answer, the section
+    // must close immediately rather than waiting for RUN_FINISHED, which
+    // only arrives after the whole answer has already streamed.
+    const sequence = [
+      { type: EventType.RUN_STARTED, threadId: "t", runId: "r" },
+      { type: EventType.REASONING_START, messageId: reasoningId },
+      {
+        type: EventType.REASONING_MESSAGE_START,
+        messageId: reasoningId,
+        role: "reasoning",
+      },
+      {
+        type: EventType.REASONING_MESSAGE_CONTENT,
+        messageId: reasoningId,
+        delta: "thinking...",
+      },
+      { type: EventType.REASONING_MESSAGE_END, messageId: reasoningId },
+      { type: EventType.REASONING_END, messageId: reasoningId },
+      { type: EventType.TEXT_MESSAGE_START, messageId: textId, role: "assistant" },
+      {
+        type: EventType.TEXT_MESSAGE_CONTENT,
+        messageId: textId,
+        delta: "Here is the answer",
+      },
+      { type: EventType.TEXT_MESSAGE_END, messageId: textId },
+      { type: EventType.RUN_FINISHED, threadId: "t", runId: "r" },
+    ];
+    for (const event of sequence) {
+      agent.dispatchEvent(event as unknown as Parameters<typeof agent.dispatchEvent>[0]);
+    }
+
+    const indexOf = (type: EventType) =>
+      captured.findIndex((event) => event.type === type);
+    const byType = (type: EventType) => captured.filter((event) => event.type === type);
+
+    expect(indexOf(EventType.REASONING_MESSAGE_END)).toBeGreaterThanOrEqual(0);
+    expect(indexOf(EventType.REASONING_MESSAGE_END)).toBeLessThan(
+      indexOf(EventType.TEXT_MESSAGE_START)
+    );
+    expect(indexOf(EventType.REASONING_END)).toBeLessThan(
+      indexOf(EventType.TEXT_MESSAGE_START)
+    );
+
+    // Still closed exactly once even though RUN_FINISHED also tries.
+    expect(byType(EventType.REASONING_MESSAGE_END)).toHaveLength(1);
+    expect(byType(EventType.REASONING_END)).toHaveLength(1);
+    expect(byType(EventType.REASONING_MESSAGE_END)[0].messageId).toBe(reasoningId);
+  });
 });
 
 describe("prepareStream override", () => {
