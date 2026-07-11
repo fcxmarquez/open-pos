@@ -27,3 +27,6 @@ langgraph/.env
 # LangGraph API
 .langgraph_api
 .vercel
+
+# Misc
+scratchpad.md

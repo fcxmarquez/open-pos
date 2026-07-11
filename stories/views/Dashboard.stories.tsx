@@ -1,13 +1,21 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AdminDashboardScreen } from "@/components/admin/dashboard-screen";
+import { adminCorteHistoryQueryKey } from "@/components/admin/dashboard-screen/history-panel/query";
 import { adminDashboardQueryKey } from "@/components/admin/dashboard-screen/query";
+import {
+  buildCorteHistoryData,
+  CORTE_HISTORY_RANGES,
+  type CorteHistoryData,
+  getCorteHistoryWindow,
+} from "@/lib/corte-history";
 import type { AdminDashboardData } from "@/lib/server/queries/admin-dashboard";
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
-// Dates anchored to 2026-04-05–2026-04-11 so the 7-day filter keeps them visible.
-// 13 sessions (>10) triggers HistoryPanel pagination in table view.
+// Dates anchored to 2026-04-06–2026-04-12 so the current-week history stays visible.
 // 11 transactions triggers LatestTransactionsPanel scroll.
+
+const STORY_TODAY = "2026-04-11";
 
 const MOCK_TRANSACTIONS: AdminDashboardData["latestTransactions"] = Array.from(
   { length: 11 },
@@ -19,119 +27,22 @@ const MOCK_TRANSACTIONS: AdminDashboardData["latestTransactions"] = Array.from(
   })
 );
 
-const MOCK_SESSION_HISTORY: AdminDashboardData["sessionHistory"] = [
-  // 2026-04-11 — 3 sessions
-  {
-    id: "s1",
-    sessionDate: "2026-04-11",
-    sessionNumber: 1,
-    revenue: 320,
-    salesCount: 6,
-    difference: 15,
-  },
-  {
-    id: "s2",
-    sessionDate: "2026-04-11",
-    sessionNumber: 2,
-    revenue: 180,
-    salesCount: 3,
-    difference: 0,
-  },
-  {
-    id: "s3",
-    sessionDate: "2026-04-11",
-    sessionNumber: 3,
-    revenue: 95,
-    salesCount: 2,
-    difference: -5,
-  },
-  // 2026-04-10 — 2 sessions
-  {
-    id: "s4",
-    sessionDate: "2026-04-10",
-    sessionNumber: 1,
-    revenue: 710,
-    salesCount: 14,
-    difference: 20,
-  },
-  {
-    id: "s5",
-    sessionDate: "2026-04-10",
-    sessionNumber: 2,
-    revenue: 230,
-    salesCount: 5,
-    difference: 0,
-  },
-  // 2026-04-09 — 2 sessions
-  {
-    id: "s6",
-    sessionDate: "2026-04-09",
-    sessionNumber: 1,
-    revenue: 600,
-    salesCount: 11,
-    difference: 2,
-  },
-  {
-    id: "s7",
-    sessionDate: "2026-04-09",
-    sessionNumber: 2,
-    revenue: 140,
-    salesCount: 3,
-    difference: -10,
-  },
-  // 2026-04-08 — 2 sessions
-  {
-    id: "s8",
-    sessionDate: "2026-04-08",
-    sessionNumber: 1,
-    revenue: 425,
-    salesCount: 8,
-    difference: 0,
-  },
-  {
-    id: "s9",
-    sessionDate: "2026-04-08",
-    sessionNumber: 2,
-    revenue: 90,
-    salesCount: 2,
-    difference: 5,
-  },
-  // 2026-04-07 — 2 sessions
-  {
-    id: "s10",
-    sessionDate: "2026-04-07",
-    sessionNumber: 1,
-    revenue: 1150,
-    salesCount: 22,
-    difference: 50,
-  },
-  {
-    id: "s11",
-    sessionDate: "2026-04-07",
-    sessionNumber: 2,
-    revenue: 310,
-    salesCount: 6,
-    difference: -3,
-  },
-  // 2026-04-06 — 1 session
-  {
-    id: "s12",
-    sessionDate: "2026-04-06",
-    sessionNumber: 1,
-    revenue: 860,
-    salesCount: 17,
-    difference: -5,
-  },
-  // 2026-04-05 — 1 session
-  {
-    id: "s13",
-    sessionDate: "2026-04-05",
-    sessionNumber: 1,
-    revenue: 210,
-    salesCount: 4,
-    difference: 0,
-  },
-];
+const MOCK_CORTE_HISTORY = buildCorteHistoryData(
+  getCorteHistoryWindow("1S", 0, STORY_TODAY),
+  [
+    { bucket: "2026-04-06", closedSessions: 1, revenue: 860 },
+    { bucket: "2026-04-07", closedSessions: 2, revenue: 1460 },
+    { bucket: "2026-04-08", closedSessions: 2, revenue: 515 },
+    { bucket: "2026-04-09", closedSessions: 2, revenue: 740 },
+    { bucket: "2026-04-10", closedSessions: 2, revenue: 940 },
+    { bucket: "2026-04-11", closedSessions: 3, revenue: 595 },
+  ]
+);
+
+const EMPTY_CORTE_HISTORY = buildCorteHistoryData(
+  getCorteHistoryWindow("1S", 0, STORY_TODAY),
+  []
+);
 
 const BASE_DATA: AdminDashboardData = {
   comparisonLabel: "vs sábado pasado",
@@ -147,7 +58,6 @@ const BASE_DATA: AdminDashboardData = {
   revenueToday: 595.0,
   revenueVsLastWeek: 250.6,
   staleSession: null,
-  sessionHistory: MOCK_SESSION_HISTORY,
   topProduct: { name: "IMPRESION Y COPIA T/C", category: "Oficina", units: 15 },
   transactionCount: MOCK_TRANSACTIONS.length,
 };
@@ -160,7 +70,27 @@ const STALE_SESSION = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function createQueryClient(data: AdminDashboardData) {
+function seedCorteHistoryQueries(qc: QueryClient, currentHistory: CorteHistoryData) {
+  for (const range of CORTE_HISTORY_RANGES) {
+    for (const offset of [0, 1]) {
+      const window = getCorteHistoryWindow(range, offset, STORY_TODAY);
+      qc.setQueryData(
+        adminCorteHistoryQueryKey(range, offset),
+        buildCorteHistoryData(window, [])
+      );
+    }
+  }
+
+  qc.setQueryData(
+    adminCorteHistoryQueryKey(currentHistory.range, currentHistory.offset),
+    currentHistory
+  );
+}
+
+function createQueryClient(
+  data: AdminDashboardData,
+  currentHistory = MOCK_CORTE_HISTORY
+) {
   const qc = new QueryClient({
     defaultOptions: {
       queries: {
@@ -172,6 +102,7 @@ function createQueryClient(data: AdminDashboardData) {
     },
   });
   qc.setQueryData(adminDashboardQueryKey, data);
+  seedCorteHistoryQueries(qc, currentHistory);
   return qc;
 }
 
@@ -185,8 +116,11 @@ function withQueryLayout(qc: QueryClient): Decorator {
   );
 }
 
-function withData(data: AdminDashboardData): Decorator {
-  return withQueryLayout(createQueryClient(data));
+function withData(
+  data: AdminDashboardData,
+  currentHistory = MOCK_CORTE_HISTORY
+): Decorator {
+  return withQueryLayout(createQueryClient(data, currentHistory));
 }
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
@@ -305,10 +239,5 @@ export const NoComparisonData: Story = {
 
 export const NoHistory: Story = {
   name: "Sin historial de cortes",
-  decorators: [
-    withData({
-      ...BASE_DATA,
-      sessionHistory: [],
-    }),
-  ],
+  decorators: [withData(BASE_DATA, EMPTY_CORTE_HISTORY)],
 };
