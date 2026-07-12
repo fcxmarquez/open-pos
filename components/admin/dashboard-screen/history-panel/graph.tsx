@@ -5,6 +5,7 @@ import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "rec
 import { ChartContainer } from "@/components/ui/chart";
 import type { CorteHistoryBucket, CorteHistoryView } from "@/lib/corte-history";
 import { cn, formatCurrency } from "@/lib/utils";
+import { isGestureMovement } from "./gestures";
 
 function formatChartCurrency(value: number): string {
   if (Math.abs(value) >= 1000) {
@@ -32,6 +33,7 @@ export function HistoryGraph({
   view: CorteHistoryView;
 }) {
   const chartRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [activeBucket, setActiveBucket] = useState<ActiveBucketState | null>(null);
   const chartData = buckets.map((bucket) => ({
     ...bucket,
@@ -41,12 +43,27 @@ export function HistoryGraph({
     ? buckets[clamp(activeBucket.index, 0, buckets.length - 1)]
     : null;
 
-  function updateActiveBucket(clientX: number, clientY: number) {
+  function isBarTarget(target: EventTarget | null): boolean {
+    return (
+      target instanceof Element && target.closest(".recharts-bar-rectangle") !== null
+    );
+  }
+
+  function updateActiveBucket(
+    clientX: number,
+    clientY: number,
+    target: EventTarget | null
+  ) {
     const chart = chartRef.current;
     const surface = chart?.querySelector(".recharts-surface");
     const gridLine = chart?.querySelector(".recharts-cartesian-grid-horizontal line");
 
     if (!chart || !surface || buckets.length === 0) {
+      return;
+    }
+
+    if (view === "bar" && !isBarTarget(target)) {
+      setActiveBucket(null);
       return;
     }
 
@@ -74,21 +91,38 @@ export function HistoryGraph({
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    updateActiveBucket(event.clientX, event.clientY);
+    // Touch tooltips are handled on tap end so swipes never activate them.
+    if (event.pointerType === "touch") {
+      return;
+    }
+
+    updateActiveBucket(event.clientX, event.clientY, event.target);
   }
 
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
     const touch = event.changedTouches.item(0);
-    if (touch) {
-      updateActiveBucket(touch.clientX, touch.clientY);
+    if (!touch) {
+      return;
     }
+
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    setActiveBucket(null);
   }
 
-  function handleTouchMove(event: TouchEvent<HTMLDivElement>) {
+  function handleTouchEnd(event: TouchEvent<HTMLDivElement>) {
     const touch = event.changedTouches.item(0);
-    if (touch) {
-      updateActiveBucket(touch.clientX, touch.clientY);
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+
+    if (!touch || !start) {
+      return;
     }
+
+    if (isGestureMovement(touch.clientX - start.x, touch.clientY - start.y)) {
+      return;
+    }
+
+    updateActiveBucket(touch.clientX, touch.clientY, event.target);
   }
 
   return (
@@ -97,7 +131,10 @@ export function HistoryGraph({
       data-history-chart
       onPointerLeave={() => setActiveBucket(null)}
       onPointerMove={handlePointerMove}
-      onTouchMove={handleTouchMove}
+      onTouchCancel={() => {
+        touchStartRef.current = null;
+      }}
+      onTouchEnd={handleTouchEnd}
       onTouchStart={handleTouchStart}
       ref={chartRef}
     >
