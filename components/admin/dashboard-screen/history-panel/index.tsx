@@ -39,9 +39,9 @@ type HistoryTransition = "previous" | "next" | "range" | null;
 function getHistoryTransitionClass(transition: HistoryTransition): string {
   switch (transition) {
     case "previous":
-      return "animate-in fade-in duration-200 slide-in-from-right-8 motion-reduce:animate-none";
-    case "next":
       return "animate-in fade-in duration-200 slide-in-from-left-8 motion-reduce:animate-none";
+    case "next":
+      return "animate-in fade-in duration-200 slide-in-from-right-8 motion-reduce:animate-none";
     case "range":
       return "animate-in fade-in duration-200 motion-reduce:animate-none";
     default:
@@ -63,7 +63,7 @@ function ChartViewButton({
       <TooltipTrigger asChild>
         <ToggleGroupItem
           aria-label={label}
-          className="relative z-10 rounded-full bg-transparent text-muted-foreground transition-colors duration-200 hover:bg-transparent hover:text-foreground aria-checked:bg-transparent aria-checked:text-foreground motion-reduce:transition-none"
+          className="relative z-10 rounded-full bg-transparent text-muted-foreground transition-colors duration-200 hover:bg-transparent hover:text-foreground data-[state=on]:bg-transparent data-[state=on]:text-primary-foreground motion-reduce:transition-none"
           value={value}
         >
           <Icon className="h-4 w-4" />
@@ -118,7 +118,7 @@ export function HistoryPanel() {
       return;
     }
 
-    if (deltaX < 0) {
+    if (deltaX > 0) {
       moveToPreviousRange();
       return;
     }
@@ -154,7 +154,7 @@ export function HistoryPanel() {
               <span
                 aria-hidden="true"
                 className={cn(
-                  "pointer-events-none absolute inset-y-1 left-1 z-0 w-10 rounded-full bg-background shadow-sm transition-transform duration-200 ease-out motion-reduce:transition-none",
+                  "pointer-events-none absolute inset-y-1 left-1 z-0 w-10 rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out motion-reduce:transition-none",
                   historyView === "bar" && "translate-x-11"
                 )}
               />
