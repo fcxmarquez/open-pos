@@ -58,6 +58,10 @@ export function isCorteHistoryRange(value: unknown): value is CorteHistoryRange 
   );
 }
 
+export function isCorteHistoryView(value: unknown): value is CorteHistoryView {
+  return value === "bar" || value === "line";
+}
+
 export function normalizeCorteHistoryOffset(offset: unknown): number {
   return typeof offset === "number" && Number.isInteger(offset) && offset > 0
     ? offset
