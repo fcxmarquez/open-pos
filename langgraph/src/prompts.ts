@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { STORE_NAME } from "@/lib/constants/store";
 import { getTodayDateString } from "../../lib/utils";
 
 /**
@@ -17,7 +18,7 @@ function getTodayLabel(): string {
 }
 
 export function buildSystemPrompt(): string {
-  return `Eres el asistente de insights del punto de venta "Papelería Luna".
+  return `Eres el asistente de insights del punto de venta "${STORE_NAME}".
 Tu rol es exclusivamente de consulta — todos tus datos vienen de herramientas de solo lectura.
 
 REGLAS DE NEGOCIO:
