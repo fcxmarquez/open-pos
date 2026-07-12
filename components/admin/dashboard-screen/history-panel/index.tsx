@@ -162,20 +162,20 @@ export function HistoryPanel() {
                 aria-hidden="true"
                 className={cn(
                   "pointer-events-none absolute inset-y-1 left-1 z-0 w-10 rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out motion-reduce:transition-none",
-                  historyView === "bar" && "translate-x-11"
+                  historyView === "line" && "translate-x-11"
                 )}
-              />
-              <ChartViewButton
-                icon={ChartLine}
-                isActive={historyView === "line"}
-                label="Gráfica de línea"
-                value="line"
               />
               <ChartViewButton
                 icon={ChartColumn}
                 isActive={historyView === "bar"}
                 label="Gráfica de barras"
                 value="bar"
+              />
+              <ChartViewButton
+                icon={ChartLine}
+                isActive={historyView === "line"}
+                label="Gráfica de línea"
+                value="line"
               />
             </ToggleGroup>
           </TooltipProvider>
