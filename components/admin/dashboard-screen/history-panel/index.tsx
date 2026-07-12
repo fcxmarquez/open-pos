@@ -10,7 +10,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { type Touch, useRef, useState } from "react";
+import { type Touch, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,6 +34,10 @@ import { cn, formatCurrency } from "@/lib/utils";
 import { PanelEmptyState } from "../panel-empty-state";
 import { isHorizontalSwipe } from "./gestures";
 import { HistoryGraph } from "./graph";
+import {
+  readCorteHistoryPanelPreferences,
+  writeCorteHistoryPanelPreferences,
+} from "./preferences";
 import { adminCorteHistoryQueryOptions, initialAdminCorteHistoryQueries } from "./query";
 
 type HistoryTransition = "previous" | "next" | "range" | null;
@@ -94,10 +98,21 @@ export function HistoryPanel() {
   const [historyTransition, setHistoryTransition] = useState<HistoryTransition>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  useQueries({ queries: initialAdminCorteHistoryQueries() });
+  useEffect(() => {
+    const storedPreferences = readCorteHistoryPanelPreferences();
+    if (!storedPreferences) {
+      return;
+    }
+
+    setHistoryView(storedPreferences.view);
+    setHistoryRange(storedPreferences.range);
+  }, []);
+
+  useQueries({ queries: initialAdminCorteHistoryQueries(locale) });
 
   const historyQuery = useQuery(
     adminCorteHistoryQueryOptions({
+      locale,
       offset: rangeOffset,
       range: historyRange,
     })
@@ -157,6 +172,10 @@ export function HistoryPanel() {
               onValueChange={(value) => {
                 if (value === "bar" || value === "line") {
                   setHistoryView(value);
+                  writeCorteHistoryPanelPreferences({
+                    view: value,
+                    range: historyRange,
+                  });
                 }
               }}
               type="single"
@@ -192,6 +211,10 @@ export function HistoryPanel() {
               setHistoryTransition("range");
               setHistoryRange(value);
               setRangeOffset(0);
+              writeCorteHistoryPanelPreferences({
+                view: historyView,
+                range: value,
+              });
             }
           }}
         >

@@ -36,7 +36,7 @@ export function AdminDashboardScreen() {
   const tCategories = useTranslations("categories");
   const locale = useLocale() as Locale;
   const { data, dataUpdatedAt, error, isPending, refetch } = useQuery(
-    adminDashboardQueryOptions()
+    adminDashboardQueryOptions(locale)
   );
   const [dismissedStaleSessionId, setDismissedStaleSessionId] = useState<string | null>(
     null

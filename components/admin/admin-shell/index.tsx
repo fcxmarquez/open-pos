@@ -44,7 +44,7 @@ export function AdminShell({
     isPending: isDashboardStatePending,
     isFetching: isDashboardFetching,
     refetch: refetchDashboard,
-  } = useQuery(adminDashboardQueryOptions());
+  } = useQuery(adminDashboardQueryOptions(locale));
 
   const formatShortDate = (date: Date) =>
     format(mexicoAnchoredDate(date), "d MMM yyyy", { locale: getDateFnsLocale(locale) });

@@ -3,6 +3,7 @@ import {
   buildCorteHistoryData,
   getCorteHistoryWindow,
   isCorteHistoryRange,
+  isCorteHistoryView,
   normalizeCorteHistoryOffset,
 } from "./corte-history";
 
@@ -14,6 +15,13 @@ describe("corte history input guards", () => {
     expect(isCorteHistoryRange("1A")).toBe(true);
     expect(isCorteHistoryRange("30D")).toBe(false);
     expect(isCorteHistoryRange(undefined)).toBe(false);
+  });
+
+  test("accepts only configured chart views", () => {
+    expect(isCorteHistoryView("bar")).toBe(true);
+    expect(isCorteHistoryView("line")).toBe(true);
+    expect(isCorteHistoryView("pie")).toBe(false);
+    expect(isCorteHistoryView(undefined)).toBe(false);
   });
 
   test("normalizes invalid offsets to the current period", () => {
