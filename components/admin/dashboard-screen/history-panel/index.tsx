@@ -30,11 +30,24 @@ import {
 } from "@/lib/corte-history";
 import { cn, formatCurrency } from "@/lib/utils";
 import { PanelEmptyState } from "../panel-empty-state";
+import { isHorizontalSwipe } from "./gestures";
 import { HistoryGraph } from "./graph";
 import { adminCorteHistoryQueryOptions, initialAdminCorteHistoryQueries } from "./query";
 
-const SWIPE_THRESHOLD_PX = 48;
-const SWIPE_VERTICAL_RATIO = 1.25;
+type HistoryTransition = "previous" | "next" | "range" | null;
+
+function getHistoryTransitionClass(transition: HistoryTransition): string {
+  switch (transition) {
+    case "previous":
+      return "animate-in fade-in duration-200 slide-in-from-right-8 motion-reduce:animate-none";
+    case "next":
+      return "animate-in fade-in duration-200 slide-in-from-left-8 motion-reduce:animate-none";
+    case "range":
+      return "animate-in fade-in duration-200 motion-reduce:animate-none";
+    default:
+      return "";
+  }
+}
 
 function ChartViewButton({
   icon: Icon,
@@ -50,7 +63,7 @@ function ChartViewButton({
       <TooltipTrigger asChild>
         <ToggleGroupItem
           aria-label={label}
-          className="rounded-full aria-checked:bg-background aria-checked:text-foreground aria-checked:shadow-sm"
+          className="relative z-10 rounded-full bg-transparent text-muted-foreground transition-colors duration-200 hover:bg-transparent hover:text-foreground aria-checked:bg-transparent aria-checked:text-foreground motion-reduce:transition-none"
           value={value}
         >
           <Icon className="h-4 w-4" />
@@ -65,6 +78,7 @@ export function HistoryPanel() {
   const [historyView, setHistoryView] = useState<CorteHistoryView>("bar");
   const [historyRange, setHistoryRange] = useState<CorteHistoryRange>("1S");
   const [rangeOffset, setRangeOffset] = useState(0);
+  const [historyTransition, setHistoryTransition] = useState<HistoryTransition>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useQueries({ queries: initialAdminCorteHistoryQueries() });
@@ -80,10 +94,12 @@ export function HistoryPanel() {
   const canMoveForward = rangeOffset > 0;
 
   function moveToPreviousRange() {
+    setHistoryTransition("previous");
     setRangeOffset((currentOffset) => currentOffset + 1);
   }
 
   function moveToNextRange() {
+    setHistoryTransition("next");
     setRangeOffset((currentOffset) => Math.max(0, currentOffset - 1));
   }
 
@@ -97,11 +113,8 @@ export function HistoryPanel() {
 
     const deltaX = touch.clientX - start.x;
     const deltaY = touch.clientY - start.y;
-    const isHorizontalSwipe =
-      Math.abs(deltaX) >= SWIPE_THRESHOLD_PX &&
-      Math.abs(deltaX) >= Math.abs(deltaY) * SWIPE_VERTICAL_RATIO;
 
-    if (!isHorizontalSwipe) {
+    if (!isHorizontalSwipe(deltaX, deltaY)) {
       return;
     }
 
@@ -129,7 +142,7 @@ export function HistoryPanel() {
           <TooltipProvider delayDuration={150}>
             <ToggleGroup
               aria-label="Tipo de gráfica"
-              className="w-fit rounded-full bg-muted p-1"
+              className="relative h-12 w-24 rounded-full bg-muted p-1"
               onValueChange={(value) => {
                 if (value === "bar" || value === "line") {
                   setHistoryView(value);
@@ -138,6 +151,13 @@ export function HistoryPanel() {
               type="single"
               value={historyView}
             >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "pointer-events-none absolute inset-y-1 left-1 z-0 w-10 rounded-full bg-background shadow-sm transition-transform duration-200 ease-out motion-reduce:transition-none",
+                  historyView === "bar" && "translate-x-11"
+                )}
+              />
               <ChartViewButton icon={ChartLine} label="Gráfica de línea" value="line" />
               <ChartViewButton icon={ChartColumn} label="Gráfica de barras" value="bar" />
             </ToggleGroup>
@@ -148,6 +168,7 @@ export function HistoryPanel() {
           value={historyRange}
           onValueChange={(value) => {
             if (isCorteHistoryRange(value)) {
+              setHistoryTransition("range");
               setHistoryRange(value);
               setRangeOffset(0);
             }
@@ -185,28 +206,33 @@ export function HistoryPanel() {
             }
           }}
         >
-          {historyQuery.isPending ? (
-            <div className="flex min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Cargando historial
-            </div>
-          ) : historyQuery.isError || !history ? (
-            <PanelEmptyState
-              icon={Calendar}
-              title="No se pudo cargar este periodo"
-              description="Intenta actualizar la vista o cambiar de periodo."
-              minHeight="min-h-[300px]"
-            />
-          ) : !history.hasData ? (
-            <PanelEmptyState
-              icon={Calendar}
-              title="No hay cortes en este periodo"
-              description="Intenta seleccionar otro periodo o navega a un rango anterior."
-              minHeight="min-h-[300px]"
-            />
-          ) : (
-            <HistoryGraph buckets={history.buckets} view={historyView} />
-          )}
+          <div
+            className={getHistoryTransitionClass(historyTransition)}
+            key={history ? `${history.range}-${history.offset}` : "pending"}
+          >
+            {historyQuery.isPending ? (
+              <div className="flex min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Cargando historial
+              </div>
+            ) : historyQuery.isError || !history ? (
+              <PanelEmptyState
+                icon={Calendar}
+                title="No se pudo cargar este periodo"
+                description="Intenta actualizar la vista o cambiar de periodo."
+                minHeight="min-h-[300px]"
+              />
+            ) : !history.hasData ? (
+              <PanelEmptyState
+                icon={Calendar}
+                title="No hay cortes en este periodo"
+                description="Intenta seleccionar otro periodo o navega a un rango anterior."
+                minHeight="min-h-[300px]"
+              />
+            ) : (
+              <HistoryGraph buckets={history.buckets} view={historyView} />
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col items-center gap-3 pt-4 md:grid md:grid-cols-[auto_1fr_auto] md:items-center">

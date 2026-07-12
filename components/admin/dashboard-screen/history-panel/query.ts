@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { getAdminCorteHistoryData } from "@/app/actions/admin-corte-history";
 import { CORTE_HISTORY_RANGES, type CorteHistoryRange } from "@/lib/corte-history";
 
@@ -19,6 +19,7 @@ export function adminCorteHistoryQueryOptions({
     queryFn: () => getAdminCorteHistoryData({ offset, range }),
     refetchInterval: isCurrentWeek ? 60_000 : false,
     refetchIntervalInBackground: false,
+    placeholderData: keepPreviousData,
     staleTime: isCurrentWeek ? 0 : 5 * 60_000,
   });
 }
