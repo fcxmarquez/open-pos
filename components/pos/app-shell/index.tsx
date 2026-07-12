@@ -63,16 +63,13 @@ export function AppShell({
   const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
   const isLoggingOut = useRef(false);
 
-  const formatHeaderDate = () =>
-    format(
-      new Date(),
-      locale === "en" ? "EEEE, MMMM d, yyyy" : "EEEE, d 'de' MMMM 'de' yyyy",
-      {
-        locale: getDateFnsLocale(locale),
-      }
-    );
+  const headerDatePattern =
+    locale === "en" ? "EEEE, MMMM d, yyyy" : "EEEE, d 'de' MMMM 'de' yyyy";
+  const dateFnsLocale = getDateFnsLocale(locale);
 
-  const [dateStr, setDateStr] = useState(formatHeaderDate);
+  const [dateStr, setDateStr] = useState(() =>
+    format(new Date(), headerDatePattern, { locale: dateFnsLocale })
+  );
   const canAccessProtectedScreens = isDemoMode || isAdmin || adminUnlocked;
 
   const navItems = [
@@ -100,10 +97,12 @@ export function AppShell({
   ];
 
   useEffect(() => {
-    setDateStr(formatHeaderDate());
-    const timer = window.setInterval(() => setDateStr(formatHeaderDate()), 60_000);
+    const updateDate = () =>
+      setDateStr(format(new Date(), headerDatePattern, { locale: dateFnsLocale }));
+    updateDate();
+    const timer = window.setInterval(updateDate, 60_000);
     return () => window.clearInterval(timer);
-  }, [locale]);
+  }, [headerDatePattern, dateFnsLocale]);
 
   const { data: openSession, isPending: isSessionPending } = useQuery(
     openSessionQueryOptions()

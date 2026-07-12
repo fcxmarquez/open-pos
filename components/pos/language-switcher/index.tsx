@@ -8,6 +8,9 @@ import { cn } from "@/lib/utils";
 
 function setLocaleCookie(locale: Locale) {
   const maxAge = 60 * 60 * 24 * 365;
+  // Cookie Store API is not available in all browsers; cookie is required for
+  // server-readable locale with unchanged URLs.
+  // biome-ignore lint/suspicious/noDocumentCookie: intentional locale persistence for next-intl
   document.cookie = `${LOCALE_COOKIE}=${locale};path=/;max-age=${maxAge};samesite=lax`;
 }
 
@@ -26,11 +29,11 @@ export function LanguageSwitcherSidebarRow() {
   };
 
   return (
-    <div
-      className="flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-2"
-      aria-label={t("language")}
-    >
-      <span className="text-sm font-medium text-muted-foreground">{t("language")}</span>
+    <fieldset className="flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-2">
+      <legend className="sr-only">{t("language")}</legend>
+      <span className="text-sm font-medium text-muted-foreground" aria-hidden="true">
+        {t("language")}
+      </span>
       <div className="ml-auto flex items-center gap-1">
         {locales.map((code) => {
           const selected = code === locale;
@@ -53,7 +56,7 @@ export function LanguageSwitcherSidebarRow() {
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }
 
@@ -72,14 +75,13 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   };
 
   return (
-    <div
+    <fieldset
       className={cn(
         "inline-flex items-center gap-1 rounded-xl border border-border p-0.5",
         className
       )}
-      aria-label={t("language")}
-      role="group"
     >
+      <legend className="sr-only">{t("language")}</legend>
       {locales.map((code) => {
         const selected = code === locale;
         return (
@@ -100,6 +102,6 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           </button>
         );
       })}
-    </div>
+    </fieldset>
   );
 }
