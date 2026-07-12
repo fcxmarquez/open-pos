@@ -17,6 +17,7 @@ import { adminDashboardQueryOptions } from "@/components/admin/dashboard-screen/
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { STORE_NAME } from "@/lib/constants/store";
 import { formatCurrency } from "@/lib/utils";
 import { HistoryPanel } from "./history-panel";
 import { LatestTransactionsPanel } from "./latest-transactions-panel";
@@ -52,7 +53,7 @@ export function AdminDashboardScreen() {
       {process.env.NEXT_PUBLIC_COPILOT_ENABLED === "true" && (
         <CopilotSidebar
           labels={{
-            modalHeaderTitle: "Insights de Papelería Luna",
+            modalHeaderTitle: `Insights de ${STORE_NAME}`,
             welcomeMessageText:
               "Hola. Puedo responder preguntas sobre ventas, productos y sesiones. Por ejemplo: '¿Cómo vamos hoy?' o '¿Cuáles fueron los productos más vendidos esta semana?'",
           }}
