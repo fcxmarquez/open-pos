@@ -1,6 +1,7 @@
 import { Store } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
+import { getTranslations } from "next-intl/server";
 import { auth, signIn } from "@/auth";
 import { SubmitButton } from "@/components/pos/login/submit-button";
 import {
@@ -16,15 +17,6 @@ import { isAuthBypassEnabled } from "@/lib/auth/bypass";
 import { getDefaultRouteForRole } from "@/lib/auth/roles";
 import { STORE_NAME } from "@/lib/constants/store";
 import { isDemoMode } from "@/lib/demo";
-
-const ERROR_MESSAGES: Record<string, string> = {
-  AccessDenied: "Tu cuenta no tiene acceso a este sistema. Contacta al administrador.",
-  OAuthAccountNotLinked:
-    "Este correo ya esta asociado a otro metodo de inicio de sesion.",
-  Configuration: "Error de configuracion del servidor. Contacta al administrador.",
-  CredentialsSignin: "Credenciales incorrectas. Intenta de nuevo.",
-  Default: "Ocurrio un error al iniciar sesion. Intenta de nuevo.",
-};
 
 function GoogleIcon() {
   return (
@@ -54,6 +46,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
+  const t = await getTranslations("auth");
   const params = await searchParams;
   const errorCode = params.error;
 
@@ -64,8 +57,19 @@ export default async function LoginPage({
   if (session) {
     redirect(getDefaultRouteForRole(session.user?.role));
   }
+
+  const knownErrorKeys = [
+    "AccessDenied",
+    "OAuthAccountNotLinked",
+    "Configuration",
+    "CredentialsSignin",
+  ] as const;
+  type KnownErrorKey = (typeof knownErrorKeys)[number];
+  const isKnownError = (code: string): code is KnownErrorKey =>
+    knownErrorKeys.includes(code as KnownErrorKey);
+
   const errorMessage = errorCode
-    ? (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.Default)
+    ? t(`error.${isKnownError(errorCode) ? errorCode : "Default"}`)
     : null;
 
   const isTestingMode = isAuthBypassEnabled();
@@ -78,7 +82,7 @@ export default async function LoginPage({
             <Store className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-xl">{STORE_NAME}</CardTitle>
-          <CardDescription>Inicia sesion para acceder al punto de venta</CardDescription>
+          <CardDescription>{t("signInDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {errorMessage && (
@@ -106,7 +110,7 @@ export default async function LoginPage({
               className="space-y-3"
             >
               <div className="space-y-1">
-                <Label htmlFor="username">Usuario</Label>
+                <Label htmlFor="username">{t("username")}</Label>
                 <Input
                   id="username"
                   name="username"
@@ -114,20 +118,20 @@ export default async function LoginPage({
                   autoCapitalize="none"
                   autoCorrect="off"
                   spellCheck="false"
-                  placeholder="usuario"
+                  placeholder={t("usernamePlaceholder")}
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">{t("password")}</Label>
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="••••••••"
+                  placeholder={t("passwordPlaceholder")}
                 />
               </div>
-              <SubmitButton className="w-full">Iniciar sesion</SubmitButton>
+              <SubmitButton className="w-full">{t("signIn")}</SubmitButton>
             </form>
           ) : (
             <form
@@ -138,7 +142,7 @@ export default async function LoginPage({
             >
               <SubmitButton variant="outline" size="lg" className="w-full gap-3">
                 <GoogleIcon />
-                Continuar con Google
+                {t("continueWithGoogle")}
               </SubmitButton>
             </form>
           )}

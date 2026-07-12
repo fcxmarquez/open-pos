@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
 import type { CartItem, Product } from "@/lib/store";
 import { useStore } from "@/lib/store";
+import messages from "@/messages/es.json";
 import { DiscountControl } from "./discount-control";
 
 const product: Product = {
@@ -18,6 +20,14 @@ function setCart(items: CartItem[], discountPercent = 0) {
   useStore.setState({ cart: items, discountPercent });
 }
 
+function renderDiscountControl() {
+  return render(
+    <NextIntlClientProvider locale="es" messages={messages}>
+      <DiscountControl />
+    </NextIntlClientProvider>
+  );
+}
+
 beforeEach(() => {
   setCart([]);
 });
@@ -25,7 +35,7 @@ beforeEach(() => {
 describe("DiscountControl", () => {
   test("cart-percentage-discount.DISCOUNT_INPUT.1 shows the + Descuento trigger when no discount is applied", () => {
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     expect(screen.getByRole("button", { name: "Descuento" })).toBeInTheDocument();
     expect(screen.queryByText(/% aplicado/)).not.toBeInTheDocument();
@@ -33,7 +43,7 @@ describe("DiscountControl", () => {
 
   test("cart-percentage-discount.DISCOUNT_INPUT.3 disables the trigger when the cart is empty", () => {
     setCart([]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     expect(screen.getByRole("button", { name: "Descuento" })).toBeDisabled();
   });
@@ -41,7 +51,7 @@ describe("DiscountControl", () => {
   test("cart-percentage-discount.DISCOUNT_INPUT.1 clicking the trigger opens the popover with the percent input", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     expect(
       screen.queryByRole("textbox", { name: "Porcentaje de descuento" })
@@ -57,7 +67,7 @@ describe("DiscountControl", () => {
   test("cart-percentage-discount.DISCOUNT_INPUT.1-1, cart-percentage-discount.DISCOUNT_INPUT.2 applying a percent updates the store and shows the applied chip", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     const input = screen.getByRole("textbox", { name: "Porcentaje de descuento" });
@@ -72,7 +82,7 @@ describe("DiscountControl", () => {
   test("cart-percentage-discount.RULES.3 non-numeric input is ignored, applying no discount", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     await user.type(
@@ -88,7 +98,7 @@ describe("DiscountControl", () => {
   test("cart-percentage-discount.RULES.3 negative input is ignored instead of becoming positive", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     await user.type(
@@ -104,7 +114,7 @@ describe("DiscountControl", () => {
   test("cart-percentage-discount.RULES.3 mixed non-numeric input is ignored", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     await user.type(
@@ -120,7 +130,7 @@ describe("DiscountControl", () => {
   test("cart-percentage-discount.RULES.2 clamps a value above 60 down to 60 on apply", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     await user.type(
@@ -136,7 +146,7 @@ describe("DiscountControl", () => {
   test("rounds applied discount percent to the persisted precision", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     await user.type(
@@ -152,7 +162,7 @@ describe("DiscountControl", () => {
   test("pressing Enter in the input applies the draft without clicking Aplicar", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     await user.type(
@@ -167,7 +177,7 @@ describe("DiscountControl", () => {
   test("pressing Escape closes the popover without applying the draft", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }]);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Descuento" }));
     await user.type(
@@ -185,7 +195,7 @@ describe("DiscountControl", () => {
   test("edit reopens the popover prefilled with the current discount", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }], 15);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Editar descuento" }));
 
@@ -197,7 +207,7 @@ describe("DiscountControl", () => {
   test("cart-percentage-discount.DISCOUNT_INPUT.4 remove resets the discount back to 0", async () => {
     const user = userEvent.setup();
     setCart([{ product, quantity: 1, unitPrice: 7 }], 15);
-    render(<DiscountControl />);
+    renderDiscountControl();
 
     await user.click(screen.getByRole("button", { name: "Quitar descuento" }));
 

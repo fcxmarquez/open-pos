@@ -2,6 +2,7 @@
 
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { db } from "@/db";
 import { products, saleItems, sales, salesSessions } from "@/db/schema";
@@ -10,25 +11,28 @@ import {
   computeDiscountBreakdown,
   parseDiscountPercentInput,
 } from "@/lib/discount";
-import type { ActionResult } from "@/lib/types";
-import { formatZodError } from "@/lib/types";
+import { type ActionResult, formatZodError } from "@/lib/types";
 import { getTodayDateString } from "@/lib/utils";
 
-const cartItemSchema = z.object({
-  productId: z.string().uuid().nullable(),
-  barcode: z.string().nullable(),
-  productName: z.string().min(1, "Nombre del producto requerido"),
-  unitPrice: z.coerce.number().positive("El precio debe ser mayor a 0"),
-  quantity: z.coerce.number().int().positive("La cantidad debe ser mayor a 0"),
-});
+type ValidationT = Awaited<ReturnType<typeof getTranslations<"validation">>>;
 
-const completeSaleSchema = z.object({
-  // cart-percentage-discount.RULES.5 — empty carts are already rejected by min(1) + positive prices
-  items: z.array(cartItemSchema).min(1, "El carrito no puede estar vacio"),
-  payment: z.coerce.number().positive("El pago debe ser mayor a 0"),
-  // cart-percentage-discount.SERVER.1 — raw input only, re-clamped and recomputed below
-  discountPercent: z.preprocess(parseDiscountPercentInput, z.number()),
-});
+function createCompleteSaleSchema(t: ValidationT) {
+  const cartItemSchema = z.object({
+    productId: z.string().uuid().nullable(),
+    barcode: z.string().nullable(),
+    productName: z.string().min(1, t("productNameRequired")),
+    unitPrice: z.coerce.number().positive(t("unitPricePositive")),
+    quantity: z.coerce.number().int().positive(t("quantityPositive")),
+  });
+
+  return z.object({
+    // cart-percentage-discount.RULES.5 — empty carts are already rejected by min(1) + positive prices
+    items: z.array(cartItemSchema).min(1, t("cartNotEmpty")),
+    payment: z.coerce.number().positive(t("paymentPositive")),
+    // cart-percentage-discount.SERVER.1 — raw input only, re-clamped and recomputed below
+    discountPercent: z.preprocess(parseDiscountPercentInput, z.number()),
+  });
+}
 
 interface CompleteSaleResult {
   saleId: string;
@@ -107,12 +111,19 @@ async function getOrCreateOpenSession(tx: DbTransaction): Promise<string> {
 }
 
 export async function completeSale(
-  input: z.input<typeof completeSaleSchema>
+  input: z.input<ReturnType<typeof createCompleteSaleSchema>>
 ): Promise<ActionResult<CompleteSaleResult>> {
+  const t = await getTranslations("validation");
+  const tErrors = await getTranslations("errors");
+  const completeSaleSchema = createCompleteSaleSchema(t);
   const parsed = completeSaleSchema.safeParse(input);
 
   if (!parsed.success) {
-    return { success: false, data: null, error: formatZodError(parsed.error) };
+    return {
+      success: false,
+      data: null,
+      error: formatZodError(parsed.error, t("invalidInput")),
+    };
   }
 
   const { items, payment, discountPercent } = parsed.data;
@@ -129,7 +140,7 @@ export async function completeSale(
     return {
       success: false,
       data: null,
-      error: "El pago es menor al total de la venta",
+      error: tErrors("paymentLessThanTotal"),
     };
   }
 
@@ -209,7 +220,7 @@ export async function completeSale(
     return {
       success: false,
       data: null,
-      error: "No se pudo completar la venta",
+      error: tErrors("saleFailed"),
     };
   }
 }

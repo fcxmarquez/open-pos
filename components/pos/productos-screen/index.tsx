@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, PackageSearch, Plus, Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
@@ -38,6 +39,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/components/ui/use-mobile";
+import { getCategoryMessageKey } from "@/lib/i18n/categories";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import type { Product } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -58,6 +60,10 @@ const SELECT_PAGE_BTN_SELECTED_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-primary
 const SELECT_PAGE_BTN_DEFAULT_CLS = `${SELECT_PAGE_BTN_BASE_CLS} border-foreground/15 bg-card hover:border-foreground/20 hover:bg-muted/60 hover:text-foreground active:border-foreground/25 active:bg-muted active:text-foreground`;
 
 export function ProductosScreen() {
+  const t = useTranslations("productos");
+  const tCommon = useTranslations("common");
+  const tCategories = useTranslations("categories");
+  const tToast = useTranslations("productos.toast");
   const isMobile = useIsMobile();
   const [showForm, setShowForm] = useState(false);
   const [showBulkEditDialog, setShowBulkEditDialog] = useState(false);
@@ -206,7 +212,7 @@ export function ProductosScreen() {
 
   const handleBulkApply = async (updates: BulkProductUpdatesPayload) => {
     if (selectedCount === 0) {
-      toast.error("Selecciona al menos un producto");
+      toast.error(tToast("selectAtLeastOne"));
       return false;
     }
 
@@ -222,8 +228,8 @@ export function ProductosScreen() {
 
     toast.success(
       result.data.updatedCount === 1
-        ? "1 producto actualizado"
-        : `${result.data.updatedCount} productos actualizados`
+        ? tToast("updatedOne")
+        : tToast("updatedMany", { count: result.data.updatedCount })
     );
     invalidateQueries();
     clearSelection();
@@ -243,13 +249,13 @@ export function ProductosScreen() {
       <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
         <Button onClick={() => handleAddProduct()}>
           <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
-          Agregar producto
+          {t("addProduct")}
         </Button>
         <div className="flex flex-wrap items-center gap-2">
           {pendingCount > 0 && (
             <Badge variant="warning" size="compact">
               <AlertTriangle className="h-3 w-3" />
-              {pendingCount} sin nombre
+              {tCommon("pendingUnnamed", { count: pendingCount })}
             </Badge>
           )}
         </div>
@@ -272,8 +278,8 @@ export function ProductosScreen() {
                       type="text"
                       inputMode="search"
                       autoComplete="off"
-                      aria-label="Buscar producto"
-                      placeholder="Buscar por nombre, codigo o PLU..."
+                      aria-label={t("searchAria")}
+                      placeholder={t("searchPlaceholder")}
                       className="h-full flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                       {...field}
                     />
@@ -285,7 +291,7 @@ export function ProductosScreen() {
                       size="icon"
                       className="h-8 w-8 shrink-0 text-muted-foreground hover:text-accent-foreground"
                       onClick={() => filtersForm.setValue("searchQuery", "")}
-                      aria-label="Borrar búsqueda"
+                      aria-label={t("clearSearchAria")}
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
@@ -303,14 +309,14 @@ export function ProductosScreen() {
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="md:h-12 rounded-2xl border-[1.5px] border-foreground bg-card">
-                        <SelectValue placeholder="Categoria" />
+                        <SelectValue placeholder={t("categoryPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="all">Todas las categorias</SelectItem>
+                      <SelectItem value="all">{tCategories("all")}</SelectItem>
                       {CATEGORY_OPTIONS.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category}
+                          {tCategories(getCategoryMessageKey(category))}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -331,7 +337,7 @@ export function ProductosScreen() {
                 onClick={() => toggleSelectAllOnPage(!allSelectedOnPage)}
                 disabled={isPending}
               >
-                {allSelectedOnPage ? "Quitar seleccion" : "Seleccionar pagina"}
+                {allSelectedOnPage ? t("deselectPage") : t("selectPage")}
               </Button>
             )}
           </div>
@@ -350,8 +356,7 @@ export function ProductosScreen() {
         <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
-              {selectedCount} producto{selectedCount === 1 ? "" : "s"} seleccionado
-              {selectedCount === 1 ? "" : "s"}
+              {tCommon("selectedProducts", { count: selectedCount })}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -360,9 +365,9 @@ export function ProductosScreen() {
               size="sm"
               disabled={!hasSelection}
               onClick={() => setShowBulkEditDialog(true)}
-              aria-label={`Editar seleccionados (${selectedCount} producto${selectedCount === 1 ? "" : "s"})`}
+              aria-label={t("editSelectedAria", { count: selectedCount })}
             >
-              Editar seleccionados
+              {t("editSelected")}
             </Button>
             <Button
               type="button"
@@ -370,9 +375,9 @@ export function ProductosScreen() {
               variant="outline"
               disabled={!hasSelection}
               onClick={clearSelection}
-              aria-label="Limpiar seleccion de productos"
+              aria-label={t("clearSelectionAria")}
             >
-              Limpiar seleccion
+              {t("clearSelection")}
             </Button>
           </div>
         </div>
@@ -385,12 +390,8 @@ export function ProductosScreen() {
               className="mb-3 h-12 w-12 text-muted-foreground/50"
               aria-hidden="true"
             />
-            <h3 className="text-lg font-semibold text-foreground">
-              No se encontraron productos
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Intenta ajustar los filtros o la búsqueda, o agrega un nuevo producto.
-            </p>
+            <h3 className="text-lg font-semibold text-foreground">{t("emptyTitle")}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{t("emptyDescription")}</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               {(normalizedSearch || categoryFilter !== "all") && (
                 <Button
@@ -400,12 +401,12 @@ export function ProductosScreen() {
                     filtersForm.setValue("categoryFilter", "all");
                   }}
                 >
-                  Limpiar filtros
+                  {t("clearFilters")}
                 </Button>
               )}
               <Button onClick={() => handleAddProduct(getSearchPrefill())}>
                 <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                Agregar producto
+                {t("addProduct")}
               </Button>
             </div>
           </div>
@@ -458,14 +459,15 @@ export function ProductosScreen() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente el producto
-              &quot;{productToDelete?.name}&quot; de la base de datos.
+              {t("deleteDescription", { name: productToDelete?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={isPending}
@@ -477,7 +479,7 @@ export function ProductosScreen() {
                       id: productToDelete.id,
                     });
                     if (result.success) {
-                      toast.success("Producto eliminado");
+                      toast.success(tToast("deleted"));
                       invalidateQueries();
                     } else {
                       toast.error(result.error);
@@ -488,7 +490,7 @@ export function ProductosScreen() {
               }}
             >
               {isPending && <Spinner className="mr-2 text-destructive-foreground" />}
-              Eliminar
+              {tCommon("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,31 +1,47 @@
 import { type ClassValue, clsx } from "clsx";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { twMerge } from "tailwind-merge";
+import { defaultLocale, isLocale, type Locale, toIntlLocale } from "@/lib/i18n/config";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`;
+function resolveLocale(locale?: string): Locale {
+  return isLocale(locale) ? locale : defaultLocale;
+}
+
+export function formatCurrency(amount: number, locale: string = defaultLocale): string {
+  return new Intl.NumberFormat(toIntlLocale(resolveLocale(locale)), {
+    style: "currency",
+    currency: "MXN",
+  }).format(amount);
 }
 
 /** Formats a Date as "HH:mm" (e.g. "14:30"). */
-export function formatTime(timestamp: Date): string {
+export function formatTime(timestamp: Date, locale: string = defaultLocale): string {
   const d = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  return format(d, "HH:mm", { locale: es });
+  return format(d, "HH:mm", { locale: getDateFnsLocale(resolveLocale(locale)) });
 }
 
 /** Formats a date string as "dd MMM yyyy" (e.g. "15 ene 2025"). */
-export function formatDateShort(dateStr: string): string {
-  return format(new Date(`${dateStr}T12:00:00`), "dd MMM yyyy", { locale: es });
+export function formatDateShort(dateStr: string, locale: string = defaultLocale): string {
+  return format(new Date(`${dateStr}T12:00:00`), "dd MMM yyyy", {
+    locale: getDateFnsLocale(resolveLocale(locale)),
+  });
 }
 
-/** Formats an optional ISO date string as "dd MMM yyyy", returns "Nunca" if empty. */
-export function formatDateLabel(dateStr: string | undefined): string {
-  if (!dateStr) return "Nunca";
-  return format(new Date(dateStr), "dd MMM yyyy", { locale: es });
+/** Formats an optional ISO date string as "dd MMM yyyy", returns neverLabel if empty. */
+export function formatDateLabel(
+  dateStr: string | undefined,
+  locale: string = defaultLocale,
+  neverLabel = "Nunca"
+): string {
+  if (!dateStr) return neverLabel;
+  return format(new Date(dateStr), "dd MMM yyyy", {
+    locale: getDateFnsLocale(resolveLocale(locale)),
+  });
 }
 
 /** Formats a Date as "YYYY-MM-DD" in Mexico City timezone. */

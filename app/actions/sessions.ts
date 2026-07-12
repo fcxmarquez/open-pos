@@ -2,18 +2,20 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { db } from "@/db";
 import { salesSessions } from "@/db/schema";
-import type { ActionResult } from "@/lib/types";
-import { formatZodError } from "@/lib/types";
+import { type ActionResult, formatZodError } from "@/lib/types";
 
-const closeSessionSchema = z.object({
-  sessionId: z.string().uuid("ID de sesión inválido"),
-  countedTotal: z.coerce
-    .number()
-    .nonnegative("El total contado debe ser mayor o igual a 0"),
-});
+type ValidationT = Awaited<ReturnType<typeof getTranslations<"validation">>>;
+
+function createCloseSessionSchema(t: ValidationT) {
+  return z.object({
+    sessionId: z.string().uuid(t("sessionIdInvalid")),
+    countedTotal: z.coerce.number().nonnegative(t("countedTotalNonNegative")),
+  });
+}
 
 interface CloseSessionResult {
   id: string;
@@ -26,15 +28,18 @@ interface CloseSessionResult {
 }
 
 export async function closeSession(
-  input: z.input<typeof closeSessionSchema>
+  input: z.input<ReturnType<typeof createCloseSessionSchema>>
 ): Promise<ActionResult<CloseSessionResult>> {
+  const t = await getTranslations("validation");
+  const tErrors = await getTranslations("errors");
+  const closeSessionSchema = createCloseSessionSchema(t);
   const parsed = closeSessionSchema.safeParse(input);
 
   if (!parsed.success) {
     return {
       success: false,
       data: null,
-      error: formatZodError(parsed.error),
+      error: formatZodError(parsed.error, t("invalidInput")),
     };
   }
 
@@ -49,11 +54,19 @@ export async function closeSession(
         .limit(1);
 
       if (!session) {
-        return { success: false, data: null, error: "Sesión no encontrada" } as const;
+        return {
+          success: false,
+          data: null,
+          error: tErrors("sessionNotFound"),
+        } as const;
       }
 
       if (session.status !== "open") {
-        return { success: false, data: null, error: "La sesión ya fue cerrada" } as const;
+        return {
+          success: false,
+          data: null,
+          error: tErrors("sessionAlreadyClosed"),
+        } as const;
       }
 
       const systemTotal = Number(session.systemTotal ?? 0);
@@ -73,7 +86,11 @@ export async function closeSession(
         .returning();
 
       if (!updated) {
-        return { success: false, data: null, error: "La sesión ya fue cerrada" } as const;
+        return {
+          success: false,
+          data: null,
+          error: tErrors("sessionAlreadyClosed"),
+        } as const;
       }
 
       return {
@@ -101,7 +118,7 @@ export async function closeSession(
     return {
       success: false,
       data: null,
-      error: "No se pudo cerrar la sesión",
+      error: tErrors("closeSessionFailed"),
     };
   }
 }

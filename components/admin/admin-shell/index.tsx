@@ -2,10 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArrowRightLeft, LayoutDashboard, LogOut, RefreshCw } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { adminDashboardQueryOptions } from "@/components/admin/dashboard-screen/query";
 import {
@@ -14,35 +14,16 @@ import {
   NavigationSidebar,
 } from "@/components/navigation-sidebar";
 import { DemoBanner } from "@/components/pos/demo-banner";
+import {
+  LanguageSwitcher,
+  LanguageSwitcherSidebarRow,
+} from "@/components/pos/language-switcher";
 import { ThemeToggle, ThemeToggleSidebarRow } from "@/components/pos/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { STORE_NAME } from "@/lib/constants/store";
+import type { Locale } from "@/lib/i18n/config";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 import { cn, mexicoAnchoredDate } from "@/lib/utils";
-
-const navItems = [
-  {
-    icon: LayoutDashboard,
-    id: "dashboard",
-    label: "Dashboard",
-    path: "/admin/dashboard",
-    match: (pathname: string) => pathname.startsWith("/admin/dashboard"),
-  },
-  {
-    icon: ArrowRightLeft,
-    id: "ventas",
-    label: "Ir a Ventas",
-    path: "/ventas",
-    match: (pathname: string) => pathname.startsWith("/ventas"),
-  },
-] as const;
-
-function formatShortDate(date: Date): string {
-  return format(mexicoAnchoredDate(date), "d MMM yyyy", { locale: es });
-}
-
-function formatLongDate(date: Date): string {
-  return format(mexicoAnchoredDate(date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
-}
 
 export function AdminShell({
   children,
@@ -51,6 +32,8 @@ export function AdminShell({
   children: React.ReactNode;
   isDemoMode?: boolean;
 }) {
+  const t = useTranslations();
+  const locale = useLocale() as Locale;
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -63,6 +46,33 @@ export function AdminShell({
     refetch: refetchDashboard,
   } = useQuery(adminDashboardQueryOptions());
 
+  const formatShortDate = (date: Date) =>
+    format(mexicoAnchoredDate(date), "d MMM yyyy", { locale: getDateFnsLocale(locale) });
+
+  const formatLongDate = (date: Date) =>
+    format(
+      mexicoAnchoredDate(date),
+      locale === "en" ? "EEEE, MMMM d, yyyy" : "EEEE, d 'de' MMMM 'de' yyyy",
+      { locale: getDateFnsLocale(locale) }
+    );
+
+  const navItems = [
+    {
+      icon: LayoutDashboard,
+      id: "dashboard",
+      label: t("nav.dashboard"),
+      path: "/admin/dashboard",
+      match: (path: string) => path.startsWith("/admin/dashboard"),
+    },
+    {
+      icon: ArrowRightLeft,
+      id: "ventas",
+      label: t("nav.goToVentas"),
+      path: "/ventas",
+      match: (path: string) => path.startsWith("/ventas"),
+    },
+  ] as const;
+
   const items = navItems.map((item) => ({
     icon: item.icon,
     id: item.id,
@@ -73,9 +83,16 @@ export function AdminShell({
 
   const logoutAction = {
     icon: LogOut,
-    label: "Cerrar sesión",
+    label: t("nav.logout"),
     onSelect: () => signOut({ redirectTo: "/login" }),
   };
+
+  const sidebarFooter = (
+    <div className="flex w-full flex-col gap-1">
+      <LanguageSwitcherSidebarRow />
+      <ThemeToggleSidebarRow />
+    </div>
+  );
 
   const sessionControls = (
     <div className="flex items-center gap-3">
@@ -92,10 +109,10 @@ export function AdminShell({
         />
         <span>
           {!dashboardData && isDashboardStatePending
-            ? "Cargando estado..."
+            ? t("common.loadingState")
             : !dashboardData && hasDashboardStateError
-              ? "Estado no disponible"
-              : (dashboardData?.openSessionLabel ?? "Sin sesión abierta")}
+              ? t("common.stateUnavailable")
+              : (dashboardData?.openSessionLabel ?? t("common.noOpenSession"))}
         </span>
       </div>
 
@@ -105,11 +122,12 @@ export function AdminShell({
         size="icon"
         onClick={() => refetchDashboard()}
         disabled={isDashboardFetching}
-        aria-label="Actualizar dashboard"
+        aria-label={t("common.refreshDashboard")}
       >
         <RefreshCw className={cn("h-4 w-4", isDashboardFetching && "animate-spin")} />
       </Button>
 
+      <LanguageSwitcher className="hidden md:inline-flex" />
       <ThemeToggle className="hidden md:flex" />
     </div>
   );
@@ -126,19 +144,20 @@ export function AdminShell({
     >
       <NavigationSidebar
         action={isDemoMode ? null : logoutAction}
-        brandLabel="POS Admin"
+        brandLabel={t("common.posAdmin")}
         brandSubtitle={STORE_NAME}
         defaultExpanded
         expanded={sidebarExpanded}
+        footer={sidebarExpanded ? sidebarFooter : undefined}
         items={items}
         onExpandedChange={setSidebarExpanded}
       />
 
       <MobileNavigationSidebar
         action={isDemoMode ? null : logoutAction}
-        brandLabel="POS Admin"
+        brandLabel={t("common.posAdmin")}
         brandSubtitle={STORE_NAME}
-        footer={<ThemeToggleSidebarRow />}
+        footer={sidebarFooter}
         items={items}
         open={mobileOpen}
         onOpenChange={setMobileOpen}
@@ -148,7 +167,7 @@ export function AdminShell({
         <header className="hidden border-b bg-card md:block">
           <div className="flex items-center justify-between px-8 py-4">
             <div className="space-y-1">
-              <h1 className="text-2xl text-foreground">Dashboard</h1>
+              <h1 className="text-2xl text-foreground">{t("nav.dashboard")}</h1>
               <p
                 className="text-sm capitalize text-muted-foreground"
                 suppressHydrationWarning
@@ -165,7 +184,9 @@ export function AdminShell({
           <div className="flex min-w-0 items-center gap-3">
             <MobileNavigationTrigger onClick={() => setMobileOpen(true)} />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-foreground">Dashboard</p>
+              <p className="truncate text-sm font-semibold text-foreground">
+                {t("nav.dashboard")}
+              </p>
               <p
                 className="truncate text-xs text-muted-foreground"
                 suppressHydrationWarning

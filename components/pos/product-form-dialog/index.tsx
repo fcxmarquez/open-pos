@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -33,11 +34,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { getCategoryMessageKey } from "@/lib/i18n/categories";
 import {
   CATEGORY_OPTIONS,
+  createProductFormSchema,
   type ProductFormValues,
   productFormDefaults,
-  productFormSchema,
 } from "@/lib/pos-form-schemas";
 import type { Product } from "@/lib/store";
 
@@ -56,7 +58,16 @@ export function ProductFormDialog({
   onSuccess,
   initialValues,
 }: ProductFormDialogProps) {
+  const t = useTranslations("productos.form");
+  const tCommon = useTranslations("common");
+  const tCategories = useTranslations("categories");
+  const tToast = useTranslations("productos.toast");
+  const tValidation = useTranslations("validation");
   const [isPending, startTransition] = useTransition();
+  const productFormSchema = useMemo(
+    () => createProductFormSchema(tValidation),
+    [tValidation]
+  );
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: productFormDefaults,
@@ -96,7 +107,7 @@ export function ProductFormDialog({
           category: values.category,
         });
         if (result.success) {
-          toast.success("Producto actualizado");
+          toast.success(tToast("updated"));
           onOpenChange(false);
           onSuccess?.();
         } else {
@@ -116,7 +127,7 @@ export function ProductFormDialog({
           category: values.category,
         });
         if (result.success) {
-          toast.success("Producto agregado");
+          toast.success(tToast("added"));
           onOpenChange(false);
           onSuccess?.();
         } else {
@@ -141,12 +152,10 @@ export function ProductFormDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">
-            {product ? "Editar producto" : "Agregar producto"}
+            {product ? t("editTitle") : t("addTitle")}
           </DialogTitle>
           <DialogDescription>
-            {product
-              ? "Modifica los datos del producto"
-              : "Completa los datos del nuevo producto"}
+            {product ? t("editDescription") : t("addDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -160,11 +169,11 @@ export function ProductFormDialog({
               name="barcode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Codigo de barras</FormLabel>
+                  <FormLabel className="text-foreground">{t("barcodeLabel")}</FormLabel>
                   <FormControl>
                     <Input
                       id="pf-barcode"
-                      placeholder="Opcional"
+                      placeholder={t("barcodePlaceholder")}
                       className="mt-1 font-mono text-foreground"
                       disabled={isPending}
                       {...field}
@@ -180,12 +189,12 @@ export function ProductFormDialog({
               name="pluCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Codigo PLU</FormLabel>
+                  <FormLabel className="text-foreground">{t("pluLabel")}</FormLabel>
                   <FormControl>
                     <Input
                       id="pf-plu"
                       type="text"
-                      placeholder="0001"
+                      placeholder={tCommon("placeholderPlu")}
                       inputMode="numeric"
                       maxLength={4}
                       className="mt-1 font-mono text-foreground"
@@ -204,12 +213,12 @@ export function ProductFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground">
-                    Nombre <span className="text-destructive">*</span>
+                    {t("nameLabel")} <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
                       id="pf-name"
-                      placeholder="Nombre del producto"
+                      placeholder={t("namePlaceholder")}
                       className="mt-1 text-foreground"
                       disabled={isPending}
                       {...field}
@@ -227,7 +236,7 @@ export function ProductFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">
-                      Precio de venta <span className="text-destructive">*</span>
+                      {t("salePriceLabel")} <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -236,7 +245,7 @@ export function ProductFormDialog({
                         inputMode="decimal"
                         step="0.01"
                         min="0"
-                        placeholder="0.00"
+                        placeholder={tCommon("placeholderAmount")}
                         className="mt-1 text-foreground"
                         disabled={isPending}
                         {...field}
@@ -251,7 +260,9 @@ export function ProductFormDialog({
                 name="costPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Precio de costo</FormLabel>
+                    <FormLabel className="text-foreground">
+                      {t("costPriceLabel")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         id="pf-cost"
@@ -259,7 +270,7 @@ export function ProductFormDialog({
                         inputMode="decimal"
                         step="0.01"
                         min="0"
-                        placeholder="Opcional"
+                        placeholder={t("costPlaceholder")}
                         className="mt-1 text-foreground"
                         disabled={isPending}
                         {...field}
@@ -276,7 +287,7 @@ export function ProductFormDialog({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Categoria</FormLabel>
+                  <FormLabel className="text-foreground">{t("categoryLabel")}</FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
@@ -284,13 +295,13 @@ export function ProductFormDialog({
                   >
                     <FormControl>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Selecciona una categoria" />
+                        <SelectValue placeholder={t("categoryPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {CATEGORY_OPTIONS.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category}
+                          {tCategories(getCategoryMessageKey(category))}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -304,12 +315,12 @@ export function ProductFormDialog({
               {isPending ? (
                 <>
                   <Spinner className="mr-2" />
-                  Guardando...
+                  {tCommon("saving")}
                 </>
               ) : product ? (
-                "Guardar cambios"
+                tCommon("save")
               ) : (
-                "Agregar producto"
+                t("submitAdd")
               )}
             </Button>
           </form>

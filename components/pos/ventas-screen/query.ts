@@ -9,7 +9,7 @@ export function frequentProductsQueryOptions() {
     queryKey: frequentProductsQueryKey,
     queryFn: async () => {
       const products = await getFrequentProducts();
-      return products.map(dbProductToStoreProduct);
+      return products.map((p) => dbProductToStoreProduct(p));
     },
   });
 }

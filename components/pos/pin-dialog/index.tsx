@@ -1,6 +1,7 @@
 "use client";
 
 import { Lock, ShieldAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,13 +29,17 @@ export function PinDialog({
   open,
   onOpenChange,
   onSuccess,
-  title = "Acceso restringido",
-  description = "Ingresa el PIN de administrador para continuar",
+  title,
+  description,
 }: PinDialogProps) {
+  const t = useTranslations("auth.pin");
   const [digits, setDigits] = useState<string[]>(["", "", "", ""]);
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const resolvedTitle = title ?? t("title");
+  const resolvedDescription = description ?? t("description");
 
   const resetState = useCallback(() => {
     setDigits(["", "", "", ""]);
@@ -118,8 +123,8 @@ export function PinDialog({
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
             <Lock className="h-6 w-6 text-muted-foreground" />
           </div>
-          <DialogTitle className="text-foreground">{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle className="text-foreground">{resolvedTitle}</DialogTitle>
+          <DialogDescription>{resolvedDescription}</DialogDescription>
         </DialogHeader>
 
         <div
@@ -130,7 +135,7 @@ export function PinDialog({
         >
           {digits.map((digit, index) => (
             <Input
-              aria-label={`Dígito ${index + 1} del PIN`}
+              aria-label={t("digitAria", { index: index + 1 })}
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length PIN input, never reordered
               key={index}
               ref={(el) => {
@@ -155,13 +160,13 @@ export function PinDialog({
         {error && (
           <div className="flex items-center justify-center gap-1.5 text-sm text-destructive">
             <ShieldAlert className="h-4 w-4" />
-            <span>PIN incorrecto. Intenta de nuevo.</span>
+            <span>{t("incorrect")}</span>
           </div>
         )}
 
         <div className="flex justify-center pt-1">
           <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
-            Cancelar
+            {t("cancel")}
           </Button>
         </div>
       </DialogContent>

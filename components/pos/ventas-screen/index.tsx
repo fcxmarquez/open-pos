@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, ShoppingBag, X, Zap } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CheckoutDialog } from "@/components/pos/checkout-dialog";
@@ -31,6 +32,9 @@ import { frequentProductsQueryKey, frequentProductsQueryOptions } from "./query"
 import { useProductSearch } from "./use-product-search";
 
 export function VentasScreen() {
+  const t = useTranslations("ventas");
+  const tToast = useTranslations("ventas.toast");
+  const locale = useLocale();
   const [showUnregistered, setShowUnregistered] = useState(false);
   const [unregisteredBarcode, setUnregisteredBarcode] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
@@ -85,7 +89,7 @@ export function VentasScreen() {
 
   const handleProductClick = (product: Product) => {
     addToCart(product);
-    toast.success(`${product.name} agregado`);
+    toast.success(tToast("added", { name: product.name }));
     focusInput();
   };
 
@@ -96,7 +100,7 @@ export function VentasScreen() {
 
   const handleConfirmCancel = () => {
     clearCart();
-    toast.info("Venta cancelada");
+    toast.info(tToast("cancelled"));
     focusInput();
   };
 
@@ -135,8 +139,8 @@ export function VentasScreen() {
                           type="text"
                           inputMode="search"
                           autoComplete="off"
-                          aria-label="Buscar producto"
-                          placeholder="Busca o escanea un producto..."
+                          aria-label={t("searchAria")}
+                          placeholder={t("searchPlaceholder")}
                           className="h-full flex-1 border-0 bg-transparent p-0 text-sm font-medium shadow-none placeholder:font-medium placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                           autoFocus
                           disabled={isSubmitting}
@@ -150,7 +154,7 @@ export function VentasScreen() {
                           size="icon"
                           className="h-8 w-8 shrink-0 text-muted-foreground hover:text-accent-foreground"
                           onClick={clearSearchAndFocus}
-                          aria-label="Borrar búsqueda"
+                          aria-label={t("clearSearchAria")}
                         >
                           <X className="h-4 w-4" aria-hidden="true" />
                         </Button>
@@ -160,11 +164,11 @@ export function VentasScreen() {
                         onClick={() => setShowQuickSale(true)}
                         size="sm"
                         className="shrink-0"
-                        aria-label="Venta rápida"
+                        aria-label={t("quickSaleAria")}
                       >
                         <Zap className="h-3.5 w-3.5" />
                         <span className="hidden text-xs font-semibold md:inline">
-                          Venta rápida (F4)
+                          {t("quickSaleButton")}
                         </span>
                       </Button>
                     </SearchBar>
@@ -189,10 +193,10 @@ export function VentasScreen() {
                   aria-hidden="true"
                 />
                 <p className="text-sm font-medium text-foreground">
-                  No se encontraron productos
+                  {t("noProductsFound")}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Presiona Enter para registrarlo
+                  {t("pressEnterToRegister")}
                 </p>
               </div>
             ) : (
@@ -202,10 +206,14 @@ export function VentasScreen() {
                   key={p.id}
                   onClick={() => {
                     addToCart(p);
-                    toast.success(`${p.name} agregado`);
+                    toast.success(tToast("added", { name: p.name }));
                     clearSearchAndFocus();
                   }}
-                  aria-label={`Agregar ${p.name} al carrito por ${formatCurrency(p.price)}`}
+                  // biome-ignore lint/security/noSecrets: translation message key, not a secret
+                  aria-label={t("addToCartAria", {
+                    name: p.name,
+                    price: formatCurrency(p.price, locale),
+                  })}
                   className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
                 >
                   <div>
@@ -215,7 +223,7 @@ export function VentasScreen() {
                     </span>
                   </div>
                   <span className="font-semibold text-foreground">
-                    {formatCurrency(p.price)}
+                    {formatCurrency(p.price, locale)}
                   </span>
                 </button>
               ))
@@ -226,7 +234,7 @@ export function VentasScreen() {
         {/* Frequent products grid */}
         <div className="flex-1 overflow-auto">
           <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.8px] text-foreground">
-            Productos frecuentes
+            {t("frequentProducts")}
           </h3>
           <div className="grid grid-cols-2 gap-[10px] md:grid-cols-4">
             {frequentProducts.map((product) => (
@@ -234,7 +242,11 @@ export function VentasScreen() {
                 type="button"
                 key={product.id}
                 onClick={() => handleProductClick(product)}
-                aria-label={`Agregar ${product.name} al carrito por ${formatCurrency(product.price)}`}
+                // biome-ignore lint/security/noSecrets: translation message key, not a secret
+                aria-label={t("addToCartAria", {
+                  name: product.name,
+                  price: formatCurrency(product.price, locale),
+                })}
                 className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all hover:border-primary/40 hover:shadow-xs active:scale-[0.98]"
               >
                 <div
@@ -246,7 +258,7 @@ export function VentasScreen() {
                     {product.name}
                   </span>
                   <span className="text-xl font-extrabold tracking-[-0.5px] text-foreground">
-                    {formatCurrency(product.price)}
+                    {formatCurrency(product.price, locale)}
                   </span>
                 </div>
               </button>
@@ -260,16 +272,19 @@ export function VentasScreen() {
         <Button
           className="w-full"
           onClick={() => setMobileCartOpen(true)}
-          aria-label={`Ver carrito con ${cartItemCount} artículos, total ${formatCurrency(cartTotal)}`}
+          aria-label={t("viewCartAria", {
+            count: cartItemCount,
+            total: formatCurrency(cartTotal, locale),
+          })}
         >
           <ShoppingBag className="mr-2 h-4 w-4" aria-hidden="true" />
-          Ver carrito
+          {t("viewCart")}
           {cartItemCount > 0 && (
             <Badge variant="inverted" size="chip" className="ml-2 rounded-full">
               {cartItemCount}
             </Badge>
           )}
-          <span className="ml-auto font-bold">{formatCurrency(cartTotal)}</span>
+          <span className="ml-auto font-bold">{formatCurrency(cartTotal, locale)}</span>
         </Button>
       </div>
 
@@ -282,7 +297,7 @@ export function VentasScreen() {
           onKeyDown={(e) => {
             if (e.key === "Escape") setMobileCartOpen(false);
           }}
-          aria-label="Cerrar carrito"
+          aria-label={t("closeCartAria")}
         />
       )}
 
@@ -348,16 +363,13 @@ export function VentasScreen() {
       <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Cancelar la venta?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Se perderán todos los productos del carrito. Esta acción no se puede
-              deshacer.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("cancelSaleTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("cancelSaleDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>No, continuar</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancelSaleNo")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmCancel}>
-              Sí, cancelar
+              {t("cancelSaleYes")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

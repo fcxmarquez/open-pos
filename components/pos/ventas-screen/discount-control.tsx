@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Pencil, Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,8 @@ import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export function DiscountControl() {
+  const t = useTranslations("ventas.discount");
+  const tCommon = useTranslations("common");
   const cartIsEmpty = useStore((s) => s.cart.length === 0);
   const discountPercent = useStore((s) => s.discountPercent);
   const setDiscountPercent = useStore((s) => s.setDiscountPercent);
@@ -51,19 +54,19 @@ export function DiscountControl() {
             {hasDiscount ? (
               <>
                 <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                {`${discountPercent}% aplicado`}
+                {t("applied", { percent: discountPercent })}
               </>
             ) : (
               <>
                 <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                Descuento
+                {t("label")}
               </>
             )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-56 p-3" align="start">
           <p className="mb-2 text-xs font-semibold text-muted-foreground">
-            Descuento sobre el subtotal
+            {t("subtotalHint")}
           </p>
           <div className="flex items-center gap-1.5">
             <Input
@@ -76,15 +79,15 @@ export function DiscountControl() {
                 if (e.key === "Enter") applyDraft();
                 if (e.key === "Escape") setIsOpen(false);
               }}
-              placeholder="0"
+              placeholder={tCommon("placeholderZero")}
               autoFocus
               className="h-9 text-right text-sm font-semibold"
-              aria-label="Porcentaje de descuento"
+              aria-label={t("percentAria")}
             />
             <span className="text-sm font-semibold text-foreground">%</span>
           </div>
           <Button size="sm" className="mt-2.5 w-full" onClick={applyDraft}>
-            Aplicar
+            {tCommon("apply")}
           </Button>
         </PopoverContent>
       </Popover>
@@ -97,7 +100,7 @@ export function DiscountControl() {
             className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
             onClick={openEditor}
             disabled={cartIsEmpty}
-            aria-label="Editar descuento"
+            aria-label={t("editAria")}
           >
             <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
@@ -106,7 +109,7 @@ export function DiscountControl() {
             size="icon"
             className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
             onClick={() => setDiscountPercent(0)}
-            aria-label="Quitar descuento"
+            aria-label={t("removeAria")}
           >
             <X className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>

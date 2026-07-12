@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -28,6 +31,7 @@ export function ProductsPagination({
   totalPages,
   totalProducts,
 }: ProductsPaginationProps) {
+  const t = useTranslations("common");
   const safePage = totalProducts === 0 ? 1 : Math.min(page, Math.max(totalPages, 1));
   const from = totalProducts === 0 ? 0 : (safePage - 1) * pageSize + 1;
   const to = totalProducts === 0 ? 0 : Math.min(safePage * pageSize, totalProducts);
@@ -41,14 +45,14 @@ export function ProductsPagination({
           size="chip"
           className="rounded-full px-3 py-1 font-semibold"
         >
-          {totalProducts} productos
+          {t("productsCount", { count: totalProducts })}
         </Badge>
         <Badge
           variant="outline"
           size="chip"
           className="rounded-full px-3 py-1 font-normal"
         >
-          Página {page} de {totalPages}
+          {t("pageOf", { page, totalPages })}
         </Badge>
         {isFetching && <Spinner />}
       </div>
@@ -65,7 +69,7 @@ export function ProductsPagination({
       >
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
-            Mostrando {from} a {to} de {totalProducts} resultados
+            {t("showingResults", { from, to, total: totalProducts })}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -74,7 +78,7 @@ export function ProductsPagination({
               onClick={onPrevious}
               disabled={hideMobilePaginationRow || !hasPreviousPage || isFetching}
             >
-              Anterior
+              {t("previous")}
             </Button>
             <Button
               variant="outline"
@@ -82,7 +86,7 @@ export function ProductsPagination({
               onClick={onNext}
               disabled={hideMobilePaginationRow || !hasNextPage || isFetching}
             >
-              Siguiente
+              {t("next")}
             </Button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsLeft, ChevronsRight, type LucideIcon, Menu, Store } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -44,6 +45,7 @@ interface NavigationSidebarProps {
   brandTitle?: string;
   defaultExpanded?: boolean;
   expanded?: boolean;
+  footer?: React.ReactNode;
   items: NavigationSidebarItem[];
   onExpandedChange?: (expanded: boolean) => void;
 }
@@ -71,6 +73,8 @@ function NavigationSidebarContent({
   onToggleExpanded,
   showExpandToggle,
 }: NavigationSidebarContentProps) {
+  const t = useTranslations("nav");
+
   return (
     <div
       className={cn(
@@ -120,7 +124,7 @@ function NavigationSidebarContent({
               variant="ghost"
               size="icon"
               onClick={onToggleExpanded}
-              aria-label="Contraer sidebar"
+              aria-label={t("collapseSidebar")}
               className="ml-auto h-9 w-9 shrink-0 rounded-xl text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
             >
               <ChevronsLeft className="h-4 w-4" />
@@ -132,8 +136,8 @@ function NavigationSidebarContent({
           <button
             type="button"
             onClick={onToggleExpanded}
-            aria-label="Expandir sidebar"
-            title="Expandir sidebar"
+            aria-label={t("expandSidebar")}
+            title={t("expandSidebar")}
             className="flex h-10 w-[46px] items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
           >
             <ChevronsRight className="h-4 w-4" />
@@ -266,6 +270,7 @@ export function NavigationSidebar({
   brandTitle,
   defaultExpanded = true,
   expanded: expandedProp,
+  footer,
   items,
   onExpandedChange,
 }: NavigationSidebarProps) {
@@ -297,6 +302,7 @@ export function NavigationSidebar({
         brandSubtitle={brandSubtitle}
         brandTitle={brandTitle}
         expanded={allowExpandedDesktop ? expanded : false}
+        footer={footer}
         items={items}
         onToggleExpanded={allowExpandedDesktop ? toggleExpanded : undefined}
         showExpandToggle={allowExpandedDesktop}
@@ -362,13 +368,15 @@ export function MobileNavigationTrigger({
   className?: string;
   onClick: () => void;
 }) {
+  const t = useTranslations("nav");
+
   return (
     <Button
       type="button"
       variant="ghost"
       size="icon"
       onClick={onClick}
-      aria-label="Abrir navegación"
+      aria-label={t("openNavigation")}
       className={cn("h-10 w-10 rounded-xl", className)}
     >
       <Menu className="h-5 w-5" />

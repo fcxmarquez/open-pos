@@ -1,9 +1,11 @@
 "use client";
 
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
+import type { Locale } from "@/lib/i18n/config";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 import { cn } from "@/lib/utils";
 
 interface StaleSessionBannerProps {
@@ -15,17 +17,20 @@ interface StaleSessionBannerProps {
   className?: string;
 }
 
-function formatSessionDate(sessionDate: string): string {
-  return format(new Date(`${sessionDate}T12:00:00`), "d 'de' MMMM", {
-    locale: es,
-  });
-}
-
 export function StaleSessionBanner({
   staleSession,
   onDismiss,
   className,
 }: StaleSessionBannerProps) {
+  const t = useTranslations("admin.stale");
+  const locale = useLocale() as Locale;
+
+  const sessionDateLabel = format(
+    new Date(`${staleSession.sessionDate}T12:00:00`),
+    locale === "en" ? "MMMM d" : "d 'de' MMMM",
+    { locale: getDateFnsLocale(locale) }
+  );
+
   return (
     <div
       role="alert"
@@ -38,20 +43,16 @@ export function StaleSessionBanner({
         <div className="min-w-0 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <Badge size="chip" variant="warning">
-              Corte pendiente
+              {t("badge")}
             </Badge>
-            <span className="text-xs text-muted-foreground">
-              Se cerrará con la próxima venta.
-            </span>
+            <span className="text-xs text-muted-foreground">{t("hint")}</span>
           </div>
 
           <p className="text-sm leading-5">
-            El corte del{" "}
-            <span className="font-semibold">
-              {formatSessionDate(staleSession.sessionDate)}
-            </span>{" "}
-            (Turno <span className="font-semibold">{staleSession.sessionNumber}</span>) no
-            fue cerrado.
+            {t("message", {
+              date: sessionDateLabel,
+              number: staleSession.sessionNumber,
+            })}
           </p>
         </div>
       </div>
@@ -61,7 +62,7 @@ export function StaleSessionBanner({
           type="button"
           onClick={onDismiss}
           className="shrink-0 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          aria-label="Descartar aviso"
+          aria-label={t("dismissAria")}
         >
           <X className="h-4 w-4" />
         </button>

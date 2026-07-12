@@ -1,6 +1,7 @@
 "use client";
 
 import { Receipt } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -11,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Locale } from "@/lib/i18n/config";
 import { formatCurrency, formatTime } from "@/lib/utils";
 import { PanelEmptyState } from "../panel-empty-state";
 
@@ -32,21 +34,23 @@ export function LatestTransactionsPanel({
   productsSold,
   latestTransactions,
 }: LatestTransactionsPanelProps) {
+  const t = useTranslations();
+  const tTx = useTranslations("admin.transactions");
+  const locale = useLocale() as Locale;
+
   return (
     <Card className="flex flex-col rounded-3xl">
       <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
-          <CardTitle className="text-lg">Últimas transacciones</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Movimientos recientes del turno actual.
-          </p>
+          <CardTitle className="text-lg">{tTx("title")}</CardTitle>
+          <p className="text-sm text-muted-foreground">{tTx("subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="muted" size="pill">
-            {transactionCount} ventas
+            {t("common.salesCount", { count: transactionCount })}
           </Badge>
           <Badge variant="muted" size="pill">
-            {productsSold} productos
+            {t("common.productsCount", { count: productsSold })}
           </Badge>
         </div>
       </CardHeader>
@@ -54,17 +58,17 @@ export function LatestTransactionsPanel({
         {latestTransactions.length === 0 ? (
           <PanelEmptyState
             icon={Receipt}
-            title="No hay transacciones hoy"
-            description="Las ventas realizadas durante el turno actual aparecerán aquí."
+            title={tTx("emptyTitle")}
+            description={tTx("emptyDescription")}
           />
         ) : (
           <div className="h-80 grow overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Hora</TableHead>
-                  <TableHead>Productos</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead>{tTx("table.time")}</TableHead>
+                  <TableHead>{tTx("table.products")}</TableHead>
+                  <TableHead className="text-right">{tTx("table.total")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -75,7 +79,7 @@ export function LatestTransactionsPanel({
                   return (
                     <TableRow key={transaction.id}>
                       <TableCell className="font-medium text-foreground">
-                        {formatTime(new Date(transaction.createdAt))}
+                        {formatTime(new Date(transaction.createdAt), locale)}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-2">
@@ -85,18 +89,21 @@ export function LatestTransactionsPanel({
                               variant="muted"
                               size="chip"
                             >
-                              {item.name} x{item.quantity}
+                              {t("common.saleItemFormat", {
+                                name: item.name,
+                                quantity: item.quantity,
+                              })}
                             </Badge>
                           ))}
                           {hiddenItems > 0 ? (
                             <Badge variant="muted" size="chip">
-                              +{hiddenItems}
+                              {t("common.moreItems", { count: hiddenItems })}
                             </Badge>
                           ) : null}
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-semibold text-foreground">
-                        {formatCurrency(transaction.total)}
+                        {formatCurrency(transaction.total, locale)}
                       </TableCell>
                     </TableRow>
                   );

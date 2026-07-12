@@ -22,6 +22,9 @@ export const CATEGORY_OPTIONS = [
 
 export const CATEGORY_FILTER_OPTIONS = ["all", ...CATEGORY_OPTIONS] as const;
 
+/** Translator for validation.* message keys. */
+export type ValidationTranslate = (key: string) => string;
+
 const numberString = (requiredMessage: string, invalidMessage: string) =>
   z
     .string()
@@ -50,13 +53,26 @@ const optionalNonNegativeNumberString = (message: string) =>
     );
 
 const optionalTrimmedString = z.string().trim();
-const optionalPluCodeString = z
-  .string()
-  .trim()
-  .refine(
-    (value) => value === "" || PLU_CODE_REGEX.test(value),
-    "Ingresa un codigo PLU valido de 4 digitos"
-  );
+
+function createOptionalPluCodeString(t: ValidationTranslate) {
+  return z
+    .string()
+    .trim()
+    .refine((value) => value === "" || PLU_CODE_REGEX.test(value), t("pluInvalid"));
+}
+
+/** Spanish fallbacks matching messages/es.json validation.* (default-compatible). */
+const spanishValidation: Record<string, string> = {
+  pluInvalid: "Ingresa un código PLU válido de 4 dígitos",
+  nameRequired: "El nombre es requerido",
+  priceInvalid: "Ingresa un precio válido",
+  costPriceInvalid: "Ingresa un precio de costo válido",
+  paymentInvalid: "Ingresa un pago válido",
+  countedCashRequired: "Ingresa el efectivo contado",
+  amountInvalid: "Ingresa un monto válido",
+};
+
+const defaultValidationT: ValidationTranslate = (key) => spanishValidation[key] ?? key;
 
 export const ventasSearchFormSchema = z.object({
   searchValue: optionalTrimmedString,
@@ -76,16 +92,20 @@ export const productosFiltersFormDefaults: z.input<typeof productosFiltersFormSc
   categoryFilter: "all",
 };
 
-export const productFormSchema = z.object({
-  barcode: optionalTrimmedString,
-  pluCode: optionalPluCodeString,
-  name: z.string().trim().min(1, "El nombre es requerido"),
-  price: positiveNumberString("Ingresa un precio valido"),
-  costPrice: optionalNonNegativeNumberString("Ingresa un precio de costo valido"),
-  category: z.enum(CATEGORY_OPTIONS),
-});
+export function createProductFormSchema(t: ValidationTranslate) {
+  return z.object({
+    barcode: optionalTrimmedString,
+    pluCode: createOptionalPluCodeString(t),
+    name: z.string().trim().min(1, t("nameRequired")),
+    price: positiveNumberString(t("priceInvalid")),
+    costPrice: optionalNonNegativeNumberString(t("costPriceInvalid")),
+    category: z.enum(CATEGORY_OPTIONS),
+  });
+}
 
-export const productFormDefaults: z.input<typeof productFormSchema> = {
+export const productFormSchema = createProductFormSchema(defaultValidationT);
+
+export const productFormDefaults: z.input<ReturnType<typeof createProductFormSchema>> = {
   barcode: "",
   pluCode: "",
   name: "",
@@ -94,53 +114,70 @@ export const productFormDefaults: z.input<typeof productFormSchema> = {
   category: "General",
 };
 
-export const checkoutFormSchema = z.object({
-  payment: positiveNumberString("Ingresa un pago valido"),
-});
+export function createCheckoutFormSchema(t: ValidationTranslate) {
+  return z.object({
+    payment: positiveNumberString(t("paymentInvalid")),
+  });
+}
 
-export const checkoutFormDefaults: z.input<typeof checkoutFormSchema> = {
-  payment: "",
-};
+export const checkoutFormSchema = createCheckoutFormSchema(defaultValidationT);
 
-export const quickSaleFormSchema = z.object({
-  price: positiveNumberString("Ingresa un precio valido"),
-  name: optionalTrimmedString,
-});
+export const checkoutFormDefaults: z.input<ReturnType<typeof createCheckoutFormSchema>> =
+  {
+    payment: "",
+  };
 
-export const quickSaleFormDefaults: z.input<typeof quickSaleFormSchema> = {
+export function createQuickSaleFormSchema(t: ValidationTranslate) {
+  return z.object({
+    price: positiveNumberString(t("priceInvalid")),
+    name: optionalTrimmedString,
+  });
+}
+
+export const quickSaleFormSchema = createQuickSaleFormSchema(defaultValidationT);
+
+export const quickSaleFormDefaults: z.input<
+  ReturnType<typeof createQuickSaleFormSchema>
+> = {
   price: "",
   name: "",
 };
 
-export const unregisteredProductFormSchema = z.object({
-  price: positiveNumberString("Ingresa un precio valido"),
-  name: optionalTrimmedString,
-  category: z.enum(CATEGORY_OPTIONS),
-});
+export function createUnregisteredProductFormSchema(t: ValidationTranslate) {
+  return z.object({
+    price: positiveNumberString(t("priceInvalid")),
+    name: optionalTrimmedString,
+    category: z.enum(CATEGORY_OPTIONS),
+  });
+}
+
+export const unregisteredProductFormSchema =
+  createUnregisteredProductFormSchema(defaultValidationT);
 
 export const unregisteredProductFormDefaults: z.input<
-  typeof unregisteredProductFormSchema
+  ReturnType<typeof createUnregisteredProductFormSchema>
 > = {
   price: "",
   name: "",
   category: "General",
 };
 
-export const corteFormSchema = z.object({
-  countedCash: nonNegativeNumberString(
-    "Ingresa el efectivo contado",
-    "Ingresa un monto valido"
-  ),
-});
+export function createCorteFormSchema(t: ValidationTranslate) {
+  return z.object({
+    countedCash: nonNegativeNumberString(t("countedCashRequired"), t("amountInvalid")),
+  });
+}
 
-export const corteFormDefaults: z.input<typeof corteFormSchema> = {
+export const corteFormSchema = createCorteFormSchema(defaultValidationT);
+
+export const corteFormDefaults: z.input<ReturnType<typeof createCorteFormSchema>> = {
   countedCash: "",
 };
 
-export type ProductFormValues = z.output<typeof productFormSchema>;
-export type CheckoutFormValues = z.output<typeof checkoutFormSchema>;
-export type QuickSaleFormValues = z.output<typeof quickSaleFormSchema>;
+export type ProductFormValues = z.output<ReturnType<typeof createProductFormSchema>>;
+export type CheckoutFormValues = z.output<ReturnType<typeof createCheckoutFormSchema>>;
+export type QuickSaleFormValues = z.output<ReturnType<typeof createQuickSaleFormSchema>>;
 export type UnregisteredProductFormValues = z.output<
-  typeof unregisteredProductFormSchema
+  ReturnType<typeof createUnregisteredProductFormSchema>
 >;
-export type CorteFormValues = z.output<typeof corteFormSchema>;
+export type CorteFormValues = z.output<ReturnType<typeof createCorteFormSchema>>;

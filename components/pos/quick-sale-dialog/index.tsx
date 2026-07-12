@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  createQuickSaleFormSchema,
   type QuickSaleFormValues,
   quickSaleFormDefaults,
-  quickSaleFormSchema,
 } from "@/lib/pos-form-schemas";
 import { type Category, useStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
 
 interface QuickSaleDialogProps {
   open: boolean;
@@ -39,6 +41,16 @@ export function QuickSaleDialog({
   onOpenChange,
   onComplete,
 }: QuickSaleDialogProps) {
+  const t = useTranslations("ventas.quickSale");
+  const tCommon = useTranslations("common");
+  const tValidation = useTranslations("validation");
+  const locale = useLocale();
+
+  const quickSaleFormSchema = useMemo(
+    () => createQuickSaleFormSchema(tValidation),
+    [tValidation]
+  );
+
   const form = useForm<QuickSaleFormValues>({
     resolver: zodResolver(quickSaleFormSchema),
     defaultValues: quickSaleFormDefaults,
@@ -54,7 +66,7 @@ export function QuickSaleDialog({
 
   const handleSubmit = (values: QuickSaleFormValues) => {
     const priceNum = Number.parseFloat(values.price);
-    const saleName = values.name || "Venta rápida";
+    const saleName = values.name || t("defaultName");
 
     const tempProduct = {
       id: `quick-${Date.now()}`,
@@ -65,7 +77,9 @@ export function QuickSaleDialog({
       createdAt: new Date().toISOString(),
     };
     addToCart(tempProduct);
-    toast.success(`${saleName} agregado - $${priceNum.toFixed(2)}`);
+    toast.success(
+      t("toast", { name: saleName, price: formatCurrency(priceNum, locale) })
+    );
     onOpenChange(false);
     onComplete();
   };
@@ -74,8 +88,8 @@ export function QuickSaleDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Venta rápida</DialogTitle>
-          <DialogDescription>Agrega un artículo sin código de barras</DialogDescription>
+          <DialogTitle className="text-foreground">{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -89,7 +103,7 @@ export function QuickSaleDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground">
-                    Precio <span className="text-destructive">*</span>
+                    {t("priceLabel")} <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -98,7 +112,7 @@ export function QuickSaleDialog({
                       inputMode="decimal"
                       step="0.01"
                       min="0"
-                      placeholder="0.00"
+                      placeholder={tCommon("placeholderAmount")}
                       className="mt-1 text-foreground"
                       {...field}
                     />
@@ -113,13 +127,11 @@ export function QuickSaleDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">
-                    Descripción (opcional)
-                  </FormLabel>
+                  <FormLabel className="text-foreground">{t("nameLabel")}</FormLabel>
                   <FormControl>
                     <Input
                       id="qs-name"
-                      placeholder="Ej. Fotocopias, impresiones..."
+                      placeholder={t("namePlaceholder")}
                       className="mt-1 text-foreground"
                       {...field}
                     />
@@ -130,7 +142,7 @@ export function QuickSaleDialog({
             />
 
             <Button type="submit" className="w-full">
-              Agregar a venta
+              {t("submit")}
             </Button>
           </form>
         </Form>

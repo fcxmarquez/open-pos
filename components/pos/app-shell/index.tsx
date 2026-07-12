@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   CircleDot,
   LayoutDashboard,
@@ -13,14 +12,18 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { NavigationSidebar } from "@/components/navigation-sidebar";
 import { openSessionQueryOptions } from "@/components/pos/corte-screen/query";
 import { DemoBanner } from "@/components/pos/demo-banner";
+import { LanguageSwitcher } from "@/components/pos/language-switcher";
 import { PinDialog } from "@/components/pos/pin-dialog";
 import { ThemeToggle } from "@/components/pos/theme-toggle";
 import { Spinner } from "@/components/ui/spinner";
 import { STORE_NAME } from "@/lib/constants/store";
+import type { Locale } from "@/lib/i18n/config";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 import { cn } from "@/lib/utils";
 
 type Screen = "ventas" | "productos" | "corte";
@@ -32,34 +35,6 @@ const screenPaths: Record<Screen, string> = {
 };
 
 const SESSION_KEY = "pos-admin-unlocked";
-
-const navItems = [
-  {
-    id: "ventas" as const,
-    label: "Ventas",
-    mobileLabel: "Ventas",
-    icon: ShoppingCart,
-    locked: false,
-  },
-  {
-    id: "productos" as const,
-    label: "Productos",
-    mobileLabel: "Productos",
-    icon: Package,
-    locked: true,
-  },
-  {
-    id: "corte" as const,
-    label: "Corte de Caja",
-    mobileLabel: "Corte",
-    icon: WalletCards,
-    locked: true,
-  },
-];
-
-function formatDate(): string {
-  return format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es });
-}
 
 function pathToScreen(pathname: string): Screen {
   if (pathname.startsWith("/productos")) return "productos";
@@ -76,6 +51,8 @@ export function AppShell({
   isAdmin?: boolean;
   isDemoMode?: boolean;
 }) {
+  const t = useTranslations();
+  const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
   const activeScreen = pathToScreen(pathname);
@@ -86,13 +63,47 @@ export function AppShell({
   const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
   const isLoggingOut = useRef(false);
 
-  const [dateStr, setDateStr] = useState(formatDate);
+  const formatHeaderDate = () =>
+    format(
+      new Date(),
+      locale === "en" ? "EEEE, MMMM d, yyyy" : "EEEE, d 'de' MMMM 'de' yyyy",
+      {
+        locale: getDateFnsLocale(locale),
+      }
+    );
+
+  const [dateStr, setDateStr] = useState(formatHeaderDate);
   const canAccessProtectedScreens = isDemoMode || isAdmin || adminUnlocked;
 
+  const navItems = [
+    {
+      id: "ventas" as const,
+      label: t("nav.ventas"),
+      mobileLabel: t("nav.ventas"),
+      icon: ShoppingCart,
+      locked: false,
+    },
+    {
+      id: "productos" as const,
+      label: t("nav.productos"),
+      mobileLabel: t("nav.productos"),
+      icon: Package,
+      locked: true,
+    },
+    {
+      id: "corte" as const,
+      label: t("nav.corte"),
+      mobileLabel: t("nav.corteMobile"),
+      icon: WalletCards,
+      locked: true,
+    },
+  ];
+
   useEffect(() => {
-    const timer = window.setInterval(() => setDateStr(formatDate()), 60_000);
+    setDateStr(formatHeaderDate());
+    const timer = window.setInterval(() => setDateStr(formatHeaderDate()), 60_000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [locale]);
 
   const { data: openSession, isPending: isSessionPending } = useQuery(
     openSessionQueryOptions()
@@ -153,14 +164,14 @@ export function AppShell({
 
   const logoutAction = {
     icon: LogOut,
-    label: "Cerrar sesión",
+    label: t("nav.logout"),
     onSelect: adminUnlocked ? requestLogout : performLogout,
   };
 
   if (!mounted) {
     return (
       <div className="flex h-dvh items-center justify-center bg-background">
-        <div className="text-muted-foreground">Cargando...</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       </div>
     );
   }
@@ -188,7 +199,7 @@ export function AppShell({
                   icon: LayoutDashboard,
                   id: "admin",
                   isActive: false,
-                  label: "Panel Admin",
+                  label: t("nav.adminPanel"),
                   onSelect: () => router.push("/admin/dashboard"),
                 },
               ]
@@ -196,9 +207,7 @@ export function AppShell({
         ]}
       />
 
-      {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
         <header className="flex flex-col gap-1.5 px-3 py-2 md:h-14 md:flex-row md:items-center md:gap-3 md:py-0">
           <h2 className="font-heading text-2xl font-extrabold text-foreground">
             {navItems.find((n) => n.id === activeScreen)?.label}
@@ -207,35 +216,30 @@ export function AppShell({
           <div className="hidden md:block md:flex-1" />
 
           <div className="flex items-center gap-2 md:gap-3">
-            {/* Session badge */}
             <div className="flex items-center gap-1.5 rounded-xl border border-border bg-muted px-3 h-8">
               <CircleDot className="h-3.5 w-3.5 text-foreground" />
               {isSessionPending ? (
                 <Spinner className="text-foreground" />
               ) : (
                 <span className="font-body text-xs font-semibold text-foreground">
-                  {openSession ? "Sesión abierta" : "Sin sesión"}
+                  {openSession ? t("common.sessionOpen") : t("common.noSession")}
                 </span>
               )}
             </div>
 
-            {/* Date */}
             <div className="font-body text-xs font-semibold text-foreground capitalize md:w-[190px] md:text-right">
               {dateStr}
             </div>
-            {/* Theme toggle */}
+            <LanguageSwitcher />
             <ThemeToggle />
           </div>
         </header>
 
-        {/* Demo banner */}
         {isDemoMode && <DemoBanner />}
 
-        {/* Screen content */}
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
 
-      {/* Mobile bottom navigation */}
       <nav className="border-t border-border bg-card p-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] md:hidden">
         <div className="flex items-center gap-2">
           {navItems.map((item) => {
@@ -265,10 +269,10 @@ export function AppShell({
               type="button"
               onClick={() => router.push("/admin/dashboard")}
               className="flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              aria-label="Panel Admin"
+              aria-label={t("nav.adminPanel")}
             >
               <LayoutDashboard className="h-4 w-4" />
-              <span>Panel Admin</span>
+              <span>{t("nav.adminPanel")}</span>
             </button>
           ) : null}
 
@@ -277,24 +281,21 @@ export function AppShell({
               type="button"
               onClick={logoutAction.onSelect}
               className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
-              aria-label="Cerrar sesión"
-              title="Cerrar sesión"
+              aria-label={t("nav.logout")}
+              title={t("nav.logout")}
             >
               <LogOut className="h-4 w-4" />
-              <span>Salir</span>
+              <span>{t("nav.logoutMobile")}</span>
             </button>
           )}
         </div>
       </nav>
 
-      {/* PIN Dialog */}
       <PinDialog
         open={pinDialogOpen}
-        title={pendingScreen === null ? "Confirmar salida" : undefined}
+        title={pendingScreen === null ? t("auth.pin.confirmLogoutTitle") : undefined}
         description={
-          pendingScreen === null
-            ? "Ingresa el PIN de administrador para cerrar sesión"
-            : undefined
+          pendingScreen === null ? t("auth.pin.confirmLogoutDescription") : undefined
         }
         onOpenChange={(open) => {
           setPinDialogOpen(open);

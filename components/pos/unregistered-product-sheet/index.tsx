@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createProduct } from "@/app/actions/products";
@@ -31,14 +32,16 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
+import { getCategoryMessageKey } from "@/lib/i18n/categories";
 import { dbProductToStoreProduct } from "@/lib/mappers";
 import {
   CATEGORY_OPTIONS,
+  createUnregisteredProductFormSchema,
   type UnregisteredProductFormValues,
   unregisteredProductFormDefaults,
-  unregisteredProductFormSchema,
 } from "@/lib/pos-form-schemas";
 import { type Category, type Product, useStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
 
 interface UnregisteredProductSheetProps {
   open: boolean;
@@ -53,7 +56,18 @@ export function UnregisteredProductSheet({
   barcode,
   onComplete,
 }: UnregisteredProductSheetProps) {
+  const t = useTranslations("ventas.unregistered");
+  const tCommon = useTranslations("common");
+  const tCategories = useTranslations("categories");
+  const tValidation = useTranslations("validation");
+  const locale = useLocale();
   const [isRegistering, setIsRegistering] = useState(false);
+
+  const unregisteredProductFormSchema = useMemo(
+    () => createUnregisteredProductFormSchema(tValidation),
+    [tValidation]
+  );
+
   const form = useForm<UnregisteredProductFormValues>({
     resolver: zodResolver(unregisteredProductFormSchema),
     defaultValues: unregisteredProductFormDefaults,
@@ -70,7 +84,7 @@ export function UnregisteredProductSheet({
 
   const handleRegisterAndAdd = async (values: UnregisteredProductFormValues) => {
     const priceNum = Number.parseFloat(values.price);
-    const productName = values.name || `Producto - ${barcode}`;
+    const productName = values.name || t("defaultName", { barcode });
 
     setIsRegistering(true);
 
@@ -90,11 +104,11 @@ export function UnregisteredProductSheet({
       const product = dbProductToStoreProduct(result.data);
 
       addToCart(product);
-      toast.success(`Producto registrado y agregado - $${priceNum.toFixed(2)}`);
+      toast.success(t("toastRegistered", { price: formatCurrency(priceNum, locale) }));
       onOpenChange(false);
       onComplete();
     } catch {
-      toast.error("Error al registrar el producto");
+      toast.error(t("toastError"));
     } finally {
       setIsRegistering(false);
     }
@@ -102,7 +116,7 @@ export function UnregisteredProductSheet({
 
   const handleAddOnlyToSale = (values: UnregisteredProductFormValues) => {
     const priceNum = Number.parseFloat(values.price);
-    const productName = values.name || `Producto sin nombre - ${barcode}`;
+    const productName = values.name || t("tempName", { barcode });
 
     // Create a temporary product (not saved to catalog)
     const tempProduct: Product = {
@@ -114,7 +128,7 @@ export function UnregisteredProductSheet({
       createdAt: new Date().toISOString(),
     };
     addToCart(tempProduct);
-    toast.success(`Producto agregado a la venta - $${priceNum.toFixed(2)}`);
+    toast.success(t("toastAdded", { price: formatCurrency(priceNum, locale) }));
     onOpenChange(false);
     onComplete();
   };
@@ -123,11 +137,8 @@ export function UnregisteredProductSheet({
     <Sheet open={open} onOpenChange={isRegistering ? undefined : onOpenChange}>
       <SheetContent side="right" className="w-full sm:w-[400px] sm:max-w-[400px]">
         <SheetHeader>
-          <SheetTitle className="text-foreground">Producto no registrado</SheetTitle>
-          <SheetDescription>
-            El codigo <span className="font-mono font-semibold">{barcode}</span> no se
-            encontro en el catalogo.
-          </SheetDescription>
+          <SheetTitle className="text-foreground">{t("title")}</SheetTitle>
+          <SheetDescription>{t("description", { barcode })}</SheetDescription>
         </SheetHeader>
 
         <Form {...form}>
@@ -137,7 +148,7 @@ export function UnregisteredProductSheet({
           >
             <div>
               <Label htmlFor="barcode" className="text-foreground">
-                Codigo de barras
+                {t("barcodeLabel")}
               </Label>
               <Input
                 id="barcode"
@@ -153,7 +164,7 @@ export function UnregisteredProductSheet({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground">
-                    Precio de venta <span className="text-destructive">*</span>
+                    {t("priceLabel")} <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -162,7 +173,7 @@ export function UnregisteredProductSheet({
                       inputMode="decimal"
                       step="0.01"
                       min="0"
-                      placeholder="0.00"
+                      placeholder={tCommon("placeholderAmount")}
                       className="mt-1 text-foreground"
                       disabled={isRegistering}
                       {...field}
@@ -178,13 +189,11 @@ export function UnregisteredProductSheet({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">
-                    Nombre del producto (opcional)
-                  </FormLabel>
+                  <FormLabel className="text-foreground">{t("nameLabel")}</FormLabel>
                   <FormControl>
                     <Input
                       id="name"
-                      placeholder="Ej. Cuaderno de notas"
+                      placeholder={t("namePlaceholder")}
                       className="mt-1 text-foreground"
                       disabled={isRegistering}
                       {...field}
@@ -200,7 +209,7 @@ export function UnregisteredProductSheet({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Categoria</FormLabel>
+                  <FormLabel className="text-foreground">{t("categoryLabel")}</FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
@@ -208,13 +217,13 @@ export function UnregisteredProductSheet({
                   >
                     <FormControl>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Selecciona una categoria" />
+                        <SelectValue placeholder={t("categoryPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {CATEGORY_OPTIONS.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category}
+                          {tCategories(getCategoryMessageKey(category))}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -229,10 +238,10 @@ export function UnregisteredProductSheet({
                 {isRegistering ? (
                   <>
                     <Spinner className="mr-2" />
-                    Registrando...
+                    {tCommon("registering")}
                   </>
                 ) : (
-                  "Registrar y agregar"
+                  t("registerAndAdd")
                 )}
               </Button>
               <Button
@@ -242,7 +251,7 @@ export function UnregisteredProductSheet({
                 onClick={form.handleSubmit(handleAddOnlyToSale)}
                 disabled={isRegistering}
               >
-                Solo agregar a venta
+                {t("addOnly")}
               </Button>
             </div>
           </form>
