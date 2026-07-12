@@ -51,10 +51,12 @@ function getHistoryTransitionClass(transition: HistoryTransition): string {
 
 function ChartViewButton({
   icon: Icon,
+  isActive,
   label,
   value,
 }: {
   icon: typeof ChartColumn;
+  isActive: boolean;
   label: string;
   value: CorteHistoryView;
 }) {
@@ -63,7 +65,12 @@ function ChartViewButton({
       <TooltipTrigger asChild>
         <ToggleGroupItem
           aria-label={label}
-          className="relative z-10 rounded-full bg-transparent text-muted-foreground transition-colors duration-200 hover:bg-transparent hover:text-foreground data-[state=on]:bg-transparent data-[state=on]:text-primary-foreground motion-reduce:transition-none"
+          className={cn(
+            "relative z-10 rounded-full bg-transparent transition-colors duration-200 hover:bg-transparent data-[state=on]:bg-transparent motion-reduce:transition-none",
+            isActive
+              ? "text-primary-foreground hover:text-primary-foreground data-[state=on]:text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          )}
           value={value}
         >
           <Icon className="h-4 w-4" />
@@ -158,8 +165,18 @@ export function HistoryPanel() {
                   historyView === "bar" && "translate-x-11"
                 )}
               />
-              <ChartViewButton icon={ChartLine} label="Gráfica de línea" value="line" />
-              <ChartViewButton icon={ChartColumn} label="Gráfica de barras" value="bar" />
+              <ChartViewButton
+                icon={ChartLine}
+                isActive={historyView === "line"}
+                label="Gráfica de línea"
+                value="line"
+              />
+              <ChartViewButton
+                icon={ChartColumn}
+                isActive={historyView === "bar"}
+                label="Gráfica de barras"
+                value="bar"
+              />
             </ToggleGroup>
           </TooltipProvider>
         </div>
