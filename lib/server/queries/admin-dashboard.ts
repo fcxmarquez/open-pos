@@ -1,6 +1,6 @@
 import { format, subDays } from "date-fns";
 import { es } from "date-fns/locale";
-import { and, count, desc, eq, gte, inArray, lt, sum } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { products, saleItems, sales, salesSessions } from "@/db/schema";
 import { getOpenSession } from "@/lib/server/queries/sessions";
@@ -29,14 +29,6 @@ export interface AdminDashboardData {
     sessionDate: string;
     sessionNumber: number;
   } | null;
-  sessionHistory: {
-    difference: number;
-    id: string;
-    revenue: number;
-    salesCount: number;
-    sessionDate: string;
-    sessionNumber: number;
-  }[];
   topProduct: {
     category: string | null;
     name: string;
@@ -58,7 +50,6 @@ function formatPastWeekday(dateString: string): string {
 export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const today = getTodayDateString();
   const lastWeekDate = getDateStringDaysAgo(7);
-  const historyStartDate = getDateStringDaysAgo(89);
   const monthStart = `${today.slice(0, 7)}-01`;
 
   const [
@@ -66,7 +57,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     staleSessionRow,
     todaySalesRows,
     lastWeekSalesRows,
-    historySessions,
     monthSalesRows,
   ] = await Promise.all([
     getOpenSession(),
@@ -96,16 +86,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       .innerJoin(salesSessions, eq(sales.sessionId, salesSessions.id))
       .where(eq(salesSessions.sessionDate, lastWeekDate)),
     db
-      .select()
-      .from(salesSessions)
-      .where(
-        and(
-          eq(salesSessions.status, "closed"),
-          gte(salesSessions.sessionDate, historyStartDate)
-        )
-      )
-      .orderBy(desc(salesSessions.sessionDate), desc(salesSessions.sessionNumber)),
-    db
       .select({ revenue: sum(sales.total) })
       .from(sales)
       .innerJoin(salesSessions, eq(sales.sessionId, salesSessions.id))
@@ -113,11 +93,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   ]);
 
   const todaySaleIds = todaySalesRows.map((sale) => sale.id);
-  const historySessionIds = historySessions.map((session) => session.id);
 
-  const [todaySaleItems, historySalesRows] = await Promise.all([
+  const todaySaleItems =
     todaySaleIds.length > 0
-      ? db
+      ? await db
           .select({
             productId: saleItems.productId,
             productName: saleItems.productName,
@@ -126,18 +105,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
           })
           .from(saleItems)
           .where(inArray(saleItems.saleId, todaySaleIds))
-      : Promise.resolve([]),
-    historySessionIds.length > 0
-      ? db
-          .select({
-            salesCount: count(sales.id),
-            sessionId: sales.sessionId,
-          })
-          .from(sales)
-          .where(inArray(sales.sessionId, historySessionIds))
-          .groupBy(sales.sessionId)
-      : Promise.resolve([]),
-  ]);
+      : [];
 
   const productIds = Array.from(
     new Set(
@@ -211,10 +179,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       (left, right) => right.units - left.units || left.name.localeCompare(right.name)
     )[0] ?? null;
 
-  const salesCountBySessionId = new Map<string, number>(
-    historySalesRows.map((row) => [row.sessionId, row.salesCount])
-  );
-
   return {
     staleSession: staleSessionRow,
     comparisonLabel: `vs ${formatPastWeekday(lastWeekDate)}`,
@@ -231,14 +195,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     revenueMonthToDate,
     revenueToday,
     revenueVsLastWeek,
-    sessionHistory: historySessions.map((session) => ({
-      difference: Number(session.difference ?? 0),
-      id: session.id,
-      revenue: Number(session.systemTotal ?? 0),
-      salesCount: salesCountBySessionId.get(session.id) ?? 0,
-      sessionDate: session.sessionDate,
-      sessionNumber: session.sessionNumber,
-    })),
     topProduct,
     transactionCount: todaySalesRows.length,
   };

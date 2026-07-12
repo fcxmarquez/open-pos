@@ -210,7 +210,7 @@ export function AdminDashboardScreen() {
               productsSold={data.productsSold}
               latestTransactions={data.latestTransactions}
             />
-            <HistoryPanel sessionHistory={data.sessionHistory} />
+            <HistoryPanel />
           </div>
         </>
       )}

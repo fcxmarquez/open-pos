@@ -48,3 +48,10 @@ describe("mexicoAnchoredDate", () => {
     expect(anchoredDateString).toBe(toMexicoDateString(input));
   });
 });
+
+describe("toMexicoDateString", () => {
+  test("uses the Mexico City calendar date at the midnight boundary", () => {
+    expect(toMexicoDateString(new Date("2026-07-10T05:59:59.000Z"))).toBe("2026-07-09");
+    expect(toMexicoDateString(new Date("2026-07-10T06:00:00.000Z"))).toBe("2026-07-10");
+  });
+});
