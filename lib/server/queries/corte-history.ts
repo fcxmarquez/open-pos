@@ -22,7 +22,7 @@ export async function getCorteHistoryData({
   const window = getCorteHistoryWindow(range, offset, getTodayDateString());
   const bucketExpression =
     window.granularity === "month"
-      ? sql<string>`to_char(date_trunc('month', ${salesSessions.sessionDate}::timestamp), 'YYYY-MM')`
+      ? sql<string>`to_char(${salesSessions.sessionDate}, 'YYYY-MM')`
       : sql<string>`to_char(${salesSessions.sessionDate}::date, 'YYYY-MM-DD')`;
 
   const rows = await db
