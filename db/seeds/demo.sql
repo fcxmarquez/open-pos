@@ -1,11 +1,15 @@
--- Demo seed for preview branch
--- Generates ~3 weeks of realistic sales history (Mon–Sat, May 1–23 2026)
--- Run ONLY against the preview Neon branch, never production.
+-- Demo seed for the preview branch
+-- Generates a full year of deterministic synthetic sales history (Mon–Sat, 2026).
+-- Run ONLY against the preview Neon branch, never production or development.
 --
 -- Usage:
---   psql $PREVIEW_DATABASE_URL -f db/seeds/demo.sql
+--   psql "$PREVIEW_DATABASE_URL" -f db/seeds/demo.sql
+
+\set ON_ERROR_STOP on
 
 BEGIN;
+
+SET LOCAL statement_timeout = '5min';
 
 DELETE FROM sale_items;
 DELETE FROM sales;
@@ -14,12 +18,7 @@ UPDATE products SET last_sold_at = NULL;
 
 DO $$
 DECLARE
-  session_dates DATE[] := ARRAY[
-    '2026-05-01', '2026-05-02',
-    '2026-05-04', '2026-05-05', '2026-05-06', '2026-05-07', '2026-05-08', '2026-05-09',
-    '2026-05-11', '2026-05-12', '2026-05-13', '2026-05-14', '2026-05-15', '2026-05-16',
-    '2026-05-18', '2026-05-19', '2026-05-20', '2026-05-21', '2026-05-22', '2026-05-23'
-  ]::DATE[];
+  session_day   DATE;
   s_id          UUID;
   sale_id       UUID;
   n_sales       INT;
@@ -37,31 +36,50 @@ DECLARE
   open_ts       TIMESTAMP;
   sale_ts       TIMESTAMP;
 BEGIN
-  FOR i IN 1..array_length(session_dates, 1) LOOP
+  -- Keep repeat runs stable so screenshots and portfolio metrics do not drift.
+  PERFORM setseed(0.2026);
+
+  FOR session_day IN
+    SELECT generated_day::DATE
+    FROM generate_series(
+      DATE '2026-01-01',
+      DATE '2026-12-31',
+      INTERVAL '1 day'
+    ) AS generated_day
+    WHERE EXTRACT(ISODOW FROM generated_day) < 7
+  LOOP
     s_id          := gen_random_uuid();
-    open_ts       := session_dates[i]::TIMESTAMP + '09:00:00'::INTERVAL;
+    open_ts       := session_day::TIMESTAMP + '09:00:00'::INTERVAL;
     session_total := 0;
 
     INSERT INTO sales_sessions (id, session_date, session_number, status, opened_at, closed_at)
     VALUES (
-      s_id, session_dates[i], 1, 'closed',
+      s_id, session_day, 1, 'closed',
       open_ts,
-      session_dates[i]::TIMESTAMP + '19:30:00'::INTERVAL
+      session_day::TIMESTAMP + '19:30:00'::INTERVAL
     );
 
     -- Saturdays are busier
-    n_sales := CASE EXTRACT(DOW FROM session_dates[i])
+    n_sales := CASE EXTRACT(ISODOW FROM session_day)
       WHEN 6 THEN 15 + floor(random() * 8)::INT
       ELSE        10 + floor(random() * 8)::INT
     END;
 
+    -- Back-to-school season has more traffic; January and July get a smaller lift.
+    IF EXTRACT(MONTH FROM session_day) IN (8, 9) THEN
+      n_sales := n_sales + 8;
+    ELSIF EXTRACT(MONTH FROM session_day) IN (1, 7) THEN
+      n_sales := n_sales + 3;
+    END IF;
+
     FOR j IN 1..n_sales LOOP
       sale_id    := gen_random_uuid();
       sale_total := 0;
-      sale_ts    := open_ts + (j * 38 || ' minutes')::INTERVAL;
+      -- Spread transactions evenly across the ten-hour business day.
+      sale_ts    := open_ts + make_interval(mins => (j * 600) / (n_sales + 1));
 
-      INSERT INTO sales (id, session_id, total, payment_amount, change_amount, created_at)
-      VALUES (sale_id, s_id, 0, 0, 0, sale_ts);
+      INSERT INTO sales (id, session_id, subtotal, total, payment_amount, change_amount, created_at)
+      VALUES (sale_id, s_id, 0, 0, 0, 0, sale_ts);
 
       n_items := 1 + floor(random() * 4)::INT;
 
@@ -96,7 +114,10 @@ BEGIN
       change_amt := payment - sale_total;
 
       UPDATE sales
-      SET    total = sale_total, payment_amount = payment, change_amount = change_amt
+      SET    subtotal = sale_total,
+             total = sale_total,
+             payment_amount = payment,
+             change_amount = change_amt
       WHERE  id = sale_id;
 
       session_total := session_total + sale_total;
