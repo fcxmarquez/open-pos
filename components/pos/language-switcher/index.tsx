@@ -37,10 +37,7 @@ export function LanguageSwitcherSidebarRow() {
   return (
     <fieldset className="flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-2">
       <legend className="sr-only">{t("language")}</legend>
-      <span
-        className="text-sm font-medium text-muted-foreground"
-        aria-hidden="true"
-      >
+      <span className="text-sm font-medium text-muted-foreground" aria-hidden="true">
         {t("language")}
       </span>
       <div className="flex items-center gap-1">
@@ -57,7 +54,7 @@ export function LanguageSwitcherSidebarRow() {
                 "rounded-lg px-2 py-1 text-xs font-semibold uppercase transition-colors",
                 selected
                   ? "bg-sidebar-accent text-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
+                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
               )}
             >
               {code === "es" ? "ES" : "EN"}
@@ -77,7 +74,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     <fieldset
       className={cn(
         "inline-flex items-center gap-1 rounded-xl border border-border p-0.5",
-        className,
+        className
       )}
     >
       <legend className="sr-only">{t("language")}</legend>
@@ -94,7 +91,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
               "rounded-lg px-2 py-1 text-xs font-semibold uppercase transition-colors",
               selected
                 ? "bg-foreground text-background"
-                : "text-muted-foreground hover:text-foreground",
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             {code === "es" ? "ES" : "EN"}
