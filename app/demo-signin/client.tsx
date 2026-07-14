@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { DEMO_CREDENTIALS } from "@/lib/demo";
 
 export function DemoSignInClient() {
+  const t = useTranslations("auth.demo");
   const [error, setError] = useState(false);
   const router = useRouter();
 
@@ -32,16 +34,14 @@ export function DemoSignInClient() {
   if (error) {
     return (
       <div className="flex h-dvh items-center justify-center bg-background">
-        <p className="text-sm text-destructive">
-          Error al cargar la vista previa. Verifica la configuración del servidor.
-        </p>
+        <p className="text-sm text-destructive">{t("loadError")}</p>
       </div>
     );
   }
 
   return (
     <div className="flex h-dvh items-center justify-center bg-background">
-      <span className="text-sm text-muted-foreground">Cargando vista previa...</span>
+      <span className="text-sm text-muted-foreground">{t("loading")}</span>
     </div>
   );
 }

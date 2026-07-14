@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { completeSale } from "@/app/actions/sales";
@@ -23,10 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { getProductDisplayName } from "@/lib/mappers";
 import {
   type CheckoutFormValues,
   checkoutFormDefaults,
-  checkoutFormSchema,
+  createCheckoutFormSchema,
 } from "@/lib/pos-form-schemas";
 import { useStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
@@ -38,7 +40,17 @@ interface CheckoutDialogProps {
 }
 
 export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialogProps) {
+  const t = useTranslations("ventas.checkout");
+  const tCommon = useTranslations("common");
+  const tValidation = useTranslations("validation");
+  const locale = useLocale();
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const checkoutFormSchema = useMemo(
+    () => createCheckoutFormSchema(tValidation),
+    [tValidation]
+  );
+
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: checkoutFormDefaults,
@@ -73,7 +85,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
 
     if (submittedPayment < total) {
       form.setError("payment", {
-        message: "El pago debe ser mayor o igual al total",
+        message: tValidation("paymentMustCoverTotal"),
       });
       return;
     }
@@ -87,7 +99,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
             ? null
             : item.product.id,
         barcode: item.product.barcode || null,
-        productName: item.product.name,
+        productName: getProductDisplayName(item.product, tCommon("unnamedProduct")),
         unitPrice: item.unitPrice,
         quantity: item.quantity,
       }));
@@ -104,11 +116,11 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
       }
 
       clearCart();
-      toast.success(`Venta registrada - ${formatCurrency(total)}`);
+      toast.success(t("toastSuccess", { total: formatCurrency(total, locale) }));
       onOpenChange(false);
       onComplete();
     } catch {
-      toast.error("Error al procesar la venta");
+      toast.error(t("toastError"));
     } finally {
       setIsProcessing(false);
     }
@@ -118,8 +130,8 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
     <Dialog open={open} onOpenChange={isProcessing ? undefined : onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Cobrar</DialogTitle>
-          <DialogDescription>Registra el pago del cliente</DialogDescription>
+          <DialogTitle className="text-foreground">{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -128,9 +140,9 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
             className="mt-2 flex flex-col gap-5"
           >
             <div className="rounded-lg bg-muted p-4 text-center">
-              <p className="text-sm text-muted-foreground">Total a cobrar</p>
+              <p className="text-sm text-muted-foreground">{t("totalLabel")}</p>
               <p className="font-heading text-3xl font-bold text-foreground">
-                {formatCurrency(total)}
+                {formatCurrency(total, locale)}
               </p>
             </div>
 
@@ -139,7 +151,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
               name="payment"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Pago del cliente</FormLabel>
+                  <FormLabel className="text-foreground">{t("paymentLabel")}</FormLabel>
                   <FormControl>
                     <Input
                       id="payment"
@@ -147,7 +159,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
                       inputMode="decimal"
                       step="0.01"
                       min="0"
-                      placeholder="0.00"
+                      placeholder={tCommon("placeholderAmount")}
                       className="mt-1 h-12 text-center text-xl font-semibold text-foreground"
                       disabled={isProcessing}
                       onFocus={(e) => e.target.select()}
@@ -170,8 +182,8 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
                 }`}
               >
                 {change >= 0
-                  ? `Cambio: ${formatCurrency(change)}`
-                  : `Falta: ${formatCurrency(Math.abs(change))}`}
+                  ? t("change", { amount: formatCurrency(change, locale) })
+                  : t("short", { amount: formatCurrency(Math.abs(change), locale) })}
               </output>
             )}
 
@@ -179,10 +191,10 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
               {isProcessing ? (
                 <>
                   <Spinner className="mr-2" />
-                  Procesando...
+                  {tCommon("processing")}
                 </>
               ) : (
-                "Confirmar venta"
+                t("confirm")
               )}
             </Button>
           </form>

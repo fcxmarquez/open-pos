@@ -75,14 +75,14 @@ function seedCorteHistoryQueries(qc: QueryClient, currentHistory: CorteHistoryDa
     for (const offset of [0, 1]) {
       const window = getCorteHistoryWindow(range, offset, STORY_TODAY);
       qc.setQueryData(
-        adminCorteHistoryQueryKey(range, offset),
+        adminCorteHistoryQueryKey("es", range, offset),
         buildCorteHistoryData(window, [])
       );
     }
   }
 
   qc.setQueryData(
-    adminCorteHistoryQueryKey(currentHistory.range, currentHistory.offset),
+    adminCorteHistoryQueryKey("es", currentHistory.range, currentHistory.offset),
     currentHistory
   );
 }
@@ -101,7 +101,7 @@ function createQueryClient(
       },
     },
   });
-  qc.setQueryData(adminDashboardQueryKey, data);
+  qc.setQueryData(adminDashboardQueryKey("es"), data);
   seedCorteHistoryQueries(qc, currentHistory);
   return qc;
 }
@@ -143,7 +143,7 @@ function withPending(): Decorator {
     defaultOptions: { queries: { retry: false } },
   });
   qc.prefetchQuery({
-    queryKey: adminDashboardQueryKey,
+    queryKey: adminDashboardQueryKey("es"),
     queryFn: (): Promise<AdminDashboardData> => new Promise(() => {}),
   });
   return withQueryLayout(qc);
@@ -154,7 +154,7 @@ function withError(): Decorator {
     defaultOptions: { queries: { retry: false } },
   });
   qc.prefetchQuery({
-    queryKey: adminDashboardQueryKey,
+    queryKey: adminDashboardQueryKey("es"),
     queryFn: (): Promise<AdminDashboardData> =>
       Promise.reject(new Error("Failed to load")),
   });

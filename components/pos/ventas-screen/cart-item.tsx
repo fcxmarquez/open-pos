@@ -1,9 +1,11 @@
 "use client";
 
 import { Minus, Pencil, Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getProductDisplayName } from "@/lib/mappers";
 import type { CartItem } from "@/lib/store";
 
 function parseCartQuantityInput(rawValue: string) {
@@ -24,6 +26,9 @@ export function CartItemRow({
   onUpdatePrice,
   onRemove,
 }: CartItemRowProps) {
+  const t = useTranslations("ventas.cart");
+  const tCommon = useTranslations("common");
+  const productName = getProductDisplayName(item.product, tCommon("unnamedProduct"));
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [draftPrice, setDraftPrice] = useState("");
 
@@ -38,11 +43,9 @@ export function CartItemRow({
   return (
     <div className="flex items-start gap-3 py-3">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium leading-snug text-foreground">
-          {item.product.name}
-        </p>
+        <p className="text-sm font-medium leading-snug text-foreground">{productName}</p>
         <div className="mt-1.5 flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">Precio</span>
+          <span className="text-xs text-muted-foreground">{tCommon("price")}</span>
           {isEditingPrice ? (
             <Input
               type="number"
@@ -59,7 +62,7 @@ export function CartItemRow({
               min="0"
               step="1"
               autoFocus
-              aria-label={`Precio de ${item.product.name}`}
+              aria-label={t("priceAria", { name: productName })}
             />
           ) : (
             <>
@@ -74,7 +77,7 @@ export function CartItemRow({
                   setDraftPrice(String(item.unitPrice));
                   setIsEditingPrice(true);
                 }}
-                aria-label={`Editar precio de ${item.product.name}`}
+                aria-label={t("editPriceAria", { name: productName })}
               >
                 <Pencil className="h-3 w-3" aria-hidden="true" />
               </Button>
@@ -87,7 +90,7 @@ export function CartItemRow({
             size="icon"
             className="h-7 w-7 bg-transparent"
             onClick={() => onUpdateQuantity(item.quantity - 1)}
-            aria-label={`Disminuir cantidad de ${item.product.name}`}
+            aria-label={t("decreaseQtyAria", { name: productName })}
           >
             <Minus className="h-3 w-3" aria-hidden="true" />
           </Button>
@@ -99,14 +102,14 @@ export function CartItemRow({
             onChange={(e) => onUpdateQuantity(parseCartQuantityInput(e.target.value))}
             onFocus={(e) => e.target.select()}
             className="h-7 w-14 text-center text-sm tabular-nums"
-            aria-label={`Cantidad de ${item.product.name}`}
+            aria-label={t("quantityAria", { name: productName })}
           />
           <Button
             variant="outline"
             size="icon"
             className="h-7 w-7 bg-transparent"
             onClick={() => onUpdateQuantity(item.quantity + 1)}
-            aria-label={`Aumentar cantidad de ${item.product.name}`}
+            aria-label={t("increaseQtyAria", { name: productName })}
           >
             <Plus className="h-3 w-3" aria-hidden="true" />
           </Button>
@@ -121,7 +124,7 @@ export function CartItemRow({
           size="icon"
           className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
           onClick={onRemove}
-          aria-label={`Eliminar ${item.product.name} del carrito`}
+          aria-label={t("removeAria", { name: productName })}
         >
           <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>

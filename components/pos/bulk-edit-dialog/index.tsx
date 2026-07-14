@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { getCategoryMessageKey } from "@/lib/i18n/categories";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import type { Category } from "@/lib/store";
 
@@ -42,61 +44,64 @@ export interface BulkProductUpdatesPayload {
   category?: Category;
 }
 
-const bulkEditFormSchema = z.object({
-  price: z
-    .string()
-    .trim()
-    .refine(
-      (value) =>
-        value === "" ||
-        (!Number.isNaN(Number.parseFloat(value)) && Number.parseFloat(value) > 0),
-      "Ingresa un precio de venta valido"
-    ),
-  costPrice: z
-    .string()
-    .trim()
-    .refine(
-      (value) =>
-        value === "" ||
-        (!Number.isNaN(Number.parseFloat(value)) && Number.parseFloat(value) >= 0),
-      "Ingresa un precio de costo valido"
-    ),
-  category: z.union([z.enum(CATEGORY_OPTIONS), z.literal(KEEP_CURRENT_CATEGORY)]),
-});
+function createBulkEditFormSchema(tValidation: (key: string) => string) {
+  return z.object({
+    price: z
+      .string()
+      .trim()
+      .refine(
+        (value) =>
+          value === "" ||
+          (!Number.isNaN(Number.parseFloat(value)) && Number.parseFloat(value) > 0),
+        tValidation("bulkSalePriceInvalid")
+      ),
+    costPrice: z
+      .string()
+      .trim()
+      .refine(
+        (value) =>
+          value === "" ||
+          (!Number.isNaN(Number.parseFloat(value)) && Number.parseFloat(value) >= 0),
+        // biome-ignore lint/security/noSecrets: translation message key, not a secret
+        tValidation("bulkCostPriceInvalid")
+      ),
+    category: z.union([z.enum(CATEGORY_OPTIONS), z.literal(KEEP_CURRENT_CATEGORY)]),
+  });
+}
 
-const bulkEditFormDefaults: z.input<typeof bulkEditFormSchema> = {
+type BulkEditFormValues = z.output<ReturnType<typeof createBulkEditFormSchema>>;
+
+const bulkEditFormDefaults: BulkEditFormValues = {
   price: "",
   costPrice: "",
   category: KEEP_CURRENT_CATEGORY,
 };
 
-type BulkEditFormValues = z.output<typeof bulkEditFormSchema>;
-
 interface PreparedBulkUpdate {
   updates: BulkProductUpdatesPayload;
-  fieldLabels: string[];
+  fieldKeys: Array<"fieldSalePrice" | "fieldCostPrice" | "fieldCategory">;
 }
 
 function prepareBulkUpdate(values: BulkEditFormValues): PreparedBulkUpdate {
   const updates: BulkProductUpdatesPayload = {};
-  const fieldLabels: string[] = [];
+  const fieldKeys: PreparedBulkUpdate["fieldKeys"] = [];
 
   if (values.price !== "") {
     updates.price = Number.parseFloat(values.price);
-    fieldLabels.push("Precio de venta");
+    fieldKeys.push("fieldSalePrice");
   }
 
   if (values.costPrice !== "") {
     updates.costPrice = Number.parseFloat(values.costPrice);
-    fieldLabels.push("Precio de costo");
+    fieldKeys.push("fieldCostPrice");
   }
 
   if (values.category !== KEEP_CURRENT_CATEGORY) {
     updates.category = values.category;
-    fieldLabels.push("Categoria");
+    fieldKeys.push("fieldCategory");
   }
 
-  return { updates, fieldLabels };
+  return { updates, fieldKeys };
 }
 
 interface BulkEditDialogProps {
@@ -112,18 +117,30 @@ export function BulkEditDialog({
   selectedCount,
   onApply,
 }: BulkEditDialogProps) {
+  const t = useTranslations("productos.bulk");
+  const tCommon = useTranslations("common");
+  const tCategories = useTranslations("categories");
+  const tValidation = useTranslations("validation");
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<DialogStep>("edit");
   const [pendingUpdates, setPendingUpdates] = useState<BulkProductUpdatesPayload | null>(
     null
   );
-  const [pendingFieldLabels, setPendingFieldLabels] = useState<string[]>([]);
+  const [pendingFieldKeys, setPendingFieldKeys] = useState<
+    PreparedBulkUpdate["fieldKeys"]
+  >([]);
+  const bulkEditFormSchema = useMemo(
+    () => createBulkEditFormSchema(tValidation),
+    [tValidation]
+  );
   const form = useForm<BulkEditFormValues>({
     resolver: zodResolver(bulkEditFormSchema),
     defaultValues: bulkEditFormDefaults,
   });
   const watchedValues = form.watch();
-  const affectedFields = prepareBulkUpdate(watchedValues).fieldLabels;
+  const affectedFieldKeys = prepareBulkUpdate(watchedValues).fieldKeys;
+  const affectedFields = affectedFieldKeys.map((key) => t(key));
+  const pendingFieldLabels = pendingFieldKeys.map((key) => t(key));
 
   useEffect(() => {
     if (!open) {
@@ -133,22 +150,23 @@ export function BulkEditDialog({
     form.reset(bulkEditFormDefaults);
     setStep("edit");
     setPendingUpdates(null);
-    setPendingFieldLabels([]);
+    setPendingFieldKeys([]);
   }, [form, open]);
 
   const handlePrepareConfirm = (values: BulkEditFormValues) => {
     const prepared = prepareBulkUpdate(values);
 
-    if (prepared.fieldLabels.length === 0) {
+    if (prepared.fieldKeys.length === 0) {
       form.setError("root", {
         type: "manual",
-        message: "Debes completar al menos un campo para continuar",
+        // biome-ignore lint/security/noSecrets: translation message key, not a secret
+        message: tValidation("bulkAtLeastOneField"),
       });
       return;
     }
 
     setPendingUpdates(prepared.updates);
-    setPendingFieldLabels(prepared.fieldLabels);
+    setPendingFieldKeys(prepared.fieldKeys);
     setStep("confirm");
   };
 
@@ -165,8 +183,6 @@ export function BulkEditDialog({
     });
   };
 
-  const selectedLabel = `${selectedCount} producto${selectedCount === 1 ? "" : "s"}`;
-
   return (
     <Dialog
       open={open}
@@ -180,12 +196,12 @@ export function BulkEditDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">
-            {step === "edit" ? "Editar productos seleccionados" : "Confirmar cambios"}
+            {step === "edit" ? t("editTitle") : t("confirmTitle")}
           </DialogTitle>
           <DialogDescription>
             {step === "edit"
-              ? `Actualiza en lote ${selectedLabel}.`
-              : `Vas a actualizar ${selectedLabel}.`}
+              ? t("editDescription", { count: selectedCount })
+              : t("confirmDescription", { count: selectedCount })}
           </DialogDescription>
         </DialogHeader>
 
@@ -200,21 +216,21 @@ export function BulkEditDialog({
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Precio de venta</FormLabel>
+                    <FormLabel className="text-foreground">
+                      {t("salePriceLabel")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         inputMode="decimal"
                         min="0"
                         step="0.01"
-                        placeholder="Sin cambios"
+                        placeholder={tCategories("keepCurrent")}
                         disabled={isPending}
                         {...field}
                       />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground">
-                      Dejalo vacio para mantener el precio actual de cada producto.
-                    </p>
+                    <p className="text-xs text-muted-foreground">{t("salePriceHint")}</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -225,21 +241,21 @@ export function BulkEditDialog({
                 name="costPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Precio de costo</FormLabel>
+                    <FormLabel className="text-foreground">
+                      {t("costPriceLabel")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         inputMode="decimal"
                         min="0"
                         step="0.01"
-                        placeholder="Sin cambios"
+                        placeholder={tCategories("keepCurrent")}
                         disabled={isPending}
                         {...field}
                       />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground">
-                      Dejalo vacio para mantener el costo actual de cada producto.
-                    </p>
+                    <p className="text-xs text-muted-foreground">{t("costPriceHint")}</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -250,7 +266,9 @@ export function BulkEditDialog({
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Categoria</FormLabel>
+                    <FormLabel className="text-foreground">
+                      {t("categoryLabel")}
+                    </FormLabel>
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
@@ -258,22 +276,21 @@ export function BulkEditDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Sin cambios" />
+                          <SelectValue placeholder={tCategories("keepCurrent")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value={KEEP_CURRENT_CATEGORY}>Sin cambios</SelectItem>
+                        <SelectItem value={KEEP_CURRENT_CATEGORY}>
+                          {tCategories("keepCurrent")}
+                        </SelectItem>
                         {CATEGORY_OPTIONS.map((category) => (
                           <SelectItem key={category} value={category}>
-                            {category}
+                            {tCategories(getCategoryMessageKey(category))}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Elige "Sin cambios" para mantener la categoria actual de cada
-                      producto.
-                    </p>
+                    <p className="text-xs text-muted-foreground">{t("categoryHint")}</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -282,16 +299,10 @@ export function BulkEditDialog({
               <div className="rounded-md border border-dashed px-3 py-2 text-sm">
                 {affectedFields.length > 0 ? (
                   <p className="text-muted-foreground">
-                    Se actualizara:{" "}
-                    <span className="font-medium text-foreground">
-                      {affectedFields.join(", ")}
-                    </span>
-                    .
+                    {t("willUpdate", { fields: affectedFields.join(", ") })}
                   </p>
                 ) : (
-                  <p className="text-muted-foreground">
-                    Completa al menos un campo para aplicar cambios.
-                  </p>
+                  <p className="text-muted-foreground">{t("completeOneField")}</p>
                 )}
               </div>
 
@@ -309,10 +320,10 @@ export function BulkEditDialog({
                   onClick={() => onOpenChange(false)}
                   disabled={isPending}
                 >
-                  Cancelar
+                  {tCommon("cancel")}
                 </Button>
                 <Button type="submit" className="flex-1" disabled={isPending}>
-                  Aplicar cambios
+                  {t("applyChanges")}
                 </Button>
               </div>
             </form>
@@ -320,11 +331,10 @@ export function BulkEditDialog({
         ) : (
           <div className="mt-2 flex flex-col gap-4">
             <p className="text-sm text-muted-foreground">
-              Estas por actualizar {selectedLabel}.{" "}
-              <span className="font-medium text-foreground">
-                {pendingFieldLabels.join(", ")}
-              </span>{" "}
-              se cambiaran. Esta accion no se puede deshacer.
+              {t("confirmWarning", {
+                count: selectedCount,
+                fields: pendingFieldLabels.join(", "),
+              })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -334,7 +344,7 @@ export function BulkEditDialog({
                 onClick={() => setStep("edit")}
                 disabled={isPending}
               >
-                Volver
+                {tCommon("back")}
               </Button>
               <Button
                 type="button"
@@ -345,10 +355,10 @@ export function BulkEditDialog({
                 {isPending ? (
                   <>
                     <Spinner className="mr-2" />
-                    Actualizando...
+                    {tCommon("updating")}
                   </>
                 ) : (
-                  "Confirmar"
+                  tCommon("confirm")
                 )}
               </Button>
             </div>

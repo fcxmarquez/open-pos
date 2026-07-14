@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { type PointerEvent, type TouchEvent, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { ChartContainer } from "@/components/ui/chart";
@@ -32,6 +33,8 @@ export function HistoryGraph({
   buckets: CorteHistoryBucket[];
   view: CorteHistoryView;
 }) {
+  const t = useTranslations("common");
+  const locale = useLocale();
   const chartRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [activeBucket, setActiveBucket] = useState<ActiveBucketState | null>(null);
@@ -158,14 +161,14 @@ export function HistoryGraph({
             }}
           >
             {view === "bar" ? (
-              formatCurrency(activeBucketData.revenue)
+              formatCurrency(activeBucketData.revenue, locale)
             ) : (
               <>
                 <span className="font-medium text-foreground">
                   {activeBucketData.tooltipLabel}
                 </span>
                 <span className="font-mono font-medium tabular-nums text-primary">
-                  {formatCurrency(activeBucketData.revenue)}
+                  {formatCurrency(activeBucketData.revenue, locale)}
                 </span>
               </>
             )}
@@ -177,7 +180,7 @@ export function HistoryGraph({
         config={{
           revenue: {
             color: "hsl(var(--primary))",
-            label: "Ingresos",
+            label: t("revenue"),
           },
         }}
       >

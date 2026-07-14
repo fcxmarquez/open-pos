@@ -14,7 +14,8 @@ import {
   Receipt,
   Wallet,
 } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { closeSession } from "@/app/actions/sessions";
@@ -56,7 +57,7 @@ import {
 import {
   type CorteFormValues,
   corteFormDefaults,
-  corteFormSchema,
+  createCorteFormSchema,
 } from "@/lib/pos-form-schemas";
 import { cn, formatCurrency, formatDateShort, formatTime } from "@/lib/utils";
 import {
@@ -70,13 +71,13 @@ const surfaceCardClass = "overflow-hidden rounded-2xl border border-border bg-ca
 const tableHeadClass = "h-12 px-5 font-body text-xs font-semibold text-muted-foreground";
 
 function SalesEmptyState() {
+  const t = useTranslations("corte.empty");
+
   return (
     <div className="flex flex-col items-center justify-center gap-2 text-center">
       <Receipt className="h-5 w-5 text-muted-foreground/50" aria-hidden="true" />
-      <p className="text-sm font-semibold text-foreground">No hay ventas registradas</p>
-      <p className="text-sm text-muted-foreground">
-        Las ventas del turno actual aparecerán aquí
-      </p>
+      <p className="text-sm font-semibold text-foreground">{t("title")}</p>
+      <p className="text-sm text-muted-foreground">{t("description")}</p>
     </div>
   );
 }
@@ -113,10 +114,18 @@ function SummaryCard({
 }
 
 export function CorteScreen() {
+  const t = useTranslations("corte");
+  const tCommon = useTranslations("common");
+  const tValidation = useTranslations("validation");
+  const locale = useLocale();
   const [showDetail, setShowDetail] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [pendingValues, setPendingValues] = useState<CorteFormValues | null>(null);
+  const corteFormSchema = useMemo(
+    () => createCorteFormSchema(tValidation),
+    [tValidation]
+  );
   const form = useForm<CorteFormValues>({
     resolver: zodResolver(corteFormSchema),
     defaultValues: corteFormDefaults,
@@ -146,7 +155,7 @@ export function CorteScreen() {
 
   const handleCloseRegister = (values: CorteFormValues) => {
     if (!session) {
-      toast.error("No hay sesión activa");
+      toast.error(t("toast.noSession"));
       return;
     }
     setPendingValues(values);
@@ -163,7 +172,7 @@ export function CorteScreen() {
       });
 
       if (result.success) {
-        toast.success("Corte de caja registrado");
+        toast.success(t("toast.success"));
         form.reset(corteFormDefaults);
         queryClient.invalidateQueries({ queryKey: openSessionQueryKey });
         queryClient.invalidateQueries({ queryKey: openSessionSalesQueryKey });
@@ -186,25 +195,28 @@ export function CorteScreen() {
       <div className="mx-auto flex max-w-[980px] flex-col gap-3 px-4 py-4 md:px-5">
         <p className="font-body text-xs font-medium text-muted-foreground">
           {session
-            ? `Sesión actual: ${formatDateShort(session.sessionDate)} (Turno ${session.sessionNumber})`
-            : "No hay sesión activa"}
+            ? tCommon("sessionCurrent", {
+                date: formatDateShort(session.sessionDate, locale),
+                number: session.sessionNumber,
+              })
+            : tCommon("noActiveSession")}
         </p>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
           <SummaryCard
             icon={Receipt}
-            label="Ventas realizadas"
+            label={t("summary.salesCount")}
             value={String(openSessionSales.length)}
           />
           <SummaryCard
             icon={DollarSign}
             isCurrency
-            label="Total registrado"
-            value={formatCurrency(systemTotal)}
+            label={t("summary.systemTotal")}
+            value={formatCurrency(systemTotal, locale)}
           />
           <SummaryCard
             icon={Package}
-            label="Artículos vendidos"
+            label={t("summary.itemsSold")}
             value={String(itemsSold)}
           />
         </div>
@@ -219,10 +231,10 @@ export function CorteScreen() {
                 />
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    No hay sesión activa
+                    {tCommon("noActiveSession")}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    La próxima venta abrirá una nueva sesión automáticamente.
+                    {t("noSessionHint")}
                   </p>
                 </div>
               </div>
@@ -234,7 +246,7 @@ export function CorteScreen() {
                 className="flex flex-col gap-2.5"
               >
                 <h3 className="font-heading text-lg font-bold text-foreground">
-                  Conteo de efectivo
+                  {t("cashCount.title")}
                 </h3>
 
                 <FormField
@@ -243,7 +255,7 @@ export function CorteScreen() {
                   render={({ field }) => (
                     <FormItem className="space-y-[10px]">
                       <FormLabel className="font-body text-sm font-semibold text-foreground">
-                        Efectivo contado
+                        {t("cashCount.label")}
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
@@ -254,7 +266,7 @@ export function CorteScreen() {
                             inputMode="decimal"
                             step="0.01"
                             min="0"
-                            placeholder="Ingresa la cantidad contada en caja"
+                            placeholder={t("cashCount.placeholder")}
                             className="h-12 rounded-xl border-[1.5px] border-foreground bg-card pl-10 pr-4 text-sm font-medium text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
@@ -279,20 +291,26 @@ export function CorteScreen() {
                     {difference === 0 ? (
                       <>
                         <CheckCircle2 className="h-5 w-5 shrink-0" />
-                        <span className="text-sm font-semibold">Cuadra perfecto</span>
+                        <span className="text-sm font-semibold">
+                          {t("reconciliation.perfect")}
+                        </span>
                       </>
                     ) : difference > 0 ? (
                       <>
                         <Info className="h-5 w-5 shrink-0" />
                         <span className="text-sm font-semibold">
-                          Sobrante: {formatCurrency(difference)}
+                          {t("reconciliation.surplus", {
+                            amount: formatCurrency(difference, locale),
+                          })}
                         </span>
                       </>
                     ) : (
                       <>
                         <AlertTriangle className="h-5 w-5 shrink-0" />
                         <span className="text-sm font-semibold">
-                          Faltante: {formatCurrency(Math.abs(difference))}
+                          {t("reconciliation.shortage", {
+                            amount: formatCurrency(Math.abs(difference), locale),
+                          })}
                         </span>
                       </>
                     )}
@@ -307,10 +325,10 @@ export function CorteScreen() {
                   {isPending ? (
                     <>
                       <Spinner />
-                      Cerrando...
+                      {tCommon("closing")}
                     </>
                   ) : (
-                    "Cerrar corte"
+                    t("closeButton")
                   )}
                 </Button>
               </form>
@@ -322,7 +340,7 @@ export function CorteScreen() {
           <Collapsible open={showDetail} onOpenChange={setShowDetail}>
             <CollapsibleTrigger asChild>
               <Button variant="outline" className="w-full justify-between">
-                <span>Detalle de ventas ({openSessionSales.length})</span>
+                <span>{t("salesDetail", { count: openSessionSales.length })}</span>
                 {showDetail ? (
                   <ChevronUp
                     className="h-4 w-4 text-muted-foreground"
@@ -348,15 +366,20 @@ export function CorteScreen() {
                       <div key={sale.id} className="px-4 py-4">
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-sm font-medium text-foreground">
-                            {formatTime(sale.createdAt)}
+                            {formatTime(sale.createdAt, locale)}
                           </span>
                           <span className="text-sm font-bold text-foreground">
-                            {formatCurrency(Number(sale.total))}
+                            {formatCurrency(Number(sale.total), locale)}
                           </span>
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {sale.items
-                            .map((i) => `${i.productName} x${i.quantity}`)
+                            .map((i) =>
+                              tCommon("saleItemFormat", {
+                                name: i.productName,
+                                quantity: i.quantity,
+                              })
+                            )
                             .join(", ")}
                         </p>
                       </div>
@@ -369,15 +392,15 @@ export function CorteScreen() {
                     <TableHeader>
                       <TableRow className="h-10 border-b border-border bg-muted/40 hover:bg-muted/40">
                         <TableHead className={cn(tableHeadClass, "w-[120px] px-4")}>
-                          Hora
+                          {t("table.time")}
                         </TableHead>
                         <TableHead className={cn(tableHeadClass, "px-4")}>
-                          Productos
+                          {t("table.products")}
                         </TableHead>
                         <TableHead
                           className={cn(tableHeadClass, "w-[100px] px-4 text-right")}
                         >
-                          Total
+                          {t("table.total")}
                         </TableHead>
                       </TableRow>
                     </TableHeader>
@@ -395,15 +418,20 @@ export function CorteScreen() {
                             className="h-12 border-b border-border/60 hover:bg-card"
                           >
                             <TableCell className="w-[120px] px-4 py-3 text-sm font-medium text-foreground">
-                              {formatTime(sale.createdAt)}
+                              {formatTime(sale.createdAt, locale)}
                             </TableCell>
                             <TableCell className="px-4 py-3 text-sm text-muted-foreground">
                               {sale.items
-                                .map((i) => `${i.productName} x${i.quantity}`)
+                                .map((i) =>
+                                  tCommon("saleItemFormat", {
+                                    name: i.productName,
+                                    quantity: i.quantity,
+                                  })
+                                )
                                 .join(", ")}
                             </TableCell>
                             <TableCell className="w-[100px] px-4 py-3 text-right text-sm font-bold text-foreground">
-                              {formatCurrency(Number(sale.total))}
+                              {formatCurrency(Number(sale.total), locale)}
                             </TableCell>
                           </TableRow>
                         ))
@@ -420,16 +448,15 @@ export function CorteScreen() {
       <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Cerrar el corte de caja?</AlertDialogTitle>
+            <AlertDialogTitle>{t("confirmClose.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se registrará el cierre de la sesión
-              actual.
+              {t("confirmClose.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmClose}>
-              Sí, cerrar corte
+              {t("confirmClose.yes")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

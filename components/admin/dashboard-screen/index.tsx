@@ -3,7 +3,6 @@
 import { CopilotSidebar } from "@copilotkit/react-core/v2";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -12,12 +11,15 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { adminDashboardQueryOptions } from "@/components/admin/dashboard-screen/query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { STORE_NAME } from "@/lib/constants/store";
+import { getCategoryMessageKey, isCategory } from "@/lib/i18n/categories";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 import { formatCurrency } from "@/lib/utils";
 import { HistoryPanel } from "./history-panel";
 import { LatestTransactionsPanel } from "./latest-transactions-panel";
@@ -25,20 +27,14 @@ import { DashboardSkeleton } from "./skeleton";
 import { StaleSessionBanner } from "./stale-session-banner";
 import { SummaryCard } from "./summary-card";
 
-function formatUpdatedLabel(timestamp: number): string {
-  if (timestamp === 0) {
-    return "Esperando datos";
-  }
-
-  return `Actualizado ${formatDistanceToNow(new Date(timestamp), {
-    addSuffix: true,
-    locale: es,
-  })}`;
-}
-
 export function AdminDashboardScreen() {
+  const t = useTranslations();
+  const tAdmin = useTranslations("admin.dashboard");
+  const tCopilot = useTranslations("copilot");
+  const tCategories = useTranslations("categories");
+  const locale = useLocale();
   const { data, dataUpdatedAt, error, isPending, refetch } = useQuery(
-    adminDashboardQueryOptions()
+    adminDashboardQueryOptions(locale)
   );
   const [dismissedStaleSessionId, setDismissedStaleSessionId] = useState<string | null>(
     null
@@ -48,27 +44,37 @@ export function AdminDashboardScreen() {
     data?.staleSession && data.staleSession.id !== dismissedStaleSessionId
   );
 
+  function formatUpdatedLabel(timestamp: number): string {
+    if (timestamp === 0) {
+      return t("common.waitingForData");
+    }
+
+    return t("common.updatedAgo", {
+      time: formatDistanceToNow(new Date(timestamp), {
+        addSuffix: true,
+        locale: getDateFnsLocale(locale),
+      }),
+    });
+  }
+
   return (
     <div className="space-y-6 p-4 md:p-8">
       {process.env.NEXT_PUBLIC_COPILOT_ENABLED === "true" && (
         <CopilotSidebar
           labels={{
-            modalHeaderTitle: `Insights de ${STORE_NAME}`,
-            welcomeMessageText:
-              "Hola. Puedo responder preguntas sobre ventas, productos y sesiones. Por ejemplo: '¿Cómo vamos hoy?' o '¿Cuáles fueron los productos más vendidos esta semana?'",
+            modalHeaderTitle: tCopilot("modalTitle", { storeName: STORE_NAME }),
+            welcomeMessageText: tCopilot("welcomeMessage"),
           }}
         />
       )}
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-lg text-foreground">Resumen de hoy</h2>
-          <p className="text-sm text-muted-foreground">
-            Sigue ventas, volumen y cortes del día en una sola vista.
-          </p>
+          <h2 className="text-lg text-foreground">{tAdmin("title")}</h2>
+          <p className="text-sm text-muted-foreground">{tAdmin("subtitle")}</p>
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Actualiza cada 60 s · {formatUpdatedLabel(dataUpdatedAt)}
+          {t("common.refreshInterval", { status: formatUpdatedLabel(dataUpdatedAt) })}
         </p>
       </div>
 
@@ -78,14 +84,14 @@ export function AdminDashboardScreen() {
         <Card className="rounded-3xl">
           <CardContent className="flex flex-col gap-3 p-6">
             <h3 className="text-base font-semibold text-foreground">
-              No se pudo cargar el dashboard
+              {tAdmin("loadErrorTitle")}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Verifica tu sesión de administrador e intenta actualizar de nuevo.
+              {tAdmin("loadErrorDescription")}
             </p>
             <div>
               <Button type="button" variant="outline" onClick={() => refetch()}>
-                Reintentar
+                {t("common.retry")}
               </Button>
             </div>
           </CardContent>
@@ -103,17 +109,26 @@ export function AdminDashboardScreen() {
             <Card className="rounded-3xl">
               <CardHeader className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-muted-foreground">Proyección del mes</p>
+                  <p className="text-sm text-muted-foreground">
+                    {tAdmin("monthProjection")}
+                  </p>
                   <CalendarDays className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <CardTitle className="text-3xl">
-                  {formatCurrency(data.revenueMonthProjected)}
+                  {formatCurrency(data.revenueMonthProjected, locale)}
                 </CardTitle>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Acumulado: {formatCurrency(data.revenueMonthToDate)}</span>
                     <span>
-                      Día {data.monthDaysElapsed} de {data.monthDaysTotal}
+                      {tAdmin("accumulated", {
+                        amount: formatCurrency(data.revenueMonthToDate, locale),
+                      })}
+                    </span>
+                    <span>
+                      {tAdmin("dayProgress", {
+                        elapsed: data.monthDaysElapsed,
+                        total: data.monthDaysTotal,
+                      })}
                     </span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -129,8 +144,8 @@ export function AdminDashboardScreen() {
             </Card>
 
             <SummaryCard
-              label="Ingresos hoy"
-              value={formatCurrency(data.revenueToday)}
+              label={tAdmin("revenueToday")}
+              value={formatCurrency(data.revenueToday, locale)}
               icon={Wallet}
             >
               {data.revenueVsLastWeek != null && (
@@ -157,16 +172,20 @@ export function AdminDashboardScreen() {
             <Card className="rounded-3xl">
               <CardHeader className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-muted-foreground">Actividad de hoy</p>
+                  <p className="text-sm text-muted-foreground">
+                    {tAdmin("activityToday")}
+                  </p>
                   <ReceiptText className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div className="flex gap-6">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Transacciones</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tAdmin("transactions")}
+                    </p>
                     <CardTitle className="text-3xl">{data.transactionCount}</CardTitle>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Productos</p>
+                    <p className="text-xs text-muted-foreground">{tAdmin("products")}</p>
                     <CardTitle className="text-3xl">{data.productsSold}</CardTitle>
                   </div>
                 </div>
@@ -177,9 +196,11 @@ export function AdminDashboardScreen() {
               <CardHeader className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="text-sm text-primary-foreground/70">Más vendido hoy</p>
+                    <p className="text-sm text-primary-foreground/70">
+                      {tAdmin("topSeller")}
+                    </p>
                     <CardTitle className="text-2xl text-primary-foreground">
-                      {data.topProduct?.name ?? "Sin ventas"}
+                      {data.topProduct?.name ?? tAdmin("noSales")}
                     </CardTitle>
                   </div>
                   <TrendingUp className="h-5 w-5 text-primary-foreground/70" />
@@ -188,17 +209,17 @@ export function AdminDashboardScreen() {
                 {data.topProduct ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="inverted" size="chip">
-                      {data.topProduct.units} unidades
+                      {t("common.units", { count: data.topProduct.units })}
                     </Badge>
-                    {data.topProduct.category ? (
+                    {isCategory(data.topProduct.category) ? (
                       <Badge variant="inverted" size="chip">
-                        {data.topProduct.category}
+                        {tCategories(getCategoryMessageKey(data.topProduct.category))}
                       </Badge>
                     ) : null}
                   </div>
                 ) : (
                   <p className="text-xs text-primary-foreground/70">
-                    Aún no hay un producto destacado para mostrar.
+                    {tAdmin("noTopProduct")}
                   </p>
                 )}
               </CardHeader>

@@ -1,12 +1,14 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function ThemeToggleSidebarRow() {
+  const t = useTranslations("common.theme");
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -23,7 +25,7 @@ export function ThemeToggleSidebarRow() {
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-pressed={isDark}
-      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      aria-label={isDark ? t("switchToLight") : t("switchToDark")}
       className="inline-flex h-10 w-full items-center gap-3 rounded-2xl border border-transparent px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
     >
       {isDark ? (
@@ -31,12 +33,13 @@ export function ThemeToggleSidebarRow() {
       ) : (
         <Moon className="h-4 w-4 shrink-0" />
       )}
-      <span>{isDark ? "Modo claro" : "Modo oscuro"}</span>
+      <span>{isDark ? t("lightMode") : t("darkMode")}</span>
     </button>
   );
 }
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const t = useTranslations("common.theme");
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -55,8 +58,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       className={cn("h-8 w-8 rounded-xl text-foreground", className)}
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-pressed={isDark}
-      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-      title={isDark ? "Modo claro" : "Modo oscuro"}
+      aria-label={isDark ? t("switchToLight") : t("switchToDark")}
+      title={isDark ? t("lightMode") : t("darkMode")}
     >
       {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </Button>

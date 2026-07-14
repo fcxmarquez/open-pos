@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { type Touch, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +22,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  CORTE_HISTORY_RANGE_ACCESSIBLE_LABELS,
-  CORTE_HISTORY_RANGE_LABELS,
+  CORTE_HISTORY_RANGE_ARIA_KEYS,
+  CORTE_HISTORY_RANGE_LABEL_KEYS,
   CORTE_HISTORY_RANGES,
   type CorteHistoryRange,
   type CorteHistoryView,
@@ -86,6 +87,10 @@ function ChartViewButton({
 }
 
 export function HistoryPanel() {
+  const t = useTranslations();
+  const tHistory = useTranslations("admin.history");
+  const tCorteHistory = useTranslations("corte.history");
+  const locale = useLocale();
   const [historyView, setHistoryView] = useState<CorteHistoryView>("bar");
   const [historyRange, setHistoryRange] = useState<CorteHistoryRange>("1S");
   const [rangeOffset, setRangeOffset] = useState(0);
@@ -102,10 +107,11 @@ export function HistoryPanel() {
     setHistoryRange(storedPreferences.range);
   }, []);
 
-  useQueries({ queries: initialAdminCorteHistoryQueries() });
+  useQueries({ queries: initialAdminCorteHistoryQueries(locale) });
 
   const historyQuery = useQuery(
     adminCorteHistoryQueryOptions({
+      locale,
       offset: rangeOffset,
       range: historyRange,
     })
@@ -154,15 +160,13 @@ export function HistoryPanel() {
       <CardHeader className="space-y-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg">Historial de Cortes</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Ingresos cerrados por periodo de corte.
-            </p>
+            <CardTitle className="text-lg">{tHistory("title")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{tHistory("subtitle")}</p>
           </div>
 
           <TooltipProvider delayDuration={150}>
             <ToggleGroup
-              aria-label="Tipo de gráfica"
+              aria-label={tHistory("chartTypeAria")}
               className="relative h-12 w-24 rounded-full bg-muted p-1"
               onValueChange={(value) => {
                 if (value === "bar" || value === "line") {
@@ -186,13 +190,13 @@ export function HistoryPanel() {
               <ChartViewButton
                 icon={ChartColumn}
                 isActive={historyView === "bar"}
-                label="Gráfica de barras"
+                label={tHistory("barChart")}
                 value="bar"
               />
               <ChartViewButton
                 icon={ChartLine}
                 isActive={historyView === "line"}
-                label="Gráfica de línea"
+                label={tHistory("lineChart")}
                 value="line"
               />
             </ToggleGroup>
@@ -216,12 +220,12 @@ export function HistoryPanel() {
           <TabsList className="grid h-auto w-full grid-cols-4 rounded-full p-1 md:w-fit">
             {CORTE_HISTORY_RANGES.map((range) => (
               <TabsTrigger
-                aria-label={CORTE_HISTORY_RANGE_ACCESSIBLE_LABELS[range]}
+                aria-label={tCorteHistory(CORTE_HISTORY_RANGE_ARIA_KEYS[range])}
                 className="rounded-full px-4"
                 key={range}
                 value={range}
               >
-                {CORTE_HISTORY_RANGE_LABELS[range]}
+                {tCorteHistory(CORTE_HISTORY_RANGE_LABEL_KEYS[range])}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -252,20 +256,20 @@ export function HistoryPanel() {
             {historyQuery.isPending ? (
               <div className="flex min-h-[300px] items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Cargando historial
+                {t("common.loadingHistory")}
               </div>
             ) : historyQuery.isError || !history ? (
               <PanelEmptyState
                 icon={Calendar}
-                title="No se pudo cargar este periodo"
-                description="Intenta actualizar la vista o cambiar de periodo."
+                title={tHistory("loadPeriodErrorTitle")}
+                description={tHistory("loadPeriodErrorDescription")}
                 minHeight="min-h-[300px]"
               />
             ) : !history.hasData ? (
               <PanelEmptyState
                 icon={Calendar}
-                title="No hay cortes en este periodo"
-                description="Intenta seleccionar otro periodo o navega a un rango anterior."
+                title={tHistory("noDataTitle")}
+                description={tHistory("noDataDescription")}
                 minHeight="min-h-[300px]"
               />
             ) : (
@@ -284,7 +288,7 @@ export function HistoryPanel() {
             variant="outline"
           >
             <ChevronLeft className="h-4 w-4" />
-            Anterior
+            {t("common.previous")}
           </Button>
 
           <div
@@ -294,14 +298,17 @@ export function HistoryPanel() {
             )}
           >
             <span className="font-medium text-foreground">
-              {history?.label ?? "Cargando periodo"}
+              {history?.label ?? t("common.loadingPeriod")}
             </span>
             <span>
               {history
-                ? `${formatCurrency(history.totalRevenue)} · ${history.closedSessionsCount} cortes`
-                : "Sin datos cargados"}
+                ? t("common.cortesSummary", {
+                    revenue: formatCurrency(history.totalRevenue, locale),
+                    count: history.closedSessionsCount,
+                  })
+                : t("common.noDataLoaded")}
               {historyQuery.isFetching && !historyQuery.isPending
-                ? " · Actualizando"
+                ? ` · ${t("common.refreshing")}`
                 : ""}
             </span>
           </div>
@@ -314,7 +321,7 @@ export function HistoryPanel() {
             type="button"
             variant="outline"
           >
-            Siguiente
+            {t("common.next")}
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

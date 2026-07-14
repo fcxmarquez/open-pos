@@ -25,6 +25,8 @@ export interface Product {
   barcode: string;
   pluCode?: string;
   name: string;
+  /** True when the database product has no name and the UI must supply a localized label. */
+  isUnnamed?: boolean;
   price: number;
   category: Category;
   costPrice?: number;

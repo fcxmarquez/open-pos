@@ -2,17 +2,22 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { PLU_CODE_REGEX } from "@/lib/constants/products";
+import type {
+  ErrorsTranslator,
+  ValidationTranslator,
+} from "@/lib/i18n/server-translators";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import {
   barcodeExists,
   bulkUpdateProducts as bulkUpdateProductsQuery,
   pluCodeExists,
 } from "@/lib/server/queries/products";
-import type { ActionResult } from "@/lib/types";
+import { type ActionResult, formatZodError } from "@/lib/types";
 
 type Product = typeof products.$inferSelect;
 type ProductField = "barcode" | "pluCode";
@@ -34,85 +39,86 @@ const optionalTrimmedString = z.preprocess((value) => {
   return trimmed.length === 0 ? undefined : trimmed;
 }, z.string().min(1).optional());
 
-const nullablePluCode = z.preprocess((value) => {
-  if (typeof value !== "string") return value;
+function createNullablePluCode(t: ValidationTranslator) {
+  return z.preprocess((value) => {
+    if (typeof value !== "string") return value;
 
-  const trimmed = value.trim();
-  return trimmed.length === 0 ? null : trimmed;
-}, z
-  .string()
-  .regex(PLU_CODE_REGEX, "El codigo PLU debe tener 4 digitos")
-  .nullable()
-  .optional());
-
-const createProductSchema = z.object({
-  barcode: nullableTrimmedString,
-  pluCode: nullablePluCode,
-  name: nullableTrimmedString,
-  price: z.coerce.number().positive("El precio debe ser mayor a 0"),
-  costPrice: z.coerce.number().nonnegative().optional(),
-  category: optionalTrimmedString.default("General"),
-});
-
-const updateProductSchema = z.object({
-  id: z.string().uuid("ID de producto invalido"),
-  barcode: nullableTrimmedString,
-  pluCode: nullablePluCode,
-  name: nullableTrimmedString,
-  price: z.coerce.number().positive("El precio debe ser mayor a 0").optional(),
-  costPrice: z.coerce.number().nonnegative().nullable().optional(),
-  category: optionalTrimmedString,
-});
-
-const deleteProductSchema = z.object({
-  id: z.string().uuid("ID de producto invalido"),
-});
-
-const bulkProductUpdatesSchema = z
-  .object({
-    price: z.coerce.number().positive("El precio debe ser mayor a 0").optional(),
-    costPrice: z
-      .union([
-        z.coerce.number().nonnegative("El precio de costo debe ser mayor o igual a 0"),
-        z.null(),
-      ])
-      .optional(),
-    category: z.enum(CATEGORY_OPTIONS).optional(),
-  })
-  .refine(
-    (value) =>
-      value.price !== undefined ||
-      value.costPrice !== undefined ||
-      value.category !== undefined,
-    "No se enviaron campos para actualizar"
-  );
-
-const bulkUpdateProductsSchema = z.object({
-  ids: z
-    .array(z.string().uuid("ID de producto invalido"))
-    .min(1, "Selecciona al menos un producto")
-    .max(500, "No se pueden actualizar mas de 500 productos a la vez"),
-  updates: bulkProductUpdatesSchema,
-});
-
-function formatZodError(error: z.ZodError): string {
-  const firstIssue = error.issues[0];
-  return firstIssue?.message ?? "Datos de entrada invalidos";
+    const trimmed = value.trim();
+    return trimmed.length === 0 ? null : trimmed;
+  }, z.string().regex(PLU_CODE_REGEX, t("pluFourDigits")).nullable().optional());
 }
 
-function duplicateFieldError(field: ProductField): {
+function createCreateProductSchema(t: ValidationTranslator) {
+  return z.object({
+    barcode: nullableTrimmedString,
+    pluCode: createNullablePluCode(t),
+    name: nullableTrimmedString,
+    price: z.coerce.number().positive(t("unitPricePositive")),
+    costPrice: z.coerce.number().nonnegative().optional(),
+    category: optionalTrimmedString.default("General"),
+  });
+}
+
+function createUpdateProductSchema(t: ValidationTranslator) {
+  return z.object({
+    id: z.string().uuid(t("productIdInvalid")),
+    barcode: nullableTrimmedString,
+    pluCode: createNullablePluCode(t),
+    name: nullableTrimmedString,
+    price: z.coerce.number().positive(t("unitPricePositive")).optional(),
+    costPrice: z.coerce.number().nonnegative().nullable().optional(),
+    category: optionalTrimmedString,
+  });
+}
+
+function createDeleteProductSchema(t: ValidationTranslator) {
+  return z.object({
+    id: z.string().uuid(t("productIdInvalid")),
+  });
+}
+
+function createBulkUpdateProductsSchema(t: ValidationTranslator) {
+  const bulkProductUpdatesSchema = z
+    .object({
+      price: z.coerce.number().positive(t("unitPricePositive")).optional(),
+      costPrice: z
+        .union([z.coerce.number().nonnegative(t("costPriceNonNegative")), z.null()])
+        .optional(),
+      category: z.enum(CATEGORY_OPTIONS).optional(),
+    })
+    .refine(
+      (value) =>
+        value.price !== undefined ||
+        value.costPrice !== undefined ||
+        value.category !== undefined,
+      t("noFieldsToUpdate")
+    );
+
+  return z.object({
+    ids: z
+      .array(z.string().uuid(t("productIdInvalid")))
+      .min(1, t("selectAtLeastOne"))
+      .max(500, t("bulkMax500")),
+    updates: bulkProductUpdatesSchema,
+  });
+}
+
+function duplicateFieldError(
+  field: ProductField,
+  tErrors: ErrorsTranslator
+): {
   error: string;
   field: ProductField;
 } {
   if (field === "pluCode") {
     return {
-      error: "El codigo PLU ya esta registrado",
+      error: tErrors("pluDuplicate"),
       field,
     };
   }
 
   return {
-    error: "El codigo de barras ya esta registrado",
+    error: tErrors("barcodeDuplicate"),
     field,
   };
 }
@@ -135,17 +141,24 @@ function revalidateProducts() {
 }
 
 export async function createProduct(
-  input: z.input<typeof createProductSchema>
+  input: z.input<ReturnType<typeof createCreateProductSchema>>
 ): Promise<ProductActionResult<Product>> {
+  const t = await getTranslations("validation");
+  const tErrors = await getTranslations("errors");
+  const createProductSchema = createCreateProductSchema(t);
   const parsed = createProductSchema.safeParse(input);
 
   if (!parsed.success) {
-    return { success: false, data: null, error: formatZodError(parsed.error) };
+    return {
+      success: false,
+      data: null,
+      error: formatZodError(parsed.error, t("invalidInput")),
+    };
   }
 
   try {
     if (parsed.data.barcode && (await barcodeExists(parsed.data.barcode))) {
-      const duplicate = duplicateFieldError("barcode");
+      const duplicate = duplicateFieldError("barcode", tErrors);
       return {
         success: false,
         data: null,
@@ -155,7 +168,7 @@ export async function createProduct(
     }
 
     if (parsed.data.pluCode && (await pluCodeExists(parsed.data.pluCode))) {
-      const duplicate = duplicateFieldError("pluCode");
+      const duplicate = duplicateFieldError("pluCode", tErrors);
       return {
         success: false,
         data: null,
@@ -182,7 +195,7 @@ export async function createProduct(
   } catch (error) {
     const uniqueConstraint = getUniqueConstraint(error);
     if (uniqueConstraint === "products_plu_code_unique") {
-      const duplicate = duplicateFieldError("pluCode");
+      const duplicate = duplicateFieldError("pluCode", tErrors);
       return {
         success: false,
         data: null,
@@ -192,7 +205,7 @@ export async function createProduct(
     }
 
     if (uniqueConstraint === "products_barcode_unique") {
-      const duplicate = duplicateFieldError("barcode");
+      const duplicate = duplicateFieldError("barcode", tErrors);
       return {
         success: false,
         data: null,
@@ -205,18 +218,25 @@ export async function createProduct(
     return {
       success: false,
       data: null,
-      error: "No se pudo crear el producto",
+      error: tErrors("createProductFailed"),
     };
   }
 }
 
 export async function updateProduct(
-  input: z.input<typeof updateProductSchema>
+  input: z.input<ReturnType<typeof createUpdateProductSchema>>
 ): Promise<ProductActionResult<Product>> {
+  const t = await getTranslations("validation");
+  const tErrors = await getTranslations("errors");
+  const updateProductSchema = createUpdateProductSchema(t);
   const parsed = updateProductSchema.safeParse(input);
 
   if (!parsed.success) {
-    return { success: false, data: null, error: formatZodError(parsed.error) };
+    return {
+      success: false,
+      data: null,
+      error: formatZodError(parsed.error, t("invalidInput")),
+    };
   }
 
   const updateData: Partial<typeof products.$inferInsert> = {
@@ -252,7 +272,7 @@ export async function updateProduct(
     return {
       success: false,
       data: null,
-      error: "No se enviaron campos para actualizar",
+      error: t("noFieldsToUpdate"),
     };
   }
 
@@ -261,7 +281,7 @@ export async function updateProduct(
       parsed.data.barcode &&
       (await barcodeExists(parsed.data.barcode, parsed.data.id))
     ) {
-      const duplicate = duplicateFieldError("barcode");
+      const duplicate = duplicateFieldError("barcode", tErrors);
       return {
         success: false,
         data: null,
@@ -274,7 +294,7 @@ export async function updateProduct(
       parsed.data.pluCode &&
       (await pluCodeExists(parsed.data.pluCode, parsed.data.id))
     ) {
-      const duplicate = duplicateFieldError("pluCode");
+      const duplicate = duplicateFieldError("pluCode", tErrors);
       return {
         success: false,
         data: null,
@@ -293,7 +313,7 @@ export async function updateProduct(
       return {
         success: false,
         data: null,
-        error: "Producto no encontrado",
+        error: tErrors("productNotFound"),
       };
     }
 
@@ -303,7 +323,7 @@ export async function updateProduct(
   } catch (error) {
     const uniqueConstraint = getUniqueConstraint(error);
     if (uniqueConstraint === "products_plu_code_unique") {
-      const duplicate = duplicateFieldError("pluCode");
+      const duplicate = duplicateFieldError("pluCode", tErrors);
       return {
         success: false,
         data: null,
@@ -313,7 +333,7 @@ export async function updateProduct(
     }
 
     if (uniqueConstraint === "products_barcode_unique") {
-      const duplicate = duplicateFieldError("barcode");
+      const duplicate = duplicateFieldError("barcode", tErrors);
       return {
         success: false,
         data: null,
@@ -326,18 +346,25 @@ export async function updateProduct(
     return {
       success: false,
       data: null,
-      error: "No se pudo actualizar el producto",
+      error: tErrors("updateProductFailed"),
     };
   }
 }
 
 export async function deleteProduct(
-  input: z.input<typeof deleteProductSchema>
+  input: z.input<ReturnType<typeof createDeleteProductSchema>>
 ): Promise<ActionResult> {
+  const t = await getTranslations("validation");
+  const tErrors = await getTranslations("errors");
+  const deleteProductSchema = createDeleteProductSchema(t);
   const parsed = deleteProductSchema.safeParse(input);
 
   if (!parsed.success) {
-    return { success: false, data: null, error: formatZodError(parsed.error) };
+    return {
+      success: false,
+      data: null,
+      error: formatZodError(parsed.error, t("invalidInput")),
+    };
   }
 
   try {
@@ -354,7 +381,7 @@ export async function deleteProduct(
       return {
         success: false,
         data: null,
-        error: "Producto no encontrado",
+        error: tErrors("productNotFound"),
       };
     }
 
@@ -366,18 +393,25 @@ export async function deleteProduct(
     return {
       success: false,
       data: null,
-      error: "No se pudo eliminar el producto",
+      error: tErrors("deleteProductFailed"),
     };
   }
 }
 
 export async function bulkUpdateProducts(
-  input: z.input<typeof bulkUpdateProductsSchema>
+  input: z.input<ReturnType<typeof createBulkUpdateProductsSchema>>
 ): Promise<ActionResult<{ updatedCount: number }>> {
+  const t = await getTranslations("validation");
+  const tErrors = await getTranslations("errors");
+  const bulkUpdateProductsSchema = createBulkUpdateProductsSchema(t);
   const parsed = bulkUpdateProductsSchema.safeParse(input);
 
   if (!parsed.success) {
-    return { success: false, data: null, error: formatZodError(parsed.error) };
+    return {
+      success: false,
+      data: null,
+      error: formatZodError(parsed.error, t("invalidInput")),
+    };
   }
 
   try {
@@ -398,7 +432,7 @@ export async function bulkUpdateProducts(
     return {
       success: false,
       data: null,
-      error: "No se pudieron actualizar los productos",
+      error: tErrors("bulkUpdateFailed"),
     };
   }
 }

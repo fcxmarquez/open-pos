@@ -1,4 +1,5 @@
 import { and, count, eq, gte, lte, sql } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
 import { db } from "@/db";
 import { salesSessions } from "@/db/schema";
 import {
@@ -8,6 +9,7 @@ import {
   type CorteHistoryRange,
   getCorteHistoryWindow,
 } from "@/lib/corte-history";
+import type { Locale } from "@/lib/i18n/config";
 import { getTodayDateString } from "@/lib/utils";
 
 export interface CorteHistoryQueryParams {
@@ -19,7 +21,8 @@ export async function getCorteHistoryData({
   offset,
   range,
 }: CorteHistoryQueryParams): Promise<CorteHistoryData> {
-  const window = getCorteHistoryWindow(range, offset, getTodayDateString());
+  const locale = (await getLocale()) as Locale;
+  const window = getCorteHistoryWindow(range, offset, getTodayDateString(), locale);
   const bucketExpression =
     window.granularity === "month"
       ? sql<string>`to_char(${salesSessions.sessionDate}, 'YYYY-MM')`
@@ -42,5 +45,5 @@ export async function getCorteHistoryData({
     .groupBy(bucketExpression)
     .orderBy(bucketExpression);
 
-  return buildCorteHistoryData(window, rows as CorteHistoryBucketRow[]);
+  return buildCorteHistoryData(window, rows as CorteHistoryBucketRow[], locale);
 }

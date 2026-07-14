@@ -1,8 +1,10 @@
 import { format, subDays } from "date-fns";
-import { es } from "date-fns/locale";
 import { and, desc, eq, gte, inArray, lt, sum } from "drizzle-orm";
+import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { products, saleItems, sales, salesSessions } from "@/db/schema";
+import type { Locale } from "@/lib/i18n/config";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 import { getOpenSession } from "@/lib/server/queries/sessions";
 import { getMonthProgress, getTodayDateString, toMexicoDateString } from "@/lib/utils";
 
@@ -41,13 +43,16 @@ function getDateStringDaysAgo(days: number): string {
   return toMexicoDateString(subDays(new Date(), days));
 }
 
-function formatPastWeekday(dateString: string): string {
-  return format(new Date(`${dateString}T12:00:00`), "EEEE 'pasado'", {
-    locale: es,
+function formatPastWeekday(dateString: string, locale: Locale): string {
+  const pattern = locale === "en" ? "'last' EEEE" : "EEEE 'pasado'";
+  return format(new Date(`${dateString}T12:00:00`), pattern, {
+    locale: getDateFnsLocale(locale),
   });
 }
 
 export async function getAdminDashboardData(): Promise<AdminDashboardData> {
+  const locale = (await getLocale()) as Locale;
+  const t = await getTranslations();
   const today = getTodayDateString();
   const lastWeekDate = getDateStringDaysAgo(7);
   const monthStart = `${today.slice(0, 7)}-01`;
@@ -181,14 +186,16 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   return {
     staleSession: staleSessionRow,
-    comparisonLabel: `vs ${formatPastWeekday(lastWeekDate)}`,
+    comparisonLabel: t("admin.comparison.vsWeekday", {
+      weekday: formatPastWeekday(lastWeekDate, locale),
+    }),
     generatedAt: new Date().toISOString(),
     hasOpenSession: Boolean(openSession),
     latestTransactions,
     monthDaysElapsed,
     monthDaysTotal,
     openSessionLabel: openSession
-      ? `Sesión abierta · Turno ${openSession.sessionNumber}`
+      ? t("common.openSessionLabel", { number: openSession.sessionNumber })
       : null,
     productsSold,
     revenueMonthProjected,

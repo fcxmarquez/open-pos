@@ -1,5 +1,6 @@
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 
 export const CORTE_HISTORY_RANGES = ["1S", "1M", "6M", "1A"] as const;
 
@@ -7,19 +8,21 @@ export type CorteHistoryRange = (typeof CORTE_HISTORY_RANGES)[number];
 export type CorteHistoryView = "bar" | "line";
 export type CorteHistoryGranularity = "day" | "month";
 
-export const CORTE_HISTORY_RANGE_LABELS: Record<CorteHistoryRange, string> = {
-  "1S": "1S",
-  "1M": "1M",
-  "6M": "6M",
-  "1A": "1A",
-};
+/** Message keys under corte.history.* for range tab labels. */
+export const CORTE_HISTORY_RANGE_LABEL_KEYS = {
+  "1S": "range1S",
+  "1M": "range1M",
+  "6M": "range6M",
+  "1A": "range1A",
+} as const satisfies Record<CorteHistoryRange, string>;
 
-export const CORTE_HISTORY_RANGE_ACCESSIBLE_LABELS: Record<CorteHistoryRange, string> = {
-  "1S": "1 semana",
-  "1M": "1 mes",
-  "6M": "6 meses",
-  "1A": "1 año",
-};
+/** Message keys under corte.history.* for range tab aria-labels. */
+export const CORTE_HISTORY_RANGE_ARIA_KEYS = {
+  "1S": "range1SAria",
+  "1M": "range1MAria",
+  "6M": "range6MAria",
+  "1A": "range1AAria",
+} as const satisfies Record<CorteHistoryRange, string>;
 
 export interface CorteHistoryWindow {
   endDate: string;
@@ -107,21 +110,29 @@ function endOfMonth(dateString: string): string {
   return dateStringFromParts(year, month, 0);
 }
 
-function formatPlainDate(dateString: string, pattern: string): string {
-  return format(localDateFromString(dateString), pattern, { locale: es });
+function formatPlainDate(dateString: string, pattern: string, locale: Locale): string {
+  return format(localDateFromString(dateString), pattern, {
+    locale: getDateFnsLocale(locale),
+  });
 }
 
-function formatDateRangeLabel(startDate: string, endDate: string): string {
-  return `${formatPlainDate(startDate, "d MMM")} - ${formatPlainDate(
+function formatDateRangeLabel(
+  startDate: string,
+  endDate: string,
+  locale: Locale
+): string {
+  return `${formatPlainDate(startDate, "d MMM", locale)} - ${formatPlainDate(
     endDate,
-    "d MMM yyyy"
+    "d MMM yyyy",
+    locale
   )}`;
 }
 
 export function getCorteHistoryWindow(
   range: CorteHistoryRange,
   offset: number,
-  today: string
+  today: string,
+  locale: Locale = defaultLocale
 ): CorteHistoryWindow {
   const normalizedOffset = normalizeCorteHistoryOffset(offset);
   const { month, year } = getDateParts(today);
@@ -135,7 +146,7 @@ export function getCorteHistoryWindow(
     return {
       endDate,
       granularity: "day",
-      label: formatDateRangeLabel(startDate, endDate),
+      label: formatDateRangeLabel(startDate, endDate, locale),
       offset: normalizedOffset,
       range,
       startDate,
@@ -148,7 +159,7 @@ export function getCorteHistoryWindow(
     return {
       endDate: endOfMonth(startDate),
       granularity: "day",
-      label: formatPlainDate(startDate, "MMMM yyyy"),
+      label: formatPlainDate(startDate, "MMMM yyyy", locale),
       offset: normalizedOffset,
       range,
       startDate,
@@ -167,7 +178,7 @@ export function getCorteHistoryWindow(
     return {
       endDate,
       granularity: "month",
-      label: formatDateRangeLabel(startDate, endDate),
+      label: formatDateRangeLabel(startDate, endDate, locale),
       offset: normalizedOffset,
       range,
       startDate,
@@ -192,20 +203,22 @@ function getMonthBucketKey(dateString: string): string {
   return dateString.slice(0, 7);
 }
 
-function getBucketLabels(window: CorteHistoryWindow, key: string) {
+function getBucketLabels(window: CorteHistoryWindow, key: string, locale: Locale) {
   if (window.granularity === "month") {
     const dateString = `${key}-01`;
 
     return {
-      label: formatPlainDate(dateString, "MMM"),
-      tooltipLabel: formatPlainDate(dateString, "MMMM yyyy"),
+      label: formatPlainDate(dateString, "MMM", locale),
+      tooltipLabel: formatPlainDate(dateString, "MMMM yyyy", locale),
     };
   }
 
   return {
     label:
-      window.range === "1S" ? formatPlainDate(key, "EEE d") : formatPlainDate(key, "d"),
-    tooltipLabel: formatPlainDate(key, "d MMM yyyy"),
+      window.range === "1S"
+        ? formatPlainDate(key, "EEE d", locale)
+        : formatPlainDate(key, "d", locale),
+    tooltipLabel: formatPlainDate(key, "d MMM yyyy", locale),
   };
 }
 
@@ -235,13 +248,14 @@ function getWindowBucketKeys(window: CorteHistoryWindow): string[] {
 
 export function buildCorteHistoryData(
   window: CorteHistoryWindow,
-  rows: CorteHistoryBucketRow[]
+  rows: CorteHistoryBucketRow[],
+  locale: Locale = defaultLocale
 ): CorteHistoryData {
   const rowByBucket = new Map(rows.map((row) => [row.bucket, row]));
 
   const buckets = getWindowBucketKeys(window).map((key) => {
     const row = rowByBucket.get(key);
-    const labels = getBucketLabels(window, key);
+    const labels = getBucketLabels(window, key, locale);
 
     return {
       closedSessions: row?.closedSessions ?? 0,

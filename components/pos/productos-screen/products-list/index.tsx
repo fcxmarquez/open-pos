@@ -8,6 +8,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Product } from "@/lib/store";
+import { getCategoryMessageKey } from "@/lib/i18n/categories";
+import { getProductDisplayName } from "@/lib/mappers";
+import type { Category, Product } from "@/lib/store";
 import { cn, formatCurrency, formatDateLabel } from "@/lib/utils";
 
 interface ProductsListProps {
@@ -116,6 +119,10 @@ export function ProductsList({
   selectedProductIds,
   someSelectedOnPage,
 }: ProductsListProps) {
+  const t = useTranslations("productos.table");
+  const tCommon = useTranslations("common");
+  const tCategories = useTranslations("categories");
+  const locale = useLocale();
   const [sortState, setSortState] = useState<SortState | null>({
     column: "lastSoldAt",
     direction: "desc",
@@ -157,6 +164,11 @@ export function ProductsList({
     return <ChevronDown className="h-4 w-4" />;
   };
 
+  const formatCategory = (category: Category) =>
+    tCategories(getCategoryMessageKey(category));
+  const formatProductName = (product: Product) =>
+    getProductDisplayName(product, tCommon("unnamedProduct"));
+
   if (isMobile) {
     return (
       <div className="flex flex-col gap-3">
@@ -168,41 +180,51 @@ export function ProductsList({
                   checked={selectedProductIds.has(product.id)}
                   onCheckedChange={() => onToggleProductSelection(product.id)}
                   disabled={isPending}
-                  aria-label={`Seleccionar ${product.name}`}
+                  aria-label={t("selectAria", { name: formatProductName(product) })}
                   className="mt-1"
                 />
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    {product.name === "Sin nombre" ? (
+                    {product.isUnnamed ? (
                       <p className="text-sm text-warning-foreground">
                         <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-                        Sin nombre - requiere registro
+                        {tCommon("unnamedRequiresRegistration")}
                       </p>
                     ) : (
                       <p className="text-sm font-medium text-foreground">
-                        {product.name}
+                        {formatProductName(product)}
                       </p>
                     )}
                     <div className="mt-0.5 flex flex-col gap-0.5 font-mono text-xs text-muted-foreground">
                       {product.barcode ? (
                         <p>{product.barcode}</p>
                       ) : (
-                        <p className="text-muted-foreground/70">Sin codigo</p>
+                        <p className="text-muted-foreground/70">{tCommon("noCode")}</p>
                       )}
-                      <p>PLU: {product.pluCode ?? "—"}</p>
+                      <p>
+                        {product.pluCode
+                          ? tCommon("pluLabel", { code: product.pluCode })
+                          : tCommon("pluEmpty")}
+                      </p>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       <Badge variant="muted" size="chip" className={CATEGORY_BADGE_CLASS}>
-                        {product.category}
+                        {formatCategory(product.category)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        Venta: {formatDateLabel(product.lastSoldAt)}
+                        {tCommon("saleLabel", {
+                          date: formatDateLabel(
+                            product.lastSoldAt,
+                            locale,
+                            tCommon("never")
+                          ),
+                        })}
                       </span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span className="text-base font-bold text-foreground">
-                      {formatCurrency(product.price)}
+                      {formatCurrency(product.price, locale)}
                     </span>
                     <div className="flex items-center gap-1">
                       <Button
@@ -211,10 +233,10 @@ export function ProductsList({
                         className="h-8 w-8"
                         onClick={() => onEdit(product)}
                         disabled={isPending}
-                        aria-label={`Editar ${product.name}`}
+                        aria-label={t("editAria", { name: formatProductName(product) })}
                       >
                         <Pencil className="h-3.5 w-3.5" />
-                        <span className="sr-only">Editar</span>
+                        <span className="sr-only">{tCommon("edit")}</span>
                       </Button>
                       <Button
                         variant="ghost"
@@ -222,10 +244,10 @@ export function ProductsList({
                         className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => onDelete(product)}
                         disabled={isPending}
-                        aria-label={`Eliminar ${product.name}`}
+                        aria-label={t("deleteAria", { name: formatProductName(product) })}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span className="sr-only">Eliminar</span>
+                        <span className="sr-only">{tCommon("delete")}</span>
                       </Button>
                     </div>
                   </div>
@@ -250,7 +272,7 @@ export function ProductsList({
                 }
                 onCheckedChange={(checked) => onToggleSelectAllPage(checked === true)}
                 disabled={isPending}
-                aria-label="Seleccionar todos los productos de la pagina"
+                aria-label={t("selectAllAria")}
               />
             </TableHead>
             <TableHead className="h-12 px-5" aria-sort={getAriaSort("code")}>
@@ -260,7 +282,7 @@ export function ProductsList({
                 className={SORT_BTN_CLS}
                 onClick={() => toggleSort("code")}
               >
-                Código
+                {t("code")}
                 {getSortIcon("code")}
               </Button>
             </TableHead>
@@ -271,7 +293,7 @@ export function ProductsList({
                 className={SORT_BTN_CLS}
                 onClick={() => toggleSort("name")}
               >
-                Nombre
+                {t("name")}
                 {getSortIcon("name")}
               </Button>
             </TableHead>
@@ -282,7 +304,7 @@ export function ProductsList({
                 className={cn(SORT_BTN_CLS, "w-full justify-end")}
                 onClick={() => toggleSort("price")}
               >
-                Precio de venta
+                {t("salePrice")}
                 {getSortIcon("price")}
               </Button>
             </TableHead>
@@ -293,7 +315,7 @@ export function ProductsList({
                 className={SORT_BTN_CLS}
                 onClick={() => toggleSort("category")}
               >
-                Categoría
+                {t("category")}
                 {getSortIcon("category")}
               </Button>
             </TableHead>
@@ -304,12 +326,12 @@ export function ProductsList({
                 className={SORT_BTN_CLS}
                 onClick={() => toggleSort("lastSoldAt")}
               >
-                Última venta
+                {t("lastSale")}
                 {getSortIcon("lastSoldAt")}
               </Button>
             </TableHead>
             <TableHead className="h-12 px-5 text-right text-xs font-semibold text-muted-foreground">
-              Acciones
+              {t("actions")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -327,7 +349,7 @@ export function ProductsList({
                   checked={selectedProductIds.has(product.id)}
                   onCheckedChange={() => onToggleProductSelection(product.id)}
                   disabled={isPending}
-                  aria-label={`Seleccionar ${product.name}`}
+                  aria-label={t("selectAria", { name: formatProductName(product) })}
                 />
               </TableCell>
               <TableCell className="px-5 font-mono text-sm">
@@ -335,33 +357,37 @@ export function ProductsList({
                   {product.barcode ? (
                     <span>{product.barcode}</span>
                   ) : (
-                    <span className="text-muted-foreground">Sin codigo</span>
+                    <span className="text-muted-foreground">{tCommon("noCode")}</span>
                   )}
                   <span className="text-xs text-muted-foreground">
-                    PLU: {product.pluCode ?? "—"}
+                    {product.pluCode
+                      ? tCommon("pluLabel", { code: product.pluCode })
+                      : tCommon("pluEmpty")}
                   </span>
                 </div>
               </TableCell>
               <TableCell className="px-5">
-                {product.name === "Sin nombre" ? (
+                {product.isUnnamed ? (
                   <span className="text-warning-foreground">
                     <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-                    Sin nombre - requiere registro
+                    {tCommon("unnamedRequiresRegistration")}
                   </span>
                 ) : (
-                  <span className="font-medium text-foreground">{product.name}</span>
+                  <span className="font-medium text-foreground">
+                    {formatProductName(product)}
+                  </span>
                 )}
               </TableCell>
               <TableCell className="px-5 text-right font-semibold text-foreground">
-                {formatCurrency(product.price)}
+                {formatCurrency(product.price, locale)}
               </TableCell>
               <TableCell className="px-5">
                 <Badge variant="muted" size="chip" className={CATEGORY_BADGE_CLASS}>
-                  {product.category}
+                  {formatCategory(product.category)}
                 </Badge>
               </TableCell>
               <TableCell className="px-5 text-sm text-muted-foreground">
-                {formatDateLabel(product.lastSoldAt)}
+                {formatDateLabel(product.lastSoldAt, locale, tCommon("never"))}
               </TableCell>
               <TableCell className="px-5 text-right">
                 <div className="flex items-center justify-end gap-3">
@@ -371,10 +397,10 @@ export function ProductsList({
                     className="h-8 w-8 text-foreground"
                     onClick={() => onEdit(product)}
                     disabled={isPending}
-                    aria-label={`Editar ${product.name}`}
+                    aria-label={t("editAria", { name: formatProductName(product) })}
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    <span className="sr-only">Editar</span>
+                    <span className="sr-only">{tCommon("edit")}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -382,10 +408,10 @@ export function ProductsList({
                     className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => onDelete(product)}
                     disabled={isPending}
-                    aria-label={`Eliminar ${product.name}`}
+                    aria-label={t("deleteAria", { name: formatProductName(product) })}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Eliminar</span>
+                    <span className="sr-only">{tCommon("delete")}</span>
                   </Button>
                 </div>
               </TableCell>

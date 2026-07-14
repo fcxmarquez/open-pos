@@ -41,7 +41,7 @@ export function productsQueryOptions(opts: {
         totalPages: pageData.totalPages,
         hasPreviousPage: pageData.hasPreviousPage,
         hasNextPage: pageData.hasNextPage,
-        products: pageData.rows.map(dbProductToStoreProduct),
+        products: pageData.rows.map((p) => dbProductToStoreProduct(p)),
       } satisfies ProductsPageData;
     },
     placeholderData: keepPreviousData,

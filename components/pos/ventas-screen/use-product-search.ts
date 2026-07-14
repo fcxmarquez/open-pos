@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -9,7 +10,7 @@ import {
   getProductByPluCode,
   searchProducts as searchProductsQuery,
 } from "@/app/actions/product-queries";
-import { dbProductToStoreProduct } from "@/lib/mappers";
+import { dbProductToStoreProduct, getProductDisplayName } from "@/lib/mappers";
 import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
 
@@ -20,6 +21,8 @@ interface UseProductSearchOptions {
 }
 
 export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
+  const tToast = useTranslations("ventas.toast");
+  const tCommon = useTranslations("common");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isDebouncing, setIsDebouncing] = useState(false);
@@ -65,7 +68,7 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
       startTransition(async () => {
         try {
           const results = await searchProductsQuery(searchValue);
-          setSearchResults(results.map(dbProductToStoreProduct));
+          setSearchResults(results.map((p) => dbProductToStoreProduct(p)));
         } catch {
           // Silently fail on search
         } finally {
@@ -105,7 +108,9 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
       const product = await getProductByBarcode(value);
       if (product) {
         addToCart(dbProductToStoreProduct(product));
-        toast.success(`${product.name ?? "Producto"} agregado`);
+        toast.success(
+          product.name ? tToast("added", { name: product.name }) : tToast("addedFallback")
+        );
         clearSearchAndFocus();
         return;
       }
@@ -114,7 +119,11 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
         const pluProduct = await getProductByPluCode(value);
         if (pluProduct) {
           addToCart(dbProductToStoreProduct(pluProduct));
-          toast.success(`${pluProduct.name ?? "Producto"} agregado`);
+          toast.success(
+            pluProduct.name
+              ? tToast("added", { name: pluProduct.name })
+              : tToast("addedFallback")
+          );
           clearSearchAndFocus();
           return;
         }
@@ -124,13 +133,17 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
       if (results.length === 1) {
         const p = dbProductToStoreProduct(results[0]);
         addToCart(p);
-        toast.success(`${p.name} agregado`);
+        toast.success(
+          tToast("added", {
+            name: getProductDisplayName(p, tCommon("unnamedProduct")),
+          })
+        );
         clearSearchAndFocus();
         return;
       }
 
       if (results.length > 1) {
-        setSearchResults(results.map(dbProductToStoreProduct));
+        setSearchResults(results.map((p) => dbProductToStoreProduct(p)));
         return;
       }
 
@@ -138,7 +151,7 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
       onUnregistered(value);
       clearSearch();
     } catch {
-      toast.error("Error al buscar el producto");
+      toast.error(tToast("searchError"));
     } finally {
       setIsSubmitting(false);
     }
