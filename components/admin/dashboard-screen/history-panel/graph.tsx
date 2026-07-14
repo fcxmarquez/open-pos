@@ -5,7 +5,6 @@ import { type PointerEvent, type TouchEvent, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { ChartContainer } from "@/components/ui/chart";
 import type { CorteHistoryBucket, CorteHistoryView } from "@/lib/corte-history";
-import type { Locale } from "@/lib/i18n/config";
 import { cn, formatCurrency } from "@/lib/utils";
 import { isGestureMovement } from "./gestures";
 
@@ -35,7 +34,7 @@ export function HistoryGraph({
   view: CorteHistoryView;
 }) {
   const t = useTranslations("common");
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
   const chartRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [activeBucket, setActiveBucket] = useState<ActiveBucketState | null>(null);

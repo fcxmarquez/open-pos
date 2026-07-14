@@ -25,6 +25,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { CATEGORY_COLOR_MAP } from "@/lib/category-colors";
+import { getProductDisplayName } from "@/lib/mappers";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
 import { CartPanel } from "./cart-panel";
@@ -33,6 +34,7 @@ import { useProductSearch } from "./use-product-search";
 
 export function VentasScreen() {
   const t = useTranslations("ventas");
+  const tCommon = useTranslations("common");
   const tToast = useTranslations("ventas.toast");
   const locale = useLocale();
   const [showUnregistered, setShowUnregistered] = useState(false);
@@ -89,7 +91,11 @@ export function VentasScreen() {
 
   const handleProductClick = (product: Product) => {
     addToCart(product);
-    toast.success(tToast("added", { name: product.name }));
+    toast.success(
+      tToast("added", {
+        name: getProductDisplayName(product, tCommon("unnamedProduct")),
+      })
+    );
     focusInput();
   };
 
@@ -206,18 +212,24 @@ export function VentasScreen() {
                   key={p.id}
                   onClick={() => {
                     addToCart(p);
-                    toast.success(tToast("added", { name: p.name }));
+                    toast.success(
+                      tToast("added", {
+                        name: getProductDisplayName(p, tCommon("unnamedProduct")),
+                      })
+                    );
                     clearSearchAndFocus();
                   }}
                   // biome-ignore lint/security/noSecrets: translation message key, not a secret
                   aria-label={t("addToCartAria", {
-                    name: p.name,
+                    name: getProductDisplayName(p, tCommon("unnamedProduct")),
                     price: formatCurrency(p.price, locale),
                   })}
                   className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
                 >
                   <div>
-                    <span className="font-medium text-foreground">{p.name}</span>
+                    <span className="font-medium text-foreground">
+                      {getProductDisplayName(p, tCommon("unnamedProduct"))}
+                    </span>
                     <span className="ml-2 text-xs text-muted-foreground">
                       {p.barcode}
                     </span>
@@ -244,7 +256,7 @@ export function VentasScreen() {
                 onClick={() => handleProductClick(product)}
                 // biome-ignore lint/security/noSecrets: translation message key, not a secret
                 aria-label={t("addToCartAria", {
-                  name: product.name,
+                  name: getProductDisplayName(product, tCommon("unnamedProduct")),
                   price: formatCurrency(product.price, locale),
                 })}
                 className="flex h-[100px] flex-row items-stretch overflow-hidden rounded-2xl border bg-card text-left transition-all hover:border-primary/40 hover:shadow-xs active:scale-[0.98]"
@@ -255,7 +267,7 @@ export function VentasScreen() {
                 />
                 <div className="flex flex-1 flex-col justify-between gap-2 p-3.5">
                   <span className="line-clamp-2 text-[13px] font-semibold uppercase leading-tight text-product-title">
-                    {product.name}
+                    {getProductDisplayName(product, tCommon("unnamedProduct"))}
                   </span>
                   <span className="text-xl font-extrabold tracking-[-0.5px] text-foreground">
                     {formatCurrency(product.price, locale)}

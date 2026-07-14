@@ -10,7 +10,7 @@ import {
   getProductByPluCode,
   searchProducts as searchProductsQuery,
 } from "@/app/actions/product-queries";
-import { dbProductToStoreProduct } from "@/lib/mappers";
+import { dbProductToStoreProduct, getProductDisplayName } from "@/lib/mappers";
 import { ventasSearchFormDefaults, ventasSearchFormSchema } from "@/lib/pos-form-schemas";
 import { type Product, useStore } from "@/lib/store";
 
@@ -22,6 +22,7 @@ interface UseProductSearchOptions {
 
 export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
   const tToast = useTranslations("ventas.toast");
+  const tCommon = useTranslations("common");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isDebouncing, setIsDebouncing] = useState(false);
@@ -132,7 +133,11 @@ export function useProductSearch({ onUnregistered }: UseProductSearchOptions) {
       if (results.length === 1) {
         const p = dbProductToStoreProduct(results[0]);
         addToCart(p);
-        toast.success(tToast("added", { name: p.name }));
+        toast.success(
+          tToast("added", {
+            name: getProductDisplayName(p, tCommon("unnamedProduct")),
+          })
+        );
         clearSearchAndFocus();
         return;
       }

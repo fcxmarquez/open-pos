@@ -21,8 +21,7 @@ import {
 import { ThemeToggle, ThemeToggleSidebarRow } from "@/components/pos/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { STORE_NAME } from "@/lib/constants/store";
-import type { Locale } from "@/lib/i18n/config";
-import { getDateFnsLocale } from "@/lib/i18n/date-locale";
+import { getDateFnsLocale, getLongDatePattern } from "@/lib/i18n/date-locale";
 import { cn, mexicoAnchoredDate } from "@/lib/utils";
 
 export function AdminShell({
@@ -33,7 +32,7 @@ export function AdminShell({
   isDemoMode?: boolean;
 }) {
   const t = useTranslations();
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -50,11 +49,9 @@ export function AdminShell({
     format(mexicoAnchoredDate(date), "d MMM yyyy", { locale: getDateFnsLocale(locale) });
 
   const formatLongDate = (date: Date) =>
-    format(
-      mexicoAnchoredDate(date),
-      locale === "en" ? "EEEE, MMMM d, yyyy" : "EEEE, d 'de' MMMM 'de' yyyy",
-      { locale: getDateFnsLocale(locale) }
-    );
+    format(mexicoAnchoredDate(date), getLongDatePattern(locale), {
+      locale: getDateFnsLocale(locale),
+    });
 
   const navItems = [
     {

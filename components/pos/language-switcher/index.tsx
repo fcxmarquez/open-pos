@@ -14,9 +14,8 @@ function setLocaleCookie(locale: Locale) {
   document.cookie = `${LOCALE_COOKIE}=${locale};path=/;max-age=${maxAge};samesite=lax`;
 }
 
-export function LanguageSwitcherSidebarRow() {
-  const t = useTranslations("common");
-  const locale = useLocale() as Locale;
+function useLocaleSwitcher() {
+  const locale = useLocale();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -27,6 +26,13 @@ export function LanguageSwitcherSidebarRow() {
       router.refresh();
     });
   };
+
+  return { isPending, locale, switchLocale };
+}
+
+export function LanguageSwitcherSidebarRow() {
+  const t = useTranslations("common");
+  const { isPending, locale, switchLocale } = useLocaleSwitcher();
 
   return (
     <fieldset className="flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-2">
@@ -62,17 +68,7 @@ export function LanguageSwitcherSidebarRow() {
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const t = useTranslations("common");
-  const locale = useLocale() as Locale;
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  const switchLocale = (next: Locale) => {
-    if (next === locale) return;
-    setLocaleCookie(next);
-    startTransition(() => {
-      router.refresh();
-    });
-  };
+  const { isPending, locale, switchLocale } = useLocaleSwitcher();
 
   return (
     <fieldset

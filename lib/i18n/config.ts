@@ -8,7 +8,7 @@ export const defaultLocale: Locale = "es";
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 
 export function isLocale(value: string | undefined | null): value is Locale {
-  return value === "es" || value === "en";
+  return typeof value === "string" && locales.some((locale) => locale === value);
 }
 
 /** BCP 47 tags used for Intl / date-fns display formatting. */

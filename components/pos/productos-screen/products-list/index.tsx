@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getCategoryMessageKey } from "@/lib/i18n/categories";
-import { UNNAMED_PRODUCT_FALLBACK } from "@/lib/mappers";
+import { getProductDisplayName } from "@/lib/mappers";
 import type { Category, Product } from "@/lib/store";
 import { cn, formatCurrency, formatDateLabel } from "@/lib/utils";
 
@@ -166,6 +166,8 @@ export function ProductsList({
 
   const formatCategory = (category: Category) =>
     tCategories(getCategoryMessageKey(category));
+  const formatProductName = (product: Product) =>
+    getProductDisplayName(product, tCommon("unnamedProduct"));
 
   if (isMobile) {
     return (
@@ -178,19 +180,19 @@ export function ProductsList({
                   checked={selectedProductIds.has(product.id)}
                   onCheckedChange={() => onToggleProductSelection(product.id)}
                   disabled={isPending}
-                  aria-label={t("selectAria", { name: product.name })}
+                  aria-label={t("selectAria", { name: formatProductName(product) })}
                   className="mt-1"
                 />
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    {product.name === UNNAMED_PRODUCT_FALLBACK ? (
+                    {product.isUnnamed ? (
                       <p className="text-sm text-warning-foreground">
                         <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
                         {tCommon("unnamedRequiresRegistration")}
                       </p>
                     ) : (
                       <p className="text-sm font-medium text-foreground">
-                        {product.name}
+                        {formatProductName(product)}
                       </p>
                     )}
                     <div className="mt-0.5 flex flex-col gap-0.5 font-mono text-xs text-muted-foreground">
@@ -231,7 +233,7 @@ export function ProductsList({
                         className="h-8 w-8"
                         onClick={() => onEdit(product)}
                         disabled={isPending}
-                        aria-label={t("editAria", { name: product.name })}
+                        aria-label={t("editAria", { name: formatProductName(product) })}
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         <span className="sr-only">{tCommon("edit")}</span>
@@ -242,7 +244,7 @@ export function ProductsList({
                         className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => onDelete(product)}
                         disabled={isPending}
-                        aria-label={t("deleteAria", { name: product.name })}
+                        aria-label={t("deleteAria", { name: formatProductName(product) })}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         <span className="sr-only">{tCommon("delete")}</span>
@@ -347,7 +349,7 @@ export function ProductsList({
                   checked={selectedProductIds.has(product.id)}
                   onCheckedChange={() => onToggleProductSelection(product.id)}
                   disabled={isPending}
-                  aria-label={t("selectAria", { name: product.name })}
+                  aria-label={t("selectAria", { name: formatProductName(product) })}
                 />
               </TableCell>
               <TableCell className="px-5 font-mono text-sm">
@@ -365,13 +367,15 @@ export function ProductsList({
                 </div>
               </TableCell>
               <TableCell className="px-5">
-                {product.name === UNNAMED_PRODUCT_FALLBACK ? (
+                {product.isUnnamed ? (
                   <span className="text-warning-foreground">
                     <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
                     {tCommon("unnamedRequiresRegistration")}
                   </span>
                 ) : (
-                  <span className="font-medium text-foreground">{product.name}</span>
+                  <span className="font-medium text-foreground">
+                    {formatProductName(product)}
+                  </span>
                 )}
               </TableCell>
               <TableCell className="px-5 text-right font-semibold text-foreground">
@@ -393,7 +397,7 @@ export function ProductsList({
                     className="h-8 w-8 text-foreground"
                     onClick={() => onEdit(product)}
                     disabled={isPending}
-                    aria-label={t("editAria", { name: product.name })}
+                    aria-label={t("editAria", { name: formatProductName(product) })}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                     <span className="sr-only">{tCommon("edit")}</span>
@@ -404,7 +408,7 @@ export function ProductsList({
                     className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => onDelete(product)}
                     disabled={isPending}
-                    aria-label={t("deleteAria", { name: product.name })}
+                    aria-label={t("deleteAria", { name: formatProductName(product) })}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     <span className="sr-only">{tCommon("delete")}</span>

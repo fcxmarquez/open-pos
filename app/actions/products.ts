@@ -7,6 +7,10 @@ import { z } from "zod";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { PLU_CODE_REGEX } from "@/lib/constants/products";
+import type {
+  ErrorsTranslator,
+  ValidationTranslator,
+} from "@/lib/i18n/server-translators";
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import {
   barcodeExists,
@@ -35,10 +39,7 @@ const optionalTrimmedString = z.preprocess((value) => {
   return trimmed.length === 0 ? undefined : trimmed;
 }, z.string().min(1).optional());
 
-type ValidationT = Awaited<ReturnType<typeof getTranslations<"validation">>>;
-type ErrorsT = Awaited<ReturnType<typeof getTranslations<"errors">>>;
-
-function createNullablePluCode(t: ValidationT) {
+function createNullablePluCode(t: ValidationTranslator) {
   return z.preprocess((value) => {
     if (typeof value !== "string") return value;
 
@@ -47,7 +48,7 @@ function createNullablePluCode(t: ValidationT) {
   }, z.string().regex(PLU_CODE_REGEX, t("pluFourDigits")).nullable().optional());
 }
 
-function createCreateProductSchema(t: ValidationT) {
+function createCreateProductSchema(t: ValidationTranslator) {
   return z.object({
     barcode: nullableTrimmedString,
     pluCode: createNullablePluCode(t),
@@ -58,7 +59,7 @@ function createCreateProductSchema(t: ValidationT) {
   });
 }
 
-function createUpdateProductSchema(t: ValidationT) {
+function createUpdateProductSchema(t: ValidationTranslator) {
   return z.object({
     id: z.string().uuid(t("productIdInvalid")),
     barcode: nullableTrimmedString,
@@ -70,13 +71,13 @@ function createUpdateProductSchema(t: ValidationT) {
   });
 }
 
-function createDeleteProductSchema(t: ValidationT) {
+function createDeleteProductSchema(t: ValidationTranslator) {
   return z.object({
     id: z.string().uuid(t("productIdInvalid")),
   });
 }
 
-function createBulkUpdateProductsSchema(t: ValidationT) {
+function createBulkUpdateProductsSchema(t: ValidationTranslator) {
   const bulkProductUpdatesSchema = z
     .object({
       price: z.coerce.number().positive(t("unitPricePositive")).optional(),
@@ -104,7 +105,7 @@ function createBulkUpdateProductsSchema(t: ValidationT) {
 
 function duplicateFieldError(
   field: ProductField,
-  tErrors: ErrorsT
+  tErrors: ErrorsTranslator
 ): {
   error: string;
   field: ProductField;

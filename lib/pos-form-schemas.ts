@@ -23,7 +23,16 @@ export const CATEGORY_OPTIONS = [
 export const CATEGORY_FILTER_OPTIONS = ["all", ...CATEGORY_OPTIONS] as const;
 
 /** Translator for validation.* message keys. */
-export type ValidationTranslate = (key: string) => string;
+export type FormValidationKey =
+  | "amountInvalid"
+  | "costPriceInvalid"
+  | "countedCashRequired"
+  | "nameRequired"
+  | "paymentInvalid"
+  | "pluInvalid"
+  | "priceInvalid";
+
+export type ValidationTranslate = (key: FormValidationKey) => string;
 
 const numberString = (requiredMessage: string, invalidMessage: string) =>
   z
@@ -61,19 +70,6 @@ function createOptionalPluCodeString(t: ValidationTranslate) {
     .refine((value) => value === "" || PLU_CODE_REGEX.test(value), t("pluInvalid"));
 }
 
-/** Spanish fallbacks matching messages/es.json validation.* (default-compatible). */
-const spanishValidation: Record<string, string> = {
-  pluInvalid: "Ingresa un código PLU válido de 4 dígitos",
-  nameRequired: "El nombre es requerido",
-  priceInvalid: "Ingresa un precio válido",
-  costPriceInvalid: "Ingresa un precio de costo válido",
-  paymentInvalid: "Ingresa un pago válido",
-  countedCashRequired: "Ingresa el efectivo contado",
-  amountInvalid: "Ingresa un monto válido",
-};
-
-const defaultValidationT: ValidationTranslate = (key) => spanishValidation[key] ?? key;
-
 export const ventasSearchFormSchema = z.object({
   searchValue: optionalTrimmedString,
 });
@@ -103,8 +99,6 @@ export function createProductFormSchema(t: ValidationTranslate) {
   });
 }
 
-export const productFormSchema = createProductFormSchema(defaultValidationT);
-
 export const productFormDefaults: z.input<ReturnType<typeof createProductFormSchema>> = {
   barcode: "",
   pluCode: "",
@@ -120,8 +114,6 @@ export function createCheckoutFormSchema(t: ValidationTranslate) {
   });
 }
 
-export const checkoutFormSchema = createCheckoutFormSchema(defaultValidationT);
-
 export const checkoutFormDefaults: z.input<ReturnType<typeof createCheckoutFormSchema>> =
   {
     payment: "",
@@ -133,8 +125,6 @@ export function createQuickSaleFormSchema(t: ValidationTranslate) {
     name: optionalTrimmedString,
   });
 }
-
-export const quickSaleFormSchema = createQuickSaleFormSchema(defaultValidationT);
 
 export const quickSaleFormDefaults: z.input<
   ReturnType<typeof createQuickSaleFormSchema>
@@ -151,9 +141,6 @@ export function createUnregisteredProductFormSchema(t: ValidationTranslate) {
   });
 }
 
-export const unregisteredProductFormSchema =
-  createUnregisteredProductFormSchema(defaultValidationT);
-
 export const unregisteredProductFormDefaults: z.input<
   ReturnType<typeof createUnregisteredProductFormSchema>
 > = {
@@ -167,8 +154,6 @@ export function createCorteFormSchema(t: ValidationTranslate) {
     countedCash: nonNegativeNumberString(t("countedCashRequired"), t("amountInvalid")),
   });
 }
-
-export const corteFormSchema = createCorteFormSchema(defaultValidationT);
 
 export const corteFormDefaults: z.input<ReturnType<typeof createCorteFormSchema>> = {
   countedCash: "",

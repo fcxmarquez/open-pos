@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { getMonthProgress, mexicoAnchoredDate, toMexicoDateString } from "@/lib/utils";
+import {
+  formatDateLabel,
+  getMonthProgress,
+  mexicoAnchoredDate,
+  toMexicoDateString,
+} from "@/lib/utils";
 
 describe("getMonthProgress", () => {
   test("last day of a 30-day month", () => {
@@ -53,5 +58,12 @@ describe("toMexicoDateString", () => {
   test("uses the Mexico City calendar date at the midnight boundary", () => {
     expect(toMexicoDateString(new Date("2026-07-10T05:59:59.000Z"))).toBe("2026-07-09");
     expect(toMexicoDateString(new Date("2026-07-10T06:00:00.000Z"))).toBe("2026-07-10");
+  });
+});
+
+describe("formatDateLabel", () => {
+  test("uses the caller-provided localized empty-date label", () => {
+    expect(formatDateLabel(undefined, "en", "Never")).toBe("Never");
+    expect(formatDateLabel(undefined, "es", "Nunca")).toBe("Nunca");
   });
 });

@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { getProductDisplayName } from "@/lib/mappers";
 import {
   type CheckoutFormValues,
   checkoutFormDefaults,
@@ -98,7 +99,7 @@ export function CheckoutDialog({ open, onOpenChange, onComplete }: CheckoutDialo
             ? null
             : item.product.id,
         barcode: item.product.barcode || null,
-        productName: item.product.name,
+        productName: getProductDisplayName(item.product, tCommon("unnamedProduct")),
         unitPrice: item.unitPrice,
         quantity: item.quantity,
       }));

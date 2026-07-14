@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import type { Locale } from "@/lib/i18n/config";
 import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +22,7 @@ export function StaleSessionBanner({
   className,
 }: StaleSessionBannerProps) {
   const t = useTranslations("admin.stale");
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
 
   const sessionDateLabel = format(
     new Date(`${staleSession.sessionDate}T12:00:00`),

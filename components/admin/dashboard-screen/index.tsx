@@ -18,10 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { STORE_NAME } from "@/lib/constants/store";
-import { getCategoryMessageKey } from "@/lib/i18n/categories";
-import type { Locale } from "@/lib/i18n/config";
+import { getCategoryMessageKey, isCategory } from "@/lib/i18n/categories";
 import { getDateFnsLocale } from "@/lib/i18n/date-locale";
-import type { Category } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { HistoryPanel } from "./history-panel";
 import { LatestTransactionsPanel } from "./latest-transactions-panel";
@@ -34,7 +32,7 @@ export function AdminDashboardScreen() {
   const tAdmin = useTranslations("admin.dashboard");
   const tCopilot = useTranslations("copilot");
   const tCategories = useTranslations("categories");
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
   const { data, dataUpdatedAt, error, isPending, refetch } = useQuery(
     adminDashboardQueryOptions(locale)
   );
@@ -213,11 +211,9 @@ export function AdminDashboardScreen() {
                     <Badge variant="inverted" size="chip">
                       {t("common.units", { count: data.topProduct.units })}
                     </Badge>
-                    {data.topProduct.category ? (
+                    {isCategory(data.topProduct.category) ? (
                       <Badge variant="inverted" size="chip">
-                        {tCategories(
-                          getCategoryMessageKey(data.topProduct.category as Category)
-                        )}
+                        {tCategories(getCategoryMessageKey(data.topProduct.category))}
                       </Badge>
                     ) : null}
                   </div>

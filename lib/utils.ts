@@ -35,8 +35,8 @@ export function formatDateShort(dateStr: string, locale: string = defaultLocale)
 /** Formats an optional ISO date string as "dd MMM yyyy", returns neverLabel if empty. */
 export function formatDateLabel(
   dateStr: string | undefined,
-  locale: string = defaultLocale,
-  neverLabel = "Nunca"
+  locale: string,
+  neverLabel: string
 ): string {
   if (!dateStr) return neverLabel;
   return format(new Date(dateStr), "dd MMM yyyy", {

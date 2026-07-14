@@ -11,12 +11,11 @@ import {
   computeDiscountBreakdown,
   parseDiscountPercentInput,
 } from "@/lib/discount";
+import type { ValidationTranslator } from "@/lib/i18n/server-translators";
 import { type ActionResult, formatZodError } from "@/lib/types";
 import { getTodayDateString } from "@/lib/utils";
 
-type ValidationT = Awaited<ReturnType<typeof getTranslations<"validation">>>;
-
-function createCompleteSaleSchema(t: ValidationT) {
+function createCompleteSaleSchema(t: ValidationTranslator) {
   const cartItemSchema = z.object({
     productId: z.string().uuid().nullable(),
     barcode: z.string().nullable(),

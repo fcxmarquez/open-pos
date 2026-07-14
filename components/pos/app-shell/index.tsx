@@ -22,8 +22,7 @@ import { PinDialog } from "@/components/pos/pin-dialog";
 import { ThemeToggle } from "@/components/pos/theme-toggle";
 import { Spinner } from "@/components/ui/spinner";
 import { STORE_NAME } from "@/lib/constants/store";
-import type { Locale } from "@/lib/i18n/config";
-import { getDateFnsLocale } from "@/lib/i18n/date-locale";
+import { getDateFnsLocale, getLongDatePattern } from "@/lib/i18n/date-locale";
 import { cn } from "@/lib/utils";
 
 type Screen = "ventas" | "productos" | "corte";
@@ -52,7 +51,7 @@ export function AppShell({
   isDemoMode?: boolean;
 }) {
   const t = useTranslations();
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const activeScreen = pathToScreen(pathname);
@@ -63,8 +62,7 @@ export function AppShell({
   const [pendingScreen, setPendingScreen] = useState<Screen | null>(null);
   const isLoggingOut = useRef(false);
 
-  const headerDatePattern =
-    locale === "en" ? "EEEE, MMMM d, yyyy" : "EEEE, d 'de' MMMM 'de' yyyy";
+  const headerDatePattern = getLongDatePattern(locale);
   const dateFnsLocale = getDateFnsLocale(locale);
 
   const [dateStr, setDateStr] = useState(() =>

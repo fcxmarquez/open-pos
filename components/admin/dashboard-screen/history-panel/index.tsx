@@ -29,7 +29,6 @@ import {
   type CorteHistoryView,
   isCorteHistoryRange,
 } from "@/lib/corte-history";
-import type { Locale } from "@/lib/i18n/config";
 import { cn, formatCurrency } from "@/lib/utils";
 import { PanelEmptyState } from "../panel-empty-state";
 import { isHorizontalSwipe } from "./gestures";
@@ -91,7 +90,7 @@ export function HistoryPanel() {
   const t = useTranslations();
   const tHistory = useTranslations("admin.history");
   const tCorteHistory = useTranslations("corte.history");
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
   const [historyView, setHistoryView] = useState<CorteHistoryView>("bar");
   const [historyRange, setHistoryRange] = useState<CorteHistoryRange>("1S");
   const [rangeOffset, setRangeOffset] = useState(0);

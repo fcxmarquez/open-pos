@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Locale } from "@/lib/i18n/config";
 import { formatCurrency, formatTime } from "@/lib/utils";
 import { PanelEmptyState } from "../panel-empty-state";
 
@@ -36,7 +35,7 @@ export function LatestTransactionsPanel({
 }: LatestTransactionsPanelProps) {
   const t = useTranslations();
   const tTx = useTranslations("admin.transactions");
-  const locale = useLocale() as Locale;
+  const locale = useLocale();
 
   return (
     <Card className="flex flex-col rounded-3xl">

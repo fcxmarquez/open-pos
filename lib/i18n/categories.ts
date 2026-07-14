@@ -21,6 +21,10 @@ export const CATEGORY_MESSAGE_KEYS = {
 
 export type CategoryMessageKey = (typeof CATEGORY_MESSAGE_KEYS)[Category];
 
+export function isCategory(value: unknown): value is Category {
+  return typeof value === "string" && Object.hasOwn(CATEGORY_MESSAGE_KEYS, value);
+}
+
 export function getCategoryMessageKey(category: Category): CategoryMessageKey {
   return CATEGORY_MESSAGE_KEYS[category];
 }

@@ -6,11 +6,10 @@ import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { db } from "@/db";
 import { salesSessions } from "@/db/schema";
+import type { ValidationTranslator } from "@/lib/i18n/server-translators";
 import { type ActionResult, formatZodError } from "@/lib/types";
 
-type ValidationT = Awaited<ReturnType<typeof getTranslations<"validation">>>;
-
-function createCloseSessionSchema(t: ValidationT) {
+function createCloseSessionSchema(t: ValidationTranslator) {
   return z.object({
     sessionId: z.string().uuid(t("sessionIdInvalid")),
     countedTotal: z.coerce.number().nonnegative(t("countedTotalNonNegative")),
