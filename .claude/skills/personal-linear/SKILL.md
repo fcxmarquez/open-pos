@@ -15,7 +15,7 @@ Every issue must have:
 - **Priority:** Select the priority that reflects urgency and impact.
 - **Label:** Select the most relevant existing label. Do not create a label.
 
-If the correct value cannot be determined from the request or current context, inspect the available Linear projects and labels. Ask the user only when a consequential choice remains ambiguous.
+If the correct value cannot be determined from the request or current context, inspect the available Linear projects, priorities, and labels. Ask the user only when a consequential choice remains ambiguous.
 
 ## Issue title
 
@@ -23,7 +23,7 @@ Write a concise, specific title that describes the outcome or problem. Prefer la
 
 ## Description format
 
-Use the following pragmatic PRD structure. Include every core section. Include optional sections only when they add useful information; do not leave empty headings or placeholder text in the issue.
+Use the following copy-ready pragmatic PRD structure, which contains only the core sections. Fill every core section with real content before creating the issue.
 
 ```markdown
 ## Problem
@@ -36,37 +36,25 @@ Describe the user or business result this issue should produce. Focus on the out
 Describe what should change at a product or behavior level. Keep the solution proportional to the issue and avoid prescribing implementation details unless the user requested a technical specification.
 
 ## Scope
-### In Scope
 - List the behavior and scenarios this issue covers.
-
-### Out of Scope
-- List closely related work that is intentionally excluded.
+- If a closely related concern could cause scope creep, state that it is out of scope.
 
 ## Acceptance Criteria
 - Given [context], when [action], then [observable outcome].
 - Use a concise checklist instead when Given/When/Then would be artificial.
-
-## Key Decisions
-- Record important product, design, or scope decisions and their rationale.
-
-## Edge Cases
-- Describe meaningful boundary conditions, empty states, failures, permissions, or recovery behavior.
-
-## Constraints
-- Record fixed product, business, legal, platform, compatibility, or time constraints.
-
-## Dependencies
-- List external teams, services, preceding issues, decisions, or assets required to complete the work.
-
-## References
-- Add relevant links to designs, research, documentation, related issues, or supporting evidence.
 ```
 
-The core sections are **Problem**, **Desired Outcome**, **Proposed Solution**, **Scope**, and **Acceptance Criteria**. **Key Decisions**, **Edge Cases**, **Constraints**, **Dependencies**, and **References** are optional.
+Add any of these optional sections only when verified information makes them useful. Never add an optional heading with placeholder or empty content.
+
+- **Key Decisions:** Record important product, design, or scope decisions and their rationale under `## Key Decisions`.
+- **Edge Cases:** Describe meaningful boundary conditions, empty states, failures, permissions, or recovery behavior under `## Edge Cases`.
+- **Constraints:** Record fixed product, business, legal, platform, compatibility, or time constraints under `## Constraints`.
+- **Dependencies:** List external teams, services, preceding issues, decisions, or assets required to complete the work under `## Dependencies`.
+- **References:** Add relevant links to designs, research, documentation, related issues, or supporting evidence under `## References`.
 
 ## Adapt the format to the issue
 
-- **Small fix or maintenance task:** Keep each core section to one or two sentences or bullets. Use `Out of Scope` only when a nearby concern could cause scope creep.
+- **Small fix or maintenance task:** Keep each core section to one or two sentences or bullets. State exclusions only when a nearby concern could cause scope creep.
 - **Bug:** State current versus expected behavior in `Problem` or `Acceptance Criteria`. Add reproduction evidence to `References` when available.
 - **Feature:** Use the full core structure and add optional sections wherever decisions or edge cases would otherwise be lost.
 - **Research or spike:** Use `Proposed Solution` to describe the question to investigate and expected deliverable. Acceptance criteria should define the decision, recommendation, or evidence the investigation must produce.
