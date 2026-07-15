@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refine Task Scope"
+  short_description: "Clarify software tasks before implementation"
+  default_prompt: "Use $refine-task-scope to uncover blind spots and turn this software request into an implementation-ready scope."
