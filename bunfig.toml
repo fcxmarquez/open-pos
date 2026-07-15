@@ -1,2 +1,6 @@
+[install]
+# Quarantine newly published direct and transitive package versions for 12 hours.
+minimumReleaseAge = 43200
+
 [test]
 preload = ["./happydom.ts", "./testing-library.ts"]
