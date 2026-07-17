@@ -50,26 +50,30 @@ hooks:
 
 # TDD feature workflow
 
-Run this workflow only in the main Claude Code session. Do not preload this skill into either worker. Claude subagents do not inherit skills invoked by the main session, so the orchestration stays in the parent while each worker receives only its own agent definition and delegation prompt.
+Run this workflow only in the primary orchestration context. Do not preload this skill into either worker. Keep orchestration in the coordinator while each worker receives only its role definition and delegated task.
 
 Use the workflow for new behavior and behavior-changing fixes, including hotfixes that correct a regression. Do not use it for read-only investigation, explanations, documentation-only edits, formatting-only changes, or refactors that intentionally preserve behavior.
 
-## Main-session responsibilities
+Resolve the bundled `scripts/tdd-gate.ts` file from this skill's installation directory. In the commands below, `<gate>` means:
 
-The main session is the hub. It owns phase transitions, worker invocation, agent-ID continuity, specialist routing, quality verification, and the final report. Workers do not ping-pong directly.
+`bun <skill-directory>/scripts/tdd-gate.ts`
 
-The gate persists the first `test-engineer` and `feature-engineer` IDs in `.claude/tdd-state.json`. Claude Code preserves each custom subagent's transcript within the parent session. When a phase must be revisited, use `SendMessage` with the recorded ID to resume that worker's existing context. Do not spawn a replacement agent merely because a later gate fails.
+## Coordinator responsibilities
+
+The coordinator is the hub. It owns phase transitions, worker invocation, worker-ID continuity, specialist routing, quality verification, and the final report. Workers do not ping-pong directly.
+
+The gate persists the first `test-engineer` and `feature-engineer` worker IDs in its local workflow state. When a phase must be revisited, use the harness's existing-worker continuation or messaging mechanism with the recorded ID so the worker resumes its prior context. Do not spawn a replacement merely because a later gate fails. If the harness cannot resume workers, report that limitation instead of silently discarding context.
 
 ## Phase 0: establish or resume state
 
 First inspect the state:
 
-`bun .claude/skills/tdd-feature-workflow/scripts/tdd-gate.ts status`
+`<gate> status`
 
-- If an incomplete workflow exists for this request, resume it from its recorded phase and agent IDs.
+- If an incomplete workflow exists for this request, resume it from its recorded phase and worker IDs.
 - If no workflow exists, start one before any production edit:
 
-  `bun .claude/skills/tdd-feature-workflow/scripts/tdd-gate.ts start --task "concise feature summary"`
+  `<gate> start --task "concise feature summary"`
 
 - If an incomplete workflow belongs to a different request, do not overwrite it. Ask whether to resume or explicitly abort it.
 
@@ -77,13 +81,13 @@ The start command snapshots all pre-existing dirty files by content hash. The RE
 
 ## Phase 1: tests and RED
 
-Invoke exactly one `test-engineer` custom subagent with:
+Invoke exactly one `test-engineer` worker with:
 
 - the requested outcome and acceptance criteria
-- relevant scope discovered by the main session
+- relevant scope discovered by the coordinator
 - explicit instruction to own tests only and run the mechanical RED command
 
-The `SubagentStart` hook records its ID. The test-engineer cannot edit production files, and its `SubagentStop` hook refuses completion until RED is verified.
+The configured worker-start hook records its ID. The test-engineer cannot edit production files, and the worker-stop gate refuses completion until RED is verified.
 
 After it returns, run `status` and confirm:
 
@@ -96,21 +100,21 @@ Do not proceed on a syntax, import, fixture, test-discovery, environment, or unr
 
 ## Phase 2: implementation and GREEN
 
-Invoke exactly one `feature-engineer` custom subagent with:
+Invoke exactly one `feature-engineer` worker with:
 
 - the original outcome and acceptance criteria
 - the RED test paths, command, expected failure, and evidence from state
 - explicit instruction to own production code only and run the mechanical GREEN command
 
-The feature-engineer cannot edit test files. The GREEN gate hashes the RED tests and refuses success if they changed. Its `SubagentStop` hook refuses completion until the unchanged RED tests pass.
+The feature-engineer cannot edit test files. The GREEN gate hashes the RED tests and refuses success if they changed. The worker-stop gate refuses completion until the unchanged RED tests pass.
 
 After it returns, run `status` and confirm phase is `green_verified` and `agents.feature-engineer` is present.
 
 ## Phase 3: hard quality gate
 
-The main session runs:
+The coordinator runs:
 
-`bun .claude/skills/tdd-feature-workflow/scripts/tdd-gate.ts verify`
+`<gate> verify`
 
 This deterministic command runs, in order:
 
@@ -121,28 +125,28 @@ This deterministic command runs, in order:
 5. `bun test`
 6. `bun run build`
 
-The Stop hook prevents the main session from declaring completion while the state is incomplete.
+The configured completion gate prevents the coordinator from declaring completion while the state is incomplete.
 
 ## Failure routing and context preservation
 
-- A test design, fixture, coverage, or missing-acceptance-criterion problem belongs to the recorded test-engineer. Resume it with `SendMessage`; any test edit invalidates prior RED and requires a new RED proof.
-- A production behavior, type, lint, build, or focused GREEN problem belongs to the recorded feature-engineer. Resume it with `SendMessage` and re-run GREEN.
-- A database or dependency need belongs to the applicable specialized project agent, coordinated by the main session without replacing the two TDD owners.
-- An ambiguous requirement or unavailable prerequisite is reported by a worker with `TDD_BLOCKED:`. The SubagentStop hook stores the blocker and lets the main session yield to the user without discarding state or worker IDs.
+- A test design, fixture, coverage, or missing-acceptance-criterion problem belongs to the recorded test-engineer. Resume it through the harness's continuation mechanism; any test edit invalidates prior RED and requires a new RED proof.
+- A production behavior, type, lint, build, or focused GREEN problem belongs to the recorded feature-engineer. Resume it through the harness's continuation mechanism and re-run GREEN.
+- A database or dependency need belongs to the applicable specialized project worker, coordinated by the coordinator without replacing the two TDD owners.
+- An ambiguous requirement or unavailable prerequisite is reported by a worker with `TDD_BLOCKED:`. The worker-stop gate stores the blocker and lets the coordinator yield to the user without discarding state or worker IDs.
 
-Use the agent IDs printed by `status`. Resuming preserves the worker's prior transcript, tool calls, and reasoning context; creating a new worker does not.
+Use the worker IDs printed by `status`. A supported resume operation must preserve the worker's prior context; creating a new worker does not.
 
 After the blocker is resolved, clear the blocker with:
 
-`bun .claude/skills/tdd-feature-workflow/scripts/tdd-gate.ts resume`
+`<gate> resume`
 
-Then use `SendMessage` to resume the recorded worker with the new decision or prerequisite.
+Then resume the recorded worker through the harness's continuation or messaging mechanism with the new decision or prerequisite.
 
 ## Cancellation
 
 Abort only when the user cancels the feature or the scope is intentionally abandoned:
 
-`bun .claude/skills/tdd-feature-workflow/scripts/tdd-gate.ts abort --reason "explicit reason"`
+`<gate> abort --reason "explicit reason"`
 
 Do not use abort to bypass a failing gate.
 
