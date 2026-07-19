@@ -67,6 +67,10 @@ query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
                 login
               }
             }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
         pageInfo {
@@ -79,7 +83,7 @@ query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
 }
 ```
 
-Paginate while `hasNextPage` is true. If a thread has more than 100 replies, query that thread separately until all replies are loaded.
+Paginate review threads while `reviewThreads.pageInfo.hasNextPage` is true. If a thread's `comments.pageInfo.hasNextPage` is true, query that thread's comments connection separately with `after` set to that connection's `endCursor` (the reply cursor), and continue until all replies are loaded.
 
 Maintain a working ledger with:
 

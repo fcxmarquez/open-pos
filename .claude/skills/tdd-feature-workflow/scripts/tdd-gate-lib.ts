@@ -160,12 +160,17 @@ function isSafePreRedCommand(command: string): boolean {
   const normalized = command.trim();
   if (!normalized) return false;
 
-  if (/[>|]|\b(?:tee|sed\s+-i|perl\s+-pi|cp|mv|rm|touch|mkdir)\b/.test(normalized)) {
+  if (
+    /[;&|<>`]|\$\(|[\r\n]|\b(?:tee|sed\s+-i|perl\s+-pi|cp|mv|rm|touch|mkdir)\b/.test(
+      normalized
+    )
+  ) {
     return false;
   }
 
   return [
-    /^(?:pwd|ls|find|rg|head|tail|wc|which|type)\b/,
+    /^(?:pwd|ls|rg|head|tail|wc|which|type)\b/,
+    /^find\b(?!.*\s-(?:delete|exec|execdir|ok|okdir)\b)/,
     /^sed\s+-n\b/,
     /^cat\s+[^;&]+$/,
     /^git\s+(?:status|diff|log|show|ls-files)\b/,

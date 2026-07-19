@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   addSessionEnvironment,
@@ -223,3 +225,86 @@ describe("decidePreToolUse", () => {
     ).toBe(false);
   });
 });
+
+describe("gate command timeout", () => {
+  test("times out with a short override while preserving stdout and stderr", () => {
+    const project = mkdtempSync(join(tmpdir(), "agents-tdd-gate-"));
+    const sessionId = `timeout-${randomUUID()}`;
+    try {
+      expect(spawnSync("git", ["init", "-q"], { cwd: project }).status).toBe(0);
+      mkdirSync(join(project, "lib"), { recursive: true });
+      const testContent = "export const timeoutRegression = true;\n";
+      writeFileSync(join(project, "lib", "timeout.test.ts"), testContent);
+      const delayedCommand = [
+        "bun",
+        "-e",
+        "console.log('stdout-before-timeout'); console.error('stderr-before-timeout'); await Bun.sleep(300)",
+      ];
+      const now = new Date().toISOString();
+      const statePath = getSessionStatePath(project, sessionId);
+      mkdirSync(join(project, ".tdd", "codex"), { recursive: true });
+      writeFileSync(
+        statePath,
+        `${JSON.stringify(
+          {
+            version: 1,
+            task: "timeout regression",
+            phase: "red_verified",
+            startedAt: now,
+            updatedAt: now,
+            baselineHashes: {},
+            agents: {},
+            red: {
+              command: delayedCommand,
+              exitCode: 1,
+              outputHash: "red-output",
+              outputExcerpt: "expected RED",
+              verifiedAt: now,
+              expectedPattern: "expected RED",
+              testFiles: ["lib/timeout.test.ts"],
+              testHashes: {
+                "lib/timeout.test.ts": createHash("sha256")
+                  .update(testContent)
+                  .digest("hex"),
+              },
+            },
+          },
+          null,
+          2
+        )}\n`
+      );
+
+      const startedAt = performance.now();
+      const result = spawnSync(
+        "bun",
+        [gatePathForTests(), "green", "--", ...delayedCommand],
+        {
+          cwd: project,
+          encoding: "utf8",
+          timeout: 2_000,
+          env: {
+            ...process.env,
+            TDD_CODEX_SESSION_ID: sessionId,
+            TDD_GATE_COMMAND_TIMEOUT_MS: "50",
+          },
+        }
+      );
+      const elapsed = performance.now() - startedAt;
+      const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+
+      expect(result.status).not.toBe(0);
+      expect(result.signal).toBeNull();
+      expect(elapsed).toBeLessThan(1_500);
+      expect(output).toContain("stdout-before-timeout");
+      expect(output).toContain("stderr-before-timeout");
+      expect(output).toMatch(/timed out/i);
+      expect(JSON.parse(readFileSync(statePath, "utf8")).green).toBeUndefined();
+    } finally {
+      rmSync(project, { recursive: true, force: true });
+    }
+  });
+});
+
+function gatePathForTests(): string {
+  return join(import.meta.dir, "tdd-gate.ts");
+}

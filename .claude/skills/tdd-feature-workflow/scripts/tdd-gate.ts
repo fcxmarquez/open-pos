@@ -2,7 +2,15 @@
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  readlinkSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, isAbsolute, join, relative } from "node:path";
 import {
   classifyPath,
@@ -205,6 +213,10 @@ function proveGreen(commandArgs: string[]): void {
   const command = commandAfterSeparator(commandArgs);
   if (command.length === 0) fail("GREEN requires the focused test command after --.");
 
+  if (!commandsMatch(command, state.red.command)) {
+    fail(`GREEN requires the exact focused RED command: ${state.red.command.join(" ")}`);
+  }
+
   const testsUnchanged = testHashesMatch(state.red.testHashes);
   if (!testsUnchanged) {
     invalidateRed(state);
@@ -332,14 +344,27 @@ async function handlePreToolHook(): Promise<void> {
 
 async function handlePostToolHook(): Promise<void> {
   const state = readState();
-  if (!state || state.phase === "complete" || state.phase === "awaiting_red") return;
+  if (!state || state.phase === "complete") return;
 
   const input = await readHookInput();
-  const filePath = input.tool_input?.file_path;
-  if (!filePath || classifyPath(normalizeProjectPath(filePath)) !== "test") return;
+  const role = roleForAgent(state, input.agent_id);
+  const currentHashes = collectChangedHashes();
+  const changes = changedSinceBaseline(state.baselineHashes, currentHashes);
+  const productionChanges = changes.filter((path) => classifyPath(path) === "production");
 
-  invalidateRed(state);
-  console.error("Test file changed after RED; TDD state reset to awaiting_red.");
+  if (
+    productionChanges.length > 0 &&
+    (state.phase === "awaiting_red" || role === "test-engineer")
+  ) {
+    blockHook(
+      `Production changes are not allowed for ${role} during ${state.phase}: ${productionChanges.join(", ")}`
+    );
+  }
+
+  if (state.red && !testHashesMatch(state.red.testHashes)) {
+    invalidateRed(state);
+    blockHook("Test files changed after RED; TDD state reset to awaiting_red.");
+  }
 }
 
 async function handleSubagentStartHook(): Promise<void> {
@@ -481,6 +506,13 @@ function testHashesMatch(expected: Record<string, string>): boolean {
 function hashPath(path: string): string {
   const absolutePath = join(projectDir, path);
   if (!existsSync(absolutePath)) return "<missing>";
+
+  if (lstatSync(absolutePath).isSymbolicLink()) {
+    return createHash("sha256")
+      .update(`symlink\0${readlinkSync(absolutePath)}`)
+      .digest("hex");
+  }
+
   return createHash("sha256").update(readFileSync(absolutePath)).digest("hex");
 }
 
@@ -536,6 +568,10 @@ function optionValues(commandArgs: string[], option: string): string[] {
 function commandAfterSeparator(commandArgs: string[]): string[] {
   const separator = commandArgs.indexOf("--");
   return separator === -1 ? [] : commandArgs.slice(separator + 1);
+}
+
+function commandsMatch(actual: string[], expected: string[]): boolean {
+  return JSON.stringify(actual) === JSON.stringify(expected);
 }
 
 async function readHookInput(): Promise<HookInput> {
