@@ -1,6 +1,6 @@
 ---
 name: tdd-feature-workflow
-description: "Use from the main Codex session whenever implementing a new feature, capability, user-visible behavior, API behavior, integration, regression fix, or hotfix in this repository, even if the user does not mention tests or TDD. Orchestrates resumable test-engineer and feature-engineer workers through mechanical RED, GREEN, and full-quality gates. Do not invoke this skill inside a subagent."
+description: "Use from the main session whenever implementing a new feature, capability, user-visible behavior, API behavior, integration, regression fix, or hotfix in this repository, even if the user does not mention tests or TDD. Orchestrates resumable test-engineer and feature-engineer workers through mechanical RED, GREEN, and full-quality gates. Do not invoke this skill inside a subagent."
 ---
 
 # TDD feature workflow
