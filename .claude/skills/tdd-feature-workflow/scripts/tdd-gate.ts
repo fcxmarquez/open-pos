@@ -525,13 +525,24 @@ function normalizeProjectPath(path: string): string {
 }
 
 function runCommand(command: string[]): { exitCode: number; output: string } {
+  const timeoutMs = gateCommandTimeoutMs();
   const result = spawnSync(command[0], command.slice(1), {
     cwd: projectDir,
     encoding: "utf8",
     env: process.env,
+    timeout: timeoutMs,
   });
-  const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  const timedOut = result.error?.code === "ETIMEDOUT";
+  const timeoutOutput = timedOut
+    ? `\nTDD gate command timed out after ${timeoutMs} ms.\n`
+    : "";
+  const output = `${result.stdout ?? ""}${result.stderr ?? ""}${timeoutOutput}`;
   return { exitCode: result.status ?? 1, output };
+}
+
+function gateCommandTimeoutMs(): number {
+  const override = Number(process.env.TDD_GATE_COMMAND_TIMEOUT_MS);
+  return Number.isFinite(override) && override > 0 ? override : 10 * 60 * 1000;
 }
 
 function evidence(

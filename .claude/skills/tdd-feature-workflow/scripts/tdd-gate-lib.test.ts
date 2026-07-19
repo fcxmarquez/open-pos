@@ -235,6 +235,59 @@ function baseState(phase: "awaiting_red" | "red_verified") {
 }
 
 describe("Claude gate CLI regressions", () => {
+  test("Claude gate command timeout uses a short override and preserves failure evidence", () => {
+    const project = createProject();
+    try {
+      mkdirSync(join(project, "lib"), { recursive: true });
+      const testContent = "export const timeoutRegression = true;\n";
+      writeFileSync(join(project, "lib", "timeout.test.ts"), testContent);
+      const delayedCommand = [
+        "bun",
+        "-e",
+        "console.log('stdout-before-timeout'); console.error('stderr-before-timeout'); await Bun.sleep(300)",
+      ];
+      const statePath = writeState(project, {
+        ...baseState("red_verified"),
+        red: {
+          command: delayedCommand,
+          exitCode: 1,
+          outputHash: "red-output",
+          outputExcerpt: "expected RED",
+          verifiedAt: new Date().toISOString(),
+          expectedPattern: "expected RED",
+          testFiles: ["lib/timeout.test.ts"],
+          testHashes: { "lib/timeout.test.ts": sha256(testContent) },
+        },
+      });
+
+      const startedAt = performance.now();
+      const result = spawnSync("bun", [gatePath, "green", "--", ...delayedCommand], {
+        cwd: project,
+        encoding: "utf8",
+        timeout: 2_000,
+        env: {
+          ...process.env,
+          CLAUDE_PROJECT_DIR: project,
+          TDD_GATE_COMMAND_TIMEOUT_MS: "50",
+        },
+      });
+      const elapsed = performance.now() - startedAt;
+      const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+
+      expect(result.status).not.toBe(0);
+      expect(result.signal).toBeNull();
+      expect(elapsed).toBeLessThan(1_500);
+      expect(output).toContain("stdout-before-timeout");
+      expect(output).toContain("stderr-before-timeout");
+      expect(output).toContain("TDD gate command timed out after 50 ms");
+      const state = JSON.parse(readFileSync(statePath, "utf8"));
+      expect(state.phase).toBe("red_verified");
+      expect(state.green).toBeUndefined();
+    } finally {
+      rmSync(project, { recursive: true, force: true });
+    }
+  });
+
   test("GREEN rejects a different command before execution and accepts the exact RED command", () => {
     const project = createProject();
     try {
