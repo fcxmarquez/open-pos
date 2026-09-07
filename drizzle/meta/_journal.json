@@ -57,6 +57,13 @@
       "when": 1782871089748,
       "tag": "0007_glorious_wolfpack",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787769618904,
+      "tag": "0008_productive_justice",
+      "breakpoints": true
     }
   ]
 }

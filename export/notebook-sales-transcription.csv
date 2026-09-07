@@ -1,0 +1,909 @@
+date,amount_mxn,weekday_written,notebook_date_text,raw_amount_text,source_page,recognition_confidence,review_status,notes
+2023-01-02,608.00,Lun,02 Lun,608,1,high,verified,
+2023-01-03,431.00,Mar,03 Mar,431,1,high,verified,
+2023-01-04,820.00,Mie,04 Mie,820,1,high,verified,
+2023-01-05,338.00,Jue,05 Jue,338,1,high,verified,
+2023-01-06,200.00,Vie,06 Vie,200,1,high,verified,
+2023-01-07,210.00,Sab,07 Sab,210,1,high,verified,
+2023-01-09,777.00,Lun,09 Lun,777,1,high,verified,
+2023-01-10,1460.00,Mar,10 Mar,1460,1,high,verified,
+2023-01-11,560.00,Mie,11 Mie,560,1,high,verified,
+2023-01-12,880.00,Jue,12 Jue,880,1,high,verified,
+2023-01-13,254.00,Vie,13 Vie,254,1,high,verified,
+2023-01-14,,Sab,14 Sab,,1,high,missing_amount,The date is written but no sales amount is present.
+2023-01-16,715.00,Lun,16 Lun,715,1,high,verified,
+2023-01-17,802.00,Mar,17 Mar,802,1,high,verified,
+2023-01-18,1406.00,Mie,18 Mie,1406,1,high,verified,
+2023-01-19,835.00,Jue,19 Jue,835,1,high,verified,
+2023-01-20,345.00,Vie,20 Vie,345,1,high,verified,
+2023-01-21,389.00,Sab,21 Sab,389,1,high,verified,
+2023-01-23,867.00,Lun,23 Lun,867,1,high,verified,
+2023-01-24,1034.00,Mar,24 Mar,1034,1,high,verified,
+2023-01-25,1124.00,Mie,25 Mie,1124,1,high,verified,
+2023-01-26,218.00,Jue,26 Jue,218,1,high,verified,
+2023-01-27,355.00,Vie,27 Vie,355,1,high,verified,
+2023-01-28,117.00,Sab,28 Sab,117,1,medium,adjudicated,Two independent readings differed; visual review and the section subtotal support 117.
+2023-01-30,1220.00,Lun,30 Lun,1220,1,medium,adjudicated,Two independent readings differed; visual review and the section subtotal support 1220.
+2023-01-31,1086.00,Mar,31 Mar,1086,1,high,verified,
+2023-02-01,680.00,Mie,01 Mie,680,1,high,verified,
+2023-02-02,586.00,Jue,02 Jue,586,1,high,verified,
+2023-02-03,740.00,Vie,03 Vie,740,1,high,verified,
+2023-02-04,400.00,Sab,04 Sab,400,1,high,verified,
+2023-02-06,694.00,Lun,06 Lun,694,1,high,verified,
+2023-02-07,800.00,Mar,07 Mar,800,1,high,verified,
+2023-02-08,800.00,Mie,08 Mie,800,1,high,verified,
+2023-02-09,847.00,Jue,09 Jue,847,1,medium,adjudicated,Two independent readings differed; visual review and the section subtotal support 847.
+2023-02-10,626.00,Vie,10 Vie,626,1,high,verified,
+2023-02-11,229.00,Sab,11 Sab,229,1,high,verified,
+2023-02-13,2380.00,Lun,13 Lun,2380,1,high,verified,
+2023-02-14,1164.00,Mar,14 Mar,1164,1,high,verified,
+2023-02-15,1811.00,Mie,15 Mie,1811,1,high,verified,
+2023-02-16,1130.00,,16 [weekday crossed out],1130,2,medium,adjudicated,Written weekday is overwritten; ISO date follows the visible day numeral and calendar.
+2023-02-17,916.00,Vie,17 Vie,916,2,high,verified,
+2023-02-18,622.00,Sab,18 Sab,622,2,high,verified,
+2023-02-20,909.00,Lun,20 Lun,909,2,high,verified,
+2023-02-21,293.00,Mar,21 Mar,293,2,high,verified,
+2023-02-22,873.00,Mie,22 Mie,873,2,high,verified,
+2023-02-23,497.00,Jue,23 Jue,497,2,high,verified,
+2023-02-24,286.00,Vie,24 Vie,286,2,high,verified,
+2023-02-25,207.00,Sab,26 Sab,207,2,medium,adjudicated,Notebook says 26 Sab; normalized to Saturday 2023-02-25 from the sequence.
+2023-02-27,1182.00,Lun,27 Lun,1182,2,high,verified,
+2023-02-28,517.00,Mar,28 Mar,517,2,high,verified,
+2023-03-01,951.00,Mie,01 Mie,951,2,high,verified,
+2023-03-02,512.00,Jue,02 Jue,512,2,high,verified,
+2023-03-03,380.00,Vie,03 Vie,380,2,high,verified,
+2023-03-04,300.00,Sab,04 Sab,300,2,high,verified,
+2023-03-06,825.00,Lun,06 Lun,825,2,high,verified,
+2023-03-07,858.00,Mar,07 Mar,858,2,high,verified,
+2023-03-08,766.00,Mie,08 Mie,766,2,high,adjudicated,Both independent reviewers read 766; the previous 866 inference was removed.
+2023-03-09,501.00,Jue,09 Jue,501,2,high,verified,
+2023-03-10,340.00,Vie,10 Vie,340,2,high,verified,
+2023-03-11,519.00,Sab,11 Sab,519,2,high,verified,
+2023-03-13,1007.00,Lun,13 Lun,1007,2,high,verified,
+2023-03-14,687.00,Mar,14 Mar,687,2,high,verified,
+2023-03-15,755.00,Mie,15 Mie,755,2,high,verified,
+2023-03-16,605.00,Jue,16 Jue,605,3,high,verified,
+2023-03-17,332.00,Vier,17 Vier,332,3,high,verified,
+2023-03-18,406.00,Sab,18 Sab,406,3,high,verified,
+2023-03-20,820.00,Lun,20 Lun,820,3,high,verified,
+2023-03-21,686.00,Mar,21 Mar,686,3,high,verified,
+2023-03-22,920.00,Mier,22 Mier,920,3,high,adjudicated,Amount adjudicated as 920.
+2023-03-23,780.00,Jue,23 Jue,780,3,high,verified,
+2023-03-24,466.00,Vie,24 Vie,466,3,high,verified,
+2023-03-25,219.00,Sab,25 Sab,219,3,high,verified,
+2023-03-27,1050.00,Lun,27 Lun,1050,3,high,verified,
+2023-03-28,601.00,Mar,28 Mar,601,3,high,verified,
+2023-03-29,492.00,Mier,29 Mier,492,3,high,verified,
+2023-03-30,442.00,Jue,30 Jue,442,3,medium,verified,Weekday hand resembles Jue.
+2023-03-31,335.00,Vier,31 Vier,335,3,high,verified,
+2023-04-01,500.00,Sab,01 Sab,500,3,high,verified,Month inferred from chronological position.
+2023-04-03,288.00,Lun,03 Lun,288,3,high,verified,Month inferred from chronological position.
+2023-04-04,1000.00,Mar,04 Mar,1000,3,high,verified,Month inferred from chronological position.
+2023-04-05,360.00,Mier,05 Mier,360,3,high,verified,Month inferred from chronological position.
+2023-04-06,,,06,[blank],3,medium,missing_amount,Bare date numeral only.
+2023-04-07,,,7,[blank],3,medium,missing_amount,Bare date numeral only.
+2023-04-08,,,8,[blank],3,medium,missing_amount,Bare date numeral only.
+2023-04-10,786.00,Lun,10 Lun,786,3,high,verified,
+2023-04-11,551.00,Mar,11 Mar,551,3,high,verified,
+2023-04-12,300.00,Mier,12 Mier,300,3,high,verified,
+2023-04-13,415.00,Jue,13 Jue,415,3,high,verified,
+2023-04-14,784.00,Vier,14 Vier,784,3,high,verified,
+2023-04-15,480.00,Sab,15 Sab,480,3,high,verified,
+2023-04-17,1284.00,Lun,[17] Lun,1284,3,medium,verified,Date partly clipped at page edge.
+2023-04-18,773.00,Mart,[18] Mart,773,3,medium,verified,Date partly clipped at page edge.
+2023-04-19,666.00,Mier,[19] Mier,666,3,medium,verified,Date partly clipped at page edge.
+2023-04-20,812.00,Jue,[20] Jue,812,3,medium,verified,Date partly clipped at page edge.
+2023-04-21,402.00,Vier,[21] Vier,402,3,medium,verified,Date partly clipped at page edge.
+2023-04-22,121.00,Sab,[22] Sab,121,3,medium,verified,Date partly clipped at page edge.
+2023-04-24,1664.00,Lun,24 Lun,1664,3,high,verified,
+2023-04-25,1170.00,Mar,25 Mar,1170,3,high,verified,
+2023-04-26,457.00,Mier,26 Mier,457,3,high,verified,
+2023-04-27,291.00,Jue,27 Jue,291,3,high,verified,
+2023-04-28,,,28,[blank],3,high,missing_amount,Date numeral and ruled blank line only.
+2023-04-29,432.00,Sab,29 Sab,432,3,high,verified,
+2023-05-01,,L,L,[blank],4,medium,missing_amount,Date numeral omitted; normalized from heading and weekday sequence.
+2023-05-02,482.00,M,M,482,4,medium,verified,Date numeral omitted; normalized from sequence.
+2023-05-03,1080.00,M.,M.,1080,4,medium,verified,Date numeral omitted; normalized from sequence.
+2023-05-04,442.00,J,J,442,4,medium,verified,Date numeral omitted; normalized from sequence.
+2023-05-05,,V,V,[blank],4,medium,missing_amount,Date numeral omitted; blank amount line.
+2023-05-06,214.00,S,S,214,4,high,adjudicated,Amount adjudicated as 214; date normalized from sequence.
+2023-05-08,678.00,Lun,08 Lun,678,4,high,verified,
+2023-05-09,1156.00,Mar,09 Mar,1156,4,high,verified,
+2023-05-10,340.00,Mier,10 Mier,340,4,high,verified,
+2023-05-11,820.00,Jue,11 Jue,820,4,high,verified,
+2023-05-12,309.00,Vier,12 Vier,309,4,high,verified,
+2023-05-13,377.00,Sab,13 Sab,377,4,high,verified,
+2023-05-15,1134.00,Lun,15 Lun,1134,4,high,verified,
+2023-05-16,898.00,Mar,16 Mar,898,4,high,verified,
+2023-05-17,693.00,Mier,17 Mier,693,4,high,verified,
+2023-05-18,480.00,Jue,18 Jue,480,4,high,verified,
+2023-05-19,710.00,Vier,19 Vier,710,4,high,verified,
+2023-05-20,165.00,Sab,20 Sab,165,4,high,verified,
+2023-05-21,,,21 [crossed],[blank],4,medium,missing_amount,Crossed date mark with no weekday or amount.
+2023-05-22,696.00,Lun,[overwritten] Lun,696,4,medium,adjudicated,Overwritten source numeral adjudicated as May 22.
+2023-05-23,950.00,Lun,23 Lun,950,4,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-05-24,780.00,Mar,24 Mar,780,4,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-05-25,802.00,Mier,25 Mier,802,4,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-05-26,1280.00,Jue,26 Jue,1280,4,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-05-27,951.00,Vier,27 Vier,951,4,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-05-28,344.00,Sab,28 Sab,344,4,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-05-30,590.00,Mar,30 Mar,590,4,high,verified,
+2023-05-31,512.00,Mier,31 Mier,512,4,high,verified,
+2023-06-01,772.00,Jue,01 Jue,772,4,high,verified,
+2023-06-02,567.00,Vier,02 Vier,567,4,high,verified,
+2023-06-03,648.00,Sab,03 Sab,648,4,high,verified,
+2023-06-04,890.00,Lun,04 Lun,890,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-05,711.00,Mar,05 Mar,711,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-06,711.00,Mier,06 Mier,711,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-07,1056.00,Ju.,07 Ju.,1056,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-08,211.00,Vier,08 Vier,211,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-09,311.00,Sab,09 Sab,311,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-11,1460.00,Lun,11 Lun,1460,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-12,1098.00,Mar,12 Mar,1098,4,high,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2023-06-13,790.00,Mier,13 Mier,790,4,high,verified,Written weekday conflicts with calendar; crossed duplicate June 14 amount 1056 excluded.
+2023-06-15,820.00,Vier,15 Vier,820,4,medium,adjudicated,Date retained within headed range; weekday conflicts with calendar.
+2023-06-16,324.00,Vier,16 Vier,324,5,high,verified,
+2023-06-17,360.00,Sab,17 Sab,360,5,high,verified,
+2023-06-19,671.00,Lun,18 Lun,671,5,high,adjudicated,Literal source says 18 Lun; normalized to June 19 by weekday/calendar.
+2023-06-20,488.00,Mar,20 Mar,488,5,high,verified,
+2023-06-21,1607.00,Mier,21 Mier,1607,5,high,verified,Leading mark overwritten.
+2023-06-22,760.00,Jue,22 Jue,760,5,high,verified,
+2023-06-23,576.00,Vier,23 Vier,576,5,high,verified,
+2023-06-24,744.00,Sab,24 Sab,744,5,high,verified,
+2023-06-26,330.00,Lun,26 Lun,330,5,high,verified,
+2023-06-27,923.00,Mar,27 Mar,923,5,high,verified,
+2023-06-28,878.00,Mie,28 Mie,878,5,high,verified,
+2023-06-29,351.00,Ju,Ju,351,5,medium,verified,Date numeral omitted; inferred from sequence.
+2023-06-30,474.00,Vi,Vi,474,5,medium,verified,Date numeral omitted; inferred from sequence.
+2023-07-03,501.00,Lun,03 Lun,501,5,high,verified,
+2023-07-04,70.00,Mar,04 Mar,70,5,high,verified,
+2023-07-05,560.00,Mier,05 Mier,560,5,high,verified,
+2023-07-06,540.00,Jue,06 Jue,540,5,high,verified,
+2023-07-07,533.00,Vier,07 Vier,533,5,high,verified,
+2023-07-08,,Saba,06 Saba,[blank],5,high,missing_amount,Adjudicated sequence maps literal 06 Saba to July 8; missing_amount takes precedence for blank value.
+2023-07-10,,Lun,08 Lun,[blank],5,high,missing_amount,Shifted source sequence normalized to July 10.
+2023-07-11,273.00,Mar,09 Mar,273,5,high,adjudicated,Shifted source sequence normalized to July 11.
+2023-07-12,317.00,Mier,10 Mier,317,5,high,adjudicated,Shifted source sequence normalized to July 12.
+2023-07-13,473.00,Jue,11 Jue,473,5,high,adjudicated,Shifted source sequence normalized to July 13.
+2023-07-14,535.00,Vier,12 Vier,535,5,high,adjudicated,Shifted source sequence normalized to July 14.
+2023-07-15,,Sab,13 Sab,[blank],5,high,missing_amount,Shifted source sequence normalized to July 15; missing_amount takes precedence.
+2023-07-17,695.00,Lun,17 Lun,695,5,high,verified,
+2023-07-18,319.00,Mar,18 Mar,319,5,high,verified,
+2023-07-19,523.00,Mie,19 Mie,523,5,high,verified,
+2023-07-20,358.00,Jue,20 Jue,358,5,high,verified,
+2023-07-21,332.00,Vier,21 Vier,332,5,high,verified,
+2023-07-24,504.00,Lun,24 Lun,504,5,high,verified,
+2023-07-25,366.00,Mar,25 Mar,366,5,high,verified,
+2023-07-26,1340.00,Mier,26 Mier,1340,5,high,verified,
+2023-07-27,452.00,Jue,27 Jue,452,5,high,verified,
+2023-07-28,442.00,Vie,28 Vie,442,5,high,verified,
+2023-07-31,173.00,Lun,31 Lun,173,5,high,verified,
+2023-08-01,367.00,Mar,01 Mar,367,6,high,verified,
+2023-08-02,610.00,Mie,02 Mie,610,6,high,adjudicated,Amount adjudicated as 610.
+2023-08-03,720.00,Jue,03 Jue,720,6,high,verified,
+2023-08-04,109.00,Vier,04 Vier,109,6,medium,verified,Final mark after 109 appears decorative/cents notation.
+2023-08-07,480.00,Lun,07 Lun,480,6,high,verified,
+2023-08-08,1112.00,Mar,08 Mar,1112,6,high,verified,
+2023-08-09,427.00,Mie,09 Mie,427,6,high,verified,
+2023-08-10,410.00,Jue,10 Jue,410,6,high,verified,
+2023-08-11,437.00,Vier,11 Vier,437,6,high,verified,
+2023-08-12,,,12-,[blank],6,high,missing_amount,No weekday or amount.
+2023-08-14,1794.00,,14,1794,6,medium,verified,Weekday omitted.
+2023-08-15,,,15-,[blank],6,high,missing_amount,No weekday or amount.
+2023-08-16,530.00,M,16 M,530,6,high,verified,
+2023-08-17,78.00,J,17 J,78,6,low,adjudicated,Low-confidence source row adjudicated to amount 78.
+2023-08-18,404.00,V,18 V,404,6,high,verified,
+2023-08-19,,S,19 S,[blank],6,high,missing_amount,
+2023-08-21,2800.00,L,21-L,2800,6,high,verified,
+2023-08-22,1207.00,M,22-M,1207,6,high,verified,
+2023-08-23,880.00,M,23 M,880,6,high,verified,
+2023-08-24,1077.00,J,24 J,1077,6,high,verified,
+2023-08-25,1490.00,V,25 V,1490,6,high,adjudicated,Amount adjudicated as 1490.
+2023-08-26,1988.00,S,26 S,1988,6,high,verified,
+2023-08-28,457.00,L,28 L,457,6,high,verified,
+2023-08-29,2350.00,M,29 M,2350,6,high,verified,
+2023-08-30,1952.00,M,30 M,1952,6,high,verified,
+2023-08-31,1430.00,J,31 J,1430,6,high,verified,
+2023-09-01,1044.00,Viernes,01 Viernes,$1044,6,high,adjudicated,Amount adjudicated as 1044.
+2023-09-02,1442.00,Sabado,02 Sabado,$1442,6,high,adjudicated,Amount adjudicated as 1442.
+2023-09-04,3890.00,Lune,04 Lune,$3890,6,high,verified,
+2023-09-05,1414.00,Mart,05 Mart,$1414,6,high,verified,
+2023-09-06,961.00,Miere,06 Miere,$961,6,high,verified,
+2023-09-07,1234.00,Jueve,07 Jueve,$1234,6,high,verified,
+2023-09-08,891.00,Vier,Vier,891,6,medium,verified,Date numeral omitted; inferred from sequence.
+2023-09-09,769.00,Sab,Sab,769,6,medium,verified,Date numeral omitted; inferred from sequence.
+2023-09-11,1370.00,Lun,Lun,1370,6,medium,verified,Date numeral omitted; inferred from sequence.
+2023-09-12,1161.00,Mar,Mar,1161,6,medium,verified,Date numeral omitted; inferred from sequence.
+2023-09-13,1424.00,Mier,Mier,1424,6,medium,verified,Date numeral omitted; inferred from sequence.
+2023-09-14,1230.00,Juev,Juev,1230,6,medium,verified,Date numeral omitted; inferred from sequence.
+2023-09-16,627.00,,16 Sept,627,6,medium,verified,Weekday omitted.
+2023-09-17,878.00,Lun,17 Lun,$878,6,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-09-18,910.00,Mar,18 Mar,$910,6,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-09-19,1260.00,Mie,19 Mie,$1260,6,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-09-20,1140.00,Jue,20 Jue,1140,6,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-09-21,457.00,Vie,21 Vie,457,6,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-09-23,367.00,Sab,23 Sab,367,6,high,adjudicated,Date and amount adjudicated as literal 23 Sab - 367.
+2023-09-24,1120.00,Lun,24 Lun,1120,6,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-09-25,881.00,Mar,Mar,881,6,medium,verified,Date numeral omitted; inferred from sequence.
+2023-09-26,950.00,Mier,Mier,[2/9]50,6,medium,adjudicated,Most-likely value set to 950 after visual review and prior agent evidence; leading digit remains visually ambiguous.
+2023-10-02,1140.00,Lun,02 Lun,1140,7,high,verified,
+2023-10-03,1410.00,Mar,03 Mar,1410,7,high,verified,
+2023-10-04,920.00,Mie,04 Mie,920,7,high,adjudicated,Amount adjudicated as 920.
+2023-10-05,910.00,Jue,05 Jue,910,7,high,verified,
+2023-10-06,1050.00,Vier,06 Vier,1050,7,high,verified,
+2023-10-07,786.00,Sab,07 Sab,786,7,high,verified,
+2023-10-09,1100.00,Lun,09 Lun,"1,100",7,high,verified,
+2023-10-10,810.00,Mar,10 Mar,810,7,high,verified,
+2023-10-11,938.00,Mier,11 Mier,938,7,high,verified,
+2023-10-12,1170.00,Jue,12 Jue,1170,7,high,adjudicated,Amount adjudicated as 1170.
+2023-10-13,494.00,Vier,13 Vier,494,7,high,verified,
+2023-10-14,350.00,Sab,14 Sab,350,7,high,verified,
+2023-10-16,1578.00,Lun,16 Lun,1578,7,medium,verified,Last digit overwritten.
+2023-10-17,1427.00,Mar,17 Mar,1427,7,high,verified,
+2023-10-18,1137.00,Mier,18 Mier,1137,7,high,verified,
+2023-10-19,422.00,Jue,19 Jue,422,7,high,verified,
+2023-10-20,484.00,Vier,20 Vier,484,7,high,verified,
+2023-10-21,641.00,Sab,21 Sab,641,7,high,verified,
+2023-10-23,890.00,Lun,23 Lun,890,7,high,verified,
+2023-10-24,1163.00,Mar,24 Mar,1163,7,high,verified,
+2023-10-25,1110.00,Mie,25 Mie,1110,7,high,verified,
+2023-10-26,1280.00,Jue,26 Jue,1280,7,high,verified,
+2023-10-27,590.00,Vier,27 Vier,590,7,high,verified,
+2023-10-28,998.00,Sab,28 Sab,998,7,high,verified,
+2023-10-30,1936.00,,30,"1,936",7,high,verified,Weekday omitted.
+2023-10-31,1290.00,,31,"1,290",7,high,verified,Weekday omitted.
+2023-11-01,736.00,Mie,01 Mie,736,7,high,verified,
+2023-11-02,,Jue,02 Jue,[blank],7,high,missing_amount,
+2023-11-03,593.00,Vie,03 Vie,593,7,high,verified,
+2023-11-04,463.00,Sab,04 Sab,463,7,high,verified,
+2023-11-06,1160.00,Lun,06 Lun,1160,7,high,verified,
+2023-11-07,1150.00,Mar,07 Mar,1150,7,high,verified,
+2023-11-08,1040.00,Mier,08 Mier,1040,7,high,verified,
+2023-11-09,770.00,Juev,09 Juev,770,7,high,verified,
+2023-11-10,382.00,Vier,10 Vier,382,7,high,verified,
+2023-11-11,459.00,Sab,11 Sab,459,7,high,verified,
+2023-11-13,1190.00,Lun,13 Lun,1190,7,high,verified,
+2023-11-14,863.00,Mar,14 Mar,863,7,high,verified,
+2023-11-15,587.00,Mier,15 Mier,587,7,high,verified,
+2023-11-16,376.00,Jue,16 Jue,376,7,high,verified,
+2023-11-17,457.00,Vie,17 Vie,457,7,high,verified,
+2023-11-18,,Sa,18 Sa,[blank],7,high,missing_amount,
+2023-11-19,700.00,Lun,19 Lun,700,7,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-11-20,1138.00,Mar,20 Mar,1138,7,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-11-21,880.00,Mier,21 Mier,880,7,high,verified,Weekday conflicts with calendar; preserved literally.
+2023-11-23,475.00,Jue,23 Jue,475,7,high,verified,
+2023-11-24,404.00,Vie,24 Vie,404,7,high,verified,
+2023-11-25,781.00,Sab,25 Sab,781,7,high,verified,
+2023-11-27,1014.00,Lun,27 Lun,1014,7,high,verified,
+2023-11-28,1320.00,Mar,28 Mar,1320,7,high,verified,
+2023-11-29,670.00,Mier,29 Mier,670,7,high,verified,
+2023-11-30,1950.00,,30,1950,7,high,verified,Weekday omitted.
+2023-12-01,720.00,Vier,01 Vier,720,8,high,verified,
+2023-12-02,683.00,Sab,02 Sab,683,8,high,verified,
+2023-12-04,1536.00,Lun,04 Lun,1536,8,high,verified,
+2023-12-05,1427.00,Mar,05 Mar,1427,8,high,verified,
+2023-12-06,829.00,Mier,06 Mier,829,8,high,verified,
+2023-12-07,,Jue,07 Jue,[blank],8,high,missing_amount,
+2023-12-08,751.00,Vier,08 Vier,751,8,high,verified,
+2023-12-09,822.00,Sab,09 Sab,822,8,high,verified,
+2023-12-11,923.00,Lun,11 Lun,923,8,high,verified,
+2023-12-12,1895.00,Mar,12 Mar,1895,8,high,verified,
+2023-12-13,840.00,Mier,13 Mier,840,8,high,verified,
+2023-12-14,941.00,Jue,14 Jue,941,8,high,verified,
+2023-12-15,653.00,Vier,Vier,653,8,medium,verified,Date numeral omitted; inferred from sequence.
+2023-12-16,280.00,Sab,16 Sab,280,8,medium,verified,Date overwritten.
+2023-12-18,830.00,Lun,18 Lun,830,8,high,verified,
+2023-12-19,545.00,Mar,19 Mar,545,8,high,verified,
+2023-12-20,727.00,Mie,20 Mie,727,8,high,verified,
+2023-12-21,675.00,Jue,20/21 Jue,675,8,low,adjudicated,Overwritten date normalized to December 21 by sequence.
+2023-12-27,373.00,Mie,27 Mie,373,8,high,verified,
+2023-12-28,320.00,,28,320,8,high,verified,Weekday omitted.
+2023-12-29,175.00,,29,175,8,high,verified,Weekday omitted.
+2023-12-30,107.00,,30,107,8,high,verified,Weekday omitted.
+2024-01-02,571.00,Mar,02 Mar,571,9,high,verified,
+2024-01-03,602.00,Mier,03 Mier,602,9,high,verified,
+2024-01-04,342.00,Jue,04 Jue,342,9,high,verified,
+2024-01-05,481.00,Vier,05 Vier,481,9,high,verified,
+2024-01-06,210.00,Sab,06 Sab,210,9,high,verified,
+2024-01-08,1309.00,Lun,08 Lun,[1087/1309],9,medium,adjudicated,Overwritten amount adjudicated to 1309 because it exactly reconciles the clear 8367 section total; direct glyph can resemble 1087.
+2024-01-09,898.00,Mart,09 Mart,898,9,high,verified,
+2024-01-10,1245.00,Mier,10 Mier,1245,9,high,verified,
+2024-01-11,757.00,Juev,11 Juev,757,9,high,verified,
+2024-01-12,483.00,V.,12 V.,483,9,high,verified,
+2024-01-13,234.00,Sab,13 Sab,234,9,high,verified,
+2024-01-15,1235.00,Lun,15 Lun,1235,9,high,verified,
+2024-01-16,841.00,Mar,16 Mar,841,9,high,verified,
+2024-01-17,800.00,Mier,17 Mier,800,9,high,verified,
+2024-01-18,1361.00,Jue,18 Jue,1361,9,high,verified,
+2024-01-19,522.00,Vier,19 Vier,522,9,high,verified,
+2024-01-20,653.00,Sab,20 Sab,653 +718 +130,9,high,verified,Daily base amount retained. Attached +130 reconciles the written 13216 total; +718 remains an unclassified side annotation.
+2024-01-22,1357.00,Lun,22 Lun,1357,9,high,verified,
+2024-01-23,951.00,Mar,23 Mar,951,9,high,verified,
+2024-01-24,1070.00,Mier,24 Mier,1070,9,high,verified,
+2024-01-25,789.00,,25,789,9,high,verified,
+2024-01-26,926.00,Vier,26 Vier,926,9,medium,verified,Leading digit is overwritten but reads most likely as 9.
+2024-01-29,1537.00,Lun,29 Lun,1537,9,high,verified,
+2024-01-30,973.00,Mar,30 Mar,973,9,high,verified,
+2024-01-31,1306.00,,31,1306,9,high,verified,
+2024-02-01,1549.00,Jue,01 Jue,1549,9,high,verified,
+2024-02-02,648.00,Vier,02 Vier,648,9,high,verified,
+2024-02-03,320.00,Sab,03 Sab,320,9,high,verified,
+2024-02-05,1282.00,Lun,05 Lun,1282,9,high,verified,
+2024-02-06,,Mar,Mar,[blank],9,high,missing_amount,Date numeral omitted; inferred from weekday sequence. No amount is written.
+2024-02-07,1282.00,Mier,07 Mier,1282,9,high,verified,
+2024-02-08,1438.00,Jue,08 Jue,1438,9,high,verified,
+2024-02-09,780.00,Vier,09 Vier,780,9,high,verified,
+2024-02-10,866.00,Sab,10 Sab,866,9,high,verified,
+2024-02-12,1233.00,Lun,12 Lun,1233,9,high,verified,
+2024-02-13,1529.00,Mar,13 Mar,1529,9,high,verified,
+2024-02-14,1286.00,Mier,14 Mier,1286,9,high,verified,
+2024-02-15,1065.00,Jue,15 Jue,1065,9,high,verified,
+2024-02-16,592.00,Vier,[16] Vier,592,9,high,verified,
+2024-02-17,300.00,Sab,[17] Sab,300,9,high,verified,
+2024-02-19,1215.00,Lun,[19] Lun,1215,9,high,verified,
+2024-02-20,1308.00,Mar,[20] Mar,1308,9,high,verified,
+2024-02-21,1699.00,Mier,[21] Mier,1699 -852 BBVA; 100 Paco,9,medium,verified,Side payment/allocation notes are not subtracted from the daily sales amount.
+2024-02-22,517.00,Jue,22 Jue,517,9,high,verified,
+2024-02-23,400.00,Vie,23 Vie,400,9,high,verified,
+2024-02-24,463.00,Sab,24 Sab,463,9,high,verified,
+2024-02-26,788.00,Lun,26 Lun,788,9,high,verified,
+2024-02-27,1130.00,Mar,27 Mar,1130,9,high,verified,
+2024-02-28,636.00,Mier,28 Mier,636,9,high,verified,
+2024-02-29,1059.00,Jue,29 Jue,1059,9,high,verified,
+2024-03-01,751.00,Viernes,01 Viernes,751,10,high,verified,
+2024-03-02,634.00,Saba,02 Saba,634,10,high,verified,
+2024-03-04,1129.00,Lun,04 Lun,1129,10,high,verified,
+2024-03-05,930.00,Mar,05 Mar,930,10,high,verified,
+2024-03-06,1175.00,Mier,06 Mier,1175 +260 +60,10,high,verified,Daily base amount retained; attached additions are preserved separately because written section totals do not reconcile them consistently.
+2024-03-07,560.00,Juev,07 Juev,560,10,medium,verified,First digit is overwritten.
+2024-03-08,761.00,Vie,08 Vie,761,10,high,verified,
+2024-03-09,467.00,Sab,09 Sab,467,10,medium,verified,First digit is overwritten.
+2024-03-11,1570.00,Lun,11 Lun,1570,10,high,verified,
+2024-03-12,820.00,Mar,12 Mar,820,10,high,verified,
+2024-03-13,1194.00,Mier,13 Mier,1194,10,high,verified,
+2024-03-14,430.00,Jue,14 Jue,430,10,high,adjudicated,Focused visual adjudication selected 430; the middle digit matches the writer's nearby 3 rather than 5.
+2024-03-18,918.00,Lunes,18 Lunes,918,10,high,verified,
+2024-03-19,415.00,Mart,19 Mart,415,10,high,verified,
+2024-03-20,1372.00,Mier,20 Mier,1372,10,high,verified,
+2024-03-21,930.00,Juev,21 Juev,930,10,high,verified,
+2024-03-22,441.00,Vier,22 Vier,441,10,high,verified,
+2024-03-23,287.00,Sab,23 Sab,287,10,high,verified,
+2024-03-25,340.00,Lun,25 Lun,340,10,high,verified,
+2024-03-26,527.00,Mar,26 Mar,527,10,high,verified,
+2024-03-27,447.00,Mie,27 Mie,447,10,high,verified,
+2024-03-28,,,28,[blank],10,high,missing_amount,"Date numeral only; 6149 is a corrected section total, not a daily amount."
+2024-03-29,,,29,[blank],10,high,missing_amount,"Date numeral only; 6149 is a corrected section total, not a daily amount."
+2024-03-30,,,30,[blank],10,high,missing_amount,"Date numeral only; 6149 is a corrected section total, not a daily amount."
+2024-04-01,606.00,Lun,01 Lun,606,10,high,verified,
+2024-04-02,272.00,Mart,02 Mart,272,10,high,verified,
+2024-04-03,400.00,Mie,03 Mie,400,10,high,verified,
+2024-04-04,473.00,Jue,04 Jue,473,10,high,verified,
+2024-04-05,488.00,Vier,05 Vier,488,10,high,verified,
+2024-04-06,215.00,Sab,06 Sab,215,10,high,verified,
+2024-04-08,640.00,Lun,08 Lun,640,10,high,verified,
+2024-04-09,529.00,Mar,09 Mar,529,10,high,verified,
+2024-04-10,847.00,Mier,10 Mier,847,10,high,verified,
+2024-04-11,1120.00,Jue,11 Jue,1120 -200,10,high,verified,Daily base amount retained; explicit -200 is preserved as an attached adjustment and reflected in reconciliation notes.
+2024-04-12,694.00,Vie,12 Vie,694,10,high,verified,
+2024-04-13,373.00,Sab,13 Sab,373,10,high,verified,
+2024-04-16,1266.00,Mar,16 Mar,1266,10,high,verified,
+2024-04-17,730.00,Mier,17 Mier,730,10,high,verified,
+2024-04-18,786.00,Jue,18 Jue,786,10,high,verified,
+2024-04-19,238.00,Vier,19 Vier,238,10,high,verified,
+2024-04-20,342.00,Saba,20 Saba,342,10,high,verified,
+2024-04-22,1225.00,Lun,Lun,1225,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-04-23,707.00,Mar,Mar,707,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-04-24,1199.00,Mier,Mier,1199,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-04-25,710.00,Juev,Juev,710,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-04-26,638.00,Vier,Vier,638,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-04-27,130.00,Sab,Sab,130,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-04-29,683.00,Lun,Lun,683,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-04-30,577.00,Mar,Mar,577,10,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-05-03,463.00,Jue,03 Jue,463,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-04,537.00,Vie,04 Vie,537,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-05,287.00,Sab,05 Sab,287,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-07,900.00,Lun,07 Lun,900,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-08,1450.00,Mar,08 Mar,1450,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-09,488.00,Mier,09 Mier,488,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-10,941.00,Jue,Jue 10,941,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-12,485.00,Sab,Sab 12,485,11,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-05-13,690.00,Lun,Lun 13,690,11,high,verified,
+2024-05-14,560.00,Mar,Mar 14,560,11,high,verified,
+2024-05-16,497.00,Jue,16 Jue,497,11,high,verified,
+2024-05-17,553.00,Vier,17 Vier,553,11,high,verified,
+2024-05-18,460.00,Sab,18 Sab,460,11,high,verified,
+2024-05-20,1259.00,Lun,20 Lun,1259,11,high,verified,
+2024-05-21,943.00,Mar,21 Mar,943,11,high,verified,
+2024-05-22,1230.00,Mier,22 Mier,1230,11,high,verified,
+2024-05-23,400.00,Jue,23 Jue,400,11,high,verified,
+2024-05-24,662.00,Vie,24 Vie,662 +130 tarjeta,11,high,verified,Daily base amount retained; +130 card note is preserved as a separate adjustment.
+2024-05-25,370.00,Sab,25 Sab,370,11,high,verified,
+2024-05-27,300.00,Lun,27 Lun,300 +155 deposito,11,high,verified,Daily base amount retained; +155 deposit is preserved separately and is included in the written 9519 section total.
+2024-05-28,1020.00,Mar,28 Mar,1020,11,high,verified,
+2024-05-29,635.00,Mier,29 Mier,635,11,high,verified,
+2024-05-30,500.00,Jue,30 Jue,500,11,high,verified,
+2024-05-31,535.00,Vier,31 Vier,535,11,high,verified,
+2024-06-01,240.00,Sab,01 Sab,240,11,high,verified,
+2024-06-03,653.00,Lun,03 Lun,653,11,high,verified,
+2024-06-04,812.00,Mar,04 Mar,812,11,high,verified,
+2024-06-05,526.00,Mier,05 Mier,526,11,high,verified,
+2024-06-06,970.00,Jue,06 Jue,970,11,high,verified,
+2024-06-07,421.00,Vier,07 Vier,421,11,high,verified,
+2024-06-08,381.00,Sab,08 Sab,381,11,high,verified,
+2024-06-10,1200.00,Lun,10 Lun,1200,11,high,verified,
+2024-06-11,1619.00,Mar,11 Mar,1619,11,high,verified,
+2024-06-12,450.00,Mier,12 Mier,450,11,high,verified,
+2024-06-13,694.00,Jue,13 Jue,694,11,high,verified,
+2024-06-14,334.00,Vier,14 Vier,334,11,high,verified,
+2024-06-17,555.00,Lun,17 Lun,555,11,high,verified,
+2024-06-18,650.00,Mar,18 Mar,650 (142 banco),11,high,verified,Bank annotation is preserved separately and not subtracted from the daily amount.
+2024-06-19,877.00,Mie,19 Mie,877,11,high,verified,
+2024-06-20,290.00,Jue,20 Jue,290,11,high,verified,
+2024-06-21,270.00,Vie,21 Vie,270,11,high,verified,
+2024-06-22,584.00,Sab,22 Sab,584,11,high,verified,
+2024-06-24,704.00,Lun,24 Lun,704,11,high,verified,
+2024-06-25,567.00,Mar,25 Mar,567,11,high,verified,
+2024-06-26,771.00,Mier,26 Mier,771 (573 deposito),11,high,verified,Deposit annotation is preserved separately and not added to the daily amount.
+2024-06-27,,,27,[blank],11,high,missing_amount,Date numeral only; no amount is written.
+2024-06-28,1012.00,Vier,28 Vier,1012,11,high,verified,
+2024-06-29,133.00,Sab,29 Sab,133,11,high,verified,
+2024-07-01,810.00,Lunes,01 Lunes,810 +18 deposito,12,high,verified,Daily base amount retained; +18 appears under the Depositos heading.
+2024-07-02,482.00,Mart,02 Mart,482,12,high,verified,
+2024-07-03,564.00,Mier,03 Mier,564; 80 deposito,12,high,verified,Separate 80 deposit note is not added to the daily amount.
+2024-07-04,411.00,Juev,04 Juev,411,12,high,verified,
+2024-07-05,634.00,Vier,05 Vier,634,12,high,verified,
+2024-07-06,368.00,Sab,06 Sab,368,12,high,verified,
+2024-07-08,492.00,Lun,08 Lun,492,12,high,verified,
+2024-07-09,825.00,Mar,09 Mar,825,12,high,verified,
+2024-07-10,595.00,Mier,10 Mier,595,12,high,verified,
+2024-07-11,300.00,Jue,11 Jue,300,12,high,verified,
+2024-07-12,572.00,Vier,12 Vier,572,12,high,verified,
+2024-07-18,750.00,Jue,18 Jue,750,12,high,verified,
+2024-07-19,364.00,Vier,19 Vier,364,12,high,verified,
+2024-07-20,375.00,Sab,20 Sab,375,12,high,verified,
+2024-07-22,573.00,Lun,22 Lun,573,12,high,verified,
+2024-07-23,243.00,Mar,23 Mar,243,12,high,verified,
+2024-07-24,253.00,Mie,24 Mie,253,12,high,verified,
+2024-07-25,351.00,Jue,25 Jue,351,12,high,verified,
+2024-07-26,1780.00,Vier,Vier,1780,12,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-07-29,889.00,Lun,Lun,889,12,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-07-30,290.00,Mar,Mar,290,12,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-07-31,300.00,Mier,Mier,300,12,medium,verified,Date numeral omitted; inferred from calendar and source sequence.
+2024-08-01,500.00,Jue,01 Jue,500,12,high,verified,
+2024-08-02,681.00,Vier,02 Vier,681,12,high,verified,
+2024-08-05,1023.00,Lun,05 Lun,1023,12,high,verified,
+2024-08-06,265.00,Mar,06 Mar,265,12,high,verified,
+2024-08-07,343.00,Mier,07 Mier,343,12,high,verified,
+2024-08-08,1202.00,Jue,08 Jue,1202; 270,12,high,verified,Separate 270 annotation is not added to the daily amount.
+2024-08-09,402.00,Vie,09 Vie,402,12,high,verified,
+2024-08-12,1820.00,Lun,10 Lun,1820,12,low,adjudicated,Literal 10 Lun conflicts with the 2024 calendar; normalized to August 12 from weekday and sequence.
+2024-08-13,1041.00,Mar,11 Mar,1041,12,low,adjudicated,Literal 11 Mar conflicts with the 2024 calendar; normalized to August 13 from weekday and sequence.
+2024-08-14,649.00,Mie,Mie,649,12,medium,verified,Date numeral omitted; inferred from shifted weekday sequence.
+2024-08-15,330.00,Jue,Jue,330; 82,12,medium,verified,Date numeral omitted; inferred from shifted weekday sequence. Separate 82 annotation is excluded.
+2024-08-16,1180.00,Vier,16 Vier,1180,12,high,verified,
+2024-08-19,1120.00,Lun,18 Lun,1120,12,medium,adjudicated,Literal 18 Lun conflicts with the 2024 calendar; normalized to August 19 from weekday and sequence.
+2024-08-20,1680.00,Mar,20 Mar,1680,12,high,verified,
+2024-08-21,1200.00,Mier,21 Mier,1200,12,high,verified,
+2024-08-22,840.00,Jue,22 Jue,840 y 237,12,high,verified,Daily base amount retained; separate 237 annotation is unclassified.
+2024-08-23,2190.00,Vier,Vier,2190,12,medium,verified,Date numeral omitted; inferred from weekday and sequence.
+2024-08-24,800.00,Sab,Sab,800; [244?],12,medium,verified,Date numeral omitted; inferred from weekday and sequence. Nearby annotation is unclassified.
+2024-09-02,1147.00,Sep,02 Sep,1147,13,high,verified,
+2024-09-03,1810.00,Sep,03 Sep,1810,13,high,verified,
+2024-09-04,700.00,Sep,04 Sep,700,13,high,verified,
+2024-09-05,1090.00,Jue,05 Jue,1090,13,high,verified,
+2024-09-06,530.00,Vie,06 Vie,530,13,high,verified,
+2024-09-07,280.00,Sab,07 Sab,280,13,high,verified,
+2024-09-09,1810.00,Lun,09 Lun,1810,13,high,verified,
+2024-09-10,1000.00,Ma,10 Ma,1000,13,high,verified,
+2024-09-11,1385.00,Mie,11 Mie,1385,13,high,verified,
+2024-09-12,1000.00,Jue,12 Jue,1000,13,high,verified,
+2024-09-13,480.00,Vie,13 Vie,480,13,high,adjudicated,Two readers independently confirmed 480 from the two-lobed middle glyph; 420 was rejected.
+2024-09-16,832.00,Lun,16 Lun,832,13,high,verified,
+2024-09-17,1372.00,Mar,17 Mar,1372,13,high,verified,
+2024-09-18,1390.00,Mier,18 Mier,1390,13,high,adjudicated,Overwritten digit adjudicated as 3; the section then exactly matches the corrected written subtotal 10949.
+2024-09-19,1026.00,Jue,19 Jue,1026,13,high,verified,
+2024-09-20,452.00,Vie,20 Vie,452,13,high,verified,
+2024-09-21,566.00,Sab,21 Sab,566,13,high,verified,
+2024-09-23,1100.00,Lun,23 Lun,1100,13,high,verified,
+2024-09-24,856.00,Mar,24 Mar,856,13,high,verified,
+2024-09-25,1124.00,Mie,25 Mie,1124,13,high,verified,
+2024-09-26,843.00,Jue,Jue,843,13,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2024-09-27,290.00,Vie,Vie,290,13,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2024-09-28,585.00,Sab,Sab,585,13,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2024-09-30,513.00,Lun,Lun,513,13,medium,verified,Date numeral omitted; inferred from weekday and calendar after September 28.
+2024-10-01,738.00,Mar,01 Mar,738,13,high,verified,
+2024-10-02,962.00,Mier,02 Mier,962,13,high,adjudicated,"Readers split between 902 and 962. Independent tie-breaker selected 962 from the middle glyph's ascender and internal return, matching the writer's other sixes; no subtotal was used."
+2024-10-03,920.00,Mie,03 Mie,920,13,high,verified,
+2024-10-04,880.00,Vie,04 Vie,880,13,high,verified,
+2024-10-05,510.00,Sab,05 Sab,510,13,high,verified,
+2024-10-07,1250.00,Lun,07 Lun,1250,13,high,verified,
+2024-10-08,1887.00,Mar,08 Mar,1887,13,high,verified,
+2024-10-09,1328.00,Mie,09 Mie,1328,13,high,verified,
+2024-10-10,840.00,Ju,10 Ju,840,13,high,verified,
+2024-10-11,868.00,Vie,11 Vie,868,13,high,verified,
+2024-10-12,520.00,Sab,12 Sab,520,13,high,verified,
+2024-10-13,764.00,Mat,13 Mat,764,13,high,verified,
+2024-10-14,1010.00,Lun,14 Lun,1010,13,high,verified,
+2024-10-16,916.00,Mie,16 Mie,916,13,high,verified,
+2024-10-17,922.00,Jue,17 Jue,922,13,high,verified,
+2024-10-18,665.00,Vie,18 Vie,665,13,high,verified,
+2024-10-19,630.00,Sab,19 Sab,630,13,high,verified,
+2024-10-20,870.00,Lun,20 Lun,870 +686,13,medium,verified,Written weekday conflicts with calendar; separate +686 is retained as an unclassified adjustment.
+2024-10-21,1140.00,Mar,21 Mar,1140,13,medium,verified,Written weekday conflicts with calendar; numeric date preserved literally.
+2024-10-22,954.00,Mie,22 Mie,954,13,high,verified,
+2024-10-23,928.00,Jue,23 Jue,928,13,high,verified,
+2024-10-24,880.00,,24,880 +270,13,medium,verified,Weekday omitted; separate +270 annotation retained.
+2024-10-25,496.00,,25,496,13,medium,verified,Weekday omitted.
+2024-10-26,1820.00,,26,1820,13,medium,verified,Weekday omitted.
+2024-10-27,1325.00,,27,1325; 1500,13,medium,verified,Weekday omitted; separate 1500 note is unclassified.
+2024-11-01,183.00,Vie,01 Vie,183,14,high,verified,
+2024-11-02,357.00,Sab,02 Sab,357,14,high,verified,
+2024-11-03,1156.00,Lun,03 Lun,1156,14,high,verified,
+2024-11-05,862.00,Ma,05 Ma,862,14,high,verified,
+2024-11-06,760.00,Mie,06 Mie,760,14,high,verified,
+2024-11-07,1213.00,Jue,07 Jue,1213,14,high,verified,
+2024-11-08,,Vie,08 Vie,[blank],14,high,missing_amount,Dated line with no amount.
+2024-11-09,1320.00,Sab,09 Sab,1320,14,high,verified,
+2024-11-11,1760.00,Lun,11 Lun,1760,14,high,verified,
+2024-11-12,896.00,Ma,12 Ma,896,14,high,verified,
+2024-11-13,791.00,Mie,13 Mie,791,14,high,verified,
+2024-11-14,760.00,Jue,14 Jue,760,14,high,verified,
+2024-11-15,638.00,Vier,15 Vier,638,14,high,verified,
+2024-11-16,620.00,Sab,16 Sab,620,14,high,verified,
+2024-11-18,580.00,Lun,18 Lun,580,14,high,verified,
+2024-11-19,485.00,Mar,19 Mar,485,14,high,verified,
+2024-11-20,905.00,Mie,20 Mie,905,14,high,verified,
+2024-11-21,340.00,Jue,21 Jue,340,14,high,verified,
+2024-11-22,559.00,Vier,22 Vier,559,14,high,verified,
+2024-11-23,370.00,Sab,23 Sab,370,14,high,verified,
+2024-11-25,948.00,Lun,25 Lun,948,14,high,verified,
+2024-11-26,561.00,Mar,26 Mar,561,14,high,verified,
+2024-11-27,1002.00,Mie,27 Mie,1002,14,high,verified,
+2024-11-28,553.00,Jue,28 Jue,553,14,high,verified,
+2024-11-29,845.00,Vie,29 Vie,845,14,high,verified,
+2024-11-30,530.00,Sab,30 Sab,530,14,high,verified,
+2024-12-02,1087.00,Lun,02 Lun,1087,14,high,verified,
+2024-12-03,765.00,Mar,03 Mar,765,14,high,verified,
+2024-12-04,910.00,Nov,04 Nov,910,14,high,verified,
+2024-12-05,509.00,Nue,05 Nue,509,14,high,verified,
+2024-12-06,757.00,Vie,06 Vie,757,14,high,verified,
+2024-12-07,603.00,Sab,07 Sab,603,14,high,verified,
+2024-12-09,1030.00,Lun,09 Lun,1030,14,high,verified,
+2024-12-10,1116.00,Mar,10 Mar,1116,14,high,verified,
+2024-12-11,1135.00,Mie,11 Mie,1135,14,high,verified,
+2024-12-12,791.00,Mie,12 Mie,791,14,high,verified,
+2024-12-13,250.00,Vie,13 Vie,250,14,high,verified,
+2024-12-16,640.00,Lun,16 Lun,640,14,high,verified,
+2024-12-17,603.00,Mar,17 Mar,603,14,high,verified,
+2024-12-18,902.00,Mie,18 Mie,902,14,high,verified,
+2024-12-19,990.00,Jue,19 Jue,990,14,high,verified,
+2024-12-20,666.00,Vie,20 Vie,666,14,high,verified,
+2024-12-21,270.00,Sab,21 Sab,270,14,high,verified,
+2024-12-23,1651.00,Lun,23 Lun,1651,14,high,verified,
+2024-12-24,260.00,Mar,24 Mar,260,14,high,verified,
+2024-12-26,425.00,Mie,26 Mie,425,14,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-12-27,260.00,Jue,27 Jue,260,14,medium,verified,Written weekday conflicts with the 2024 calendar; numeric date preserved literally.
+2024-12-28,,Vie,28 Vie,[blank],14,high,missing_amount,"December 2024 monthly total is INCOMPLETE. This dated amount is blank or obscured; do not treat it as zero. Known daily-sales minimum for December is $15,620.00."
+2025-01-01,506.00,Mie,[01] Mie,506,15,medium,verified,Date numeral/weekday is partly obscured by the page marker; normalized from calendar sequence.
+2025-01-02,373.00,Jue,[02] Jue,373,15,medium,verified,Date numeral/weekday is partly obscured by the page marker; normalized from calendar sequence.
+2025-01-03,353.00,Vie,[03] Vie,353,15,medium,verified,Date numeral/weekday is partly obscured by the page marker; normalized from calendar sequence.
+2025-01-04,198.00,Sab,[04] Sab,198,15,medium,verified,Date numeral/weekday is partly obscured by the page marker; normalized from calendar sequence.
+2025-01-06,379.00,Lun,[06] Lun,379,15,medium,verified,Date numeral/weekday is partly obscured by the page marker; normalized from calendar sequence.
+2025-01-13,675.00,Lun,13 Lun,675,15,high,verified,
+2025-01-14,916.00,Mar,14 Mar,916,15,high,verified,
+2025-01-15,831.00,Mier,15 Mier,831,15,high,verified,
+2025-01-16,860.00,Jue,16 Jue,860,15,high,verified,
+2025-01-17,570.00,Vie,17 Vie,570,15,high,verified,
+2025-01-18,336.00,Sab,18 Sab,336,15,high,verified,
+2025-01-20,923.00,Lun,20 Lun,923,15,high,verified,
+2025-01-21,654.50,Mar,21 Mar,654.5,15,high,verified,
+2025-01-22,1230.00,Mier,22 Mier,1230,15,high,verified,
+2025-01-23,875.00,Jue,23 Jue,875,15,high,verified,
+2025-01-24,510.00,Vie,24 Vie,510,15,high,verified,
+2025-01-25,331.00,Sab,25 Sab,331,15,high,verified,
+2025-01-27,672.00,Lun,27 Lun,672,15,high,verified,
+2025-01-28,634.00,,28,634,15,medium,verified,Weekday omitted.
+2025-01-29,1127.00,,29,1127,15,medium,verified,Weekday omitted.
+2025-01-30,590.00,,30,590,15,medium,verified,Weekday omitted.
+2025-01-31,300.00,,31,300,15,medium,verified,Weekday omitted.
+2025-02-03,280.00,Lun,03 Lun,280,15,high,verified,
+2025-02-04,708.00,Mar,04 Mar,708,15,high,verified,
+2025-02-05,657.00,Mie,05 Mie,657,15,high,verified,
+2025-02-06,738.00,Jue,06 Jue,738,15,high,verified,
+2025-02-07,1080.00,Vier,07 Vier,1080,15,high,verified,
+2025-02-08,411.00,Sab,08 Sab,411,15,high,verified,
+2025-02-10,1030.00,Lun,10 Lun,1030,15,high,verified,
+2025-02-11,1289.00,Ma,11 Ma,1289,15,high,verified,
+2025-02-12,934.00,Mie,12 Mie,934,15,high,verified,
+2025-02-13,1252.00,Jue,13 Jue,1252,15,high,verified,
+2025-02-14,1336.00,Vie,14 Vie,1336,15,high,verified,
+2025-02-15,510.00,Sab,15 Sab,510,15,high,verified,
+2025-02-17,1015.00,Lun,17 Lun,1015,15,high,verified,
+2025-02-18,1362.00,Mar,18 Mar,1362,15,high,verified,
+2025-02-19,1030.00,Mie,19 Mie,1030,15,high,verified,
+2025-02-20,682.00,Jue,20 Jue,682,15,high,verified,
+2025-02-21,315.00,Vie,21 Vie,315,15,high,verified,
+2025-02-22,186.00,Sab,22 Sab,186,15,high,verified,
+2025-02-24,914.00,Lu,24 Lu,914,15,high,verified,
+2025-02-25,700.00,Mar,25 Mar,700,15,high,verified,
+2025-02-26,611.00,Mier,26 Mier,611,15,high,verified,
+2025-02-27,568.00,Jue,27 Jue,568,15,high,verified,
+2025-02-28,645.00,Vier,28 Vier,645,15,high,adjudicated,Focused handwriting review selected 645; the resulting section sum exactly matches the written 8028 subtotal.
+2025-03-01,288.00,Sab,01 Sab,288,16,high,verified,
+2025-03-03,870.00,Lun,03 Lun,870,16,high,verified,
+2025-03-04,930.00,Mar,04 Mar,930,16,high,verified,
+2025-03-05,381.00,Mie,05 Mie,381,16,high,verified,
+2025-03-06,638.00,Jue,06 Jue,638,16,high,verified,
+2025-03-07,194.00,Vie,07 Vie,194,16,high,verified,
+2025-03-08,300.00,Sab,08 Sab,300,16,high,verified,
+2025-03-10,757.00,Lun,10 Lun,757,16,high,verified,
+2025-03-11,1072.00,Mar,11 Mar,1072,16,high,verified,
+2025-03-12,418.00,Mie,12 Mie,418,16,high,verified,
+2025-03-13,505.00,Jue,13 Jue,505,16,high,verified,
+2025-03-14,457.00,Vier,14 Vier,457,16,high,verified,
+2025-03-15,120.00,Sab,[15] Sab,120,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-03-17,392.00,Lun,17 Lun,392,16,high,verified,
+2025-03-18,685.00,Mar,18 Mar,685,16,high,verified,
+2025-03-19,1700.00,Mie,19 Mie,1700,16,high,adjudicated,"Focused review confirms a distinct leading 1 in the amount; this is 1700, not 700."
+2025-03-20,738.00,Jue,20 Jue,738,16,high,verified,
+2025-03-21,695.00,Vie,Vie,695,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-03-22,330.00,Sab,Sab,330,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-03-24,1350.00,Lun,24 Lun,1350,16,high,verified,
+2025-03-25,767.00,Mar,Mar,767,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-03-26,468.00,Mie,Mie,468,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-03-27,525.00,Jue,Jue,525,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-03-28,,Vie,Vie,280 (crossed out),16,high,missing_amount,"Date inferred from weekday sequence. The clearly written 280 is crossed out with no replacement, so no active sale is recorded."
+2025-03-29,280.00,Sab,Sab,280,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-04-01,820.00,Mar,01 Mar,820,16,high,verified,
+2025-04-02,1210.00,Mie,02 Mie,1210,16,high,verified,
+2025-04-03,962.00,Jue,03 Jue,962,16,high,verified,
+2025-04-04,810.00,Vier,04 Vier,810,16,high,verified,
+2025-04-05,326.00,Sab,05 Sab,326,16,high,verified,
+2025-04-07,702.00,Lun,07 Lun,702,16,high,verified,
+2025-04-08,478.00,Mar,08 Mar,478,16,high,verified,
+2025-04-09,370.00,Mie,09 Mie,370,16,high,verified,
+2025-04-10,769.00,Jue,10 Jue,769,16,high,verified,
+2025-04-11,571.00,Vie,11 Vie,571,16,high,verified,
+2025-04-12,268.00,Sab,Sab,268; 100?,16,medium,verified,Date numeral omitted; inferred from weekday sequence. Nearby small annotation is unclassified.
+2025-04-14,474.00,Lun,Lun,474,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-04-15,750.00,Mar,Mar,750,16,medium,verified,Date numeral omitted; inferred from weekday sequence.
+2025-04-22,410.00,Mar,22 Mar,410,16,high,verified,
+2025-04-23,417.00,Mier,23 Mier,417,16,high,verified,
+2025-04-24,408.00,Juev,24 Juev,408,16,high,verified,
+2025-04-25,519.00,Vier,25 Vier,519,16,high,verified,
+2025-04-26,196.00,Sab,26 Sab,196,16,high,verified,
+2025-04-28,1572.00,Lun,28 Lun,1572,16,high,verified,
+2025-04-29,806.00,Mar,29 Mar,806,16,high,verified,
+2025-04-30,498.00,Mie,30 Mie,498,16,high,verified,
+2025-05-02,550.00,Vier,02 Vier,550,17,high,verified,
+2025-05-03,200.00,Sab,03 Sab,200,17,high,verified,
+2025-05-05,400.00,Lun,05 Lun,400,17,high,verified,
+2025-05-06,784.00,Mar,06 Mar,784,17,high,verified,Nearby (5-8) notation is a side note and is excluded.
+2025-05-07,940.00,Mie,07 Mie,940,17,high,verified,
+2025-05-08,890.00,Jue,08 Jue,890,17,medium,verified,Day numeral is faint but follows the calendar sequence.
+2025-05-09,1143.00,Vier,Vier,1143,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-12,1212.00,Lun,Lun,1212,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-13,1169.00,Mar,Mar,1169,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-14,865.00,Mier,Mier,865,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-15,170.00,Jue,Jue,170,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-16,571.00,Vie,16 Vie,571,17,medium,adjudicated,Two-agent review and direct crop favor 571 over 521.
+2025-05-17,165.00,Sab,17 Sab,165,17,high,verified,
+2025-05-19,763.00,Lun,19 Lun,763,17,high,verified,
+2025-05-20,780.00,Mar,20 Mar,780,17,high,verified,
+2025-05-21,812.00,Mie,21 Mie,812,17,high,verified,
+2025-05-22,360.00,Jue,22 Jue,360,17,high,verified,
+2025-05-23,426.00,Vier,Vier,426,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-24,180.00,Sab,Sab,180,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-26,730.00,Lun,Lun,730,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-27,850.00,Mar,Mar,850,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-28,800.00,Mie,Mie,800,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-29,470.00,Jue,Jue,470,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-30,420.00,Vier,Vier,420,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-05-31,240.00,Sab,Sab,240,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-02,602.00,Lun,02 Lun,602,17,high,verified,
+2025-06-03,600.00,Mar,03 Mar,600,17,high,verified,
+2025-06-04,939.00,Mier,04 Mier,939,17,high,verified,
+2025-06-05,1077.00,Jue,05 Jue,1077,17,high,verified,
+2025-06-06,800.00,Vier,06 Vier,800,17,high,verified,
+2025-06-09,1050.00,Lun,09 Lun,1050,17,high,verified,
+2025-06-10,579.00,Mar,Mar,579,17,medium,adjudicated,Agents split between 519 and 579. Direct high-resolution glyph review favors 579; the resulting visible subtotal remains 320 above the written figure.
+2025-06-11,1164.00,Mier,Mier,1164,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-12,581.00,Jue,Jue,581,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-13,740.00,Vie,Vie,740,17,medium,adjudicated,First digit is overwritten; two-agent review favors 740.
+2025-06-14,464.00,Sab,Sab,464,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-16,295.00,Lun,16 Lun,295,17,high,verified,
+2025-06-17,710.00,Mar,17 Mar,710,17,high,verified,
+2025-06-18,984.00,Mie,18 Mie,984,17,high,verified,
+2025-06-19,596.00,Jue,19 Jue,596,17,high,verified,
+2025-06-20,472.00,Vie,20 + Vie,472,17,high,verified,"Small plus sign is stray notation, not an amount adjustment."
+2025-06-21,200.00,Sab,21 Sab,200,17,high,verified,
+2025-06-23,608.00,Lun,Lun,608,17,medium,adjudicated,Date inferred from sequence; final digit is heavily retraced and two-agent review favors 608.
+2025-06-24,440.00,Mar,Mar,440,17,medium,adjudicated,Agents split between 420 and 440. Direct high-resolution glyph review favors 440.
+2025-06-25,575.00,Mie,Mie,575,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-26,565.00,Jue,Jue,565,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-27,370.00,Vie,Vie,370,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-28,316.00,Sab,Sab,316,17,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-06-30,630.00,Lun,630,630,17,medium,adjudicated,Isolated amount below June 28; assigned to Monday June 30 from calendar sequence.
+2025-07-01,365.00,Mar,01 Mar,365,19,high,verified,
+2025-07-02,412.00,Mier,02 Mier,412,19,high,verified,
+2025-07-03,1030.00,Jue,03 Jue,1030,19,high,verified,
+2025-07-04,206.00,Vie,04 Vie,206,19,high,verified,
+2025-07-05,412.00,Sab,05 Sab,412,19,high,verified,
+2025-07-07,703.00,Lun,07 Lun,703,19,high,verified,
+2025-07-08,590.00,Mar,Mar,590,19,medium,verified,Date numeral omitted; inferred from weekday and source sequence.
+2025-07-14,480.00,Lun,14 Lun,480,19,high,verified,
+2025-07-15,319.00,Mar,15 Mar,319,19,high,verified,
+2025-07-16,1068.00,Mie,16 Mie,1068,19,high,verified,
+2025-07-17,665.00,Jue,17 Jue,665,19,high,verified,
+2025-07-18,96.00,Vier,18 Vier,96,19,high,verified,
+2025-07-21,302.00,Lun,19 Lun,302 + 231 (deposit),19,medium,adjudicated,Literal date is two days early; normalized by Monday/calendar sequence. Explicit deposit 231 is excluded from daily sales.
+2025-07-22,210.00,Mar,20 Mar,210,19,medium,adjudicated,Literal date is two days early; normalized by weekday/calendar sequence.
+2025-07-23,600.00,Mie,21 Mie,600,19,medium,adjudicated,Literal date is two days early; normalized by weekday/calendar sequence.
+2025-07-24,354.00,Jue,22 Jue,354,19,medium,adjudicated,Literal date is two days early; normalized by weekday/calendar sequence.
+2025-07-25,398.00,Vi,Vi,398,19,medium,verified,Date numeral omitted; inferred from shifted weekday sequence.
+2025-07-28,309.00,Lun,Lun,309,19,medium,verified,Date numeral omitted; inferred from shifted weekday sequence.
+2025-07-29,209.00,Mar,Mar,209,19,medium,adjudicated,Date numeral omitted. First digit is overwritten; two-agent review favors 209. A forced 227 would reconcile the written subtotal but is not visually supported.
+2025-07-30,2377.00,Mier,Mier,2377,19,medium,verified,Date numeral omitted; inferred from shifted weekday sequence.
+2025-07-31,466.00,Jue,Jue,466,19,medium,verified,Date numeral omitted; inferred from shifted weekday sequence.
+2025-08-01,740.00,Mier,01 Mier,[7]40; 100 MP,19,medium,adjudicated,"Leading 7 is faded; 740 makes the written 5,934 subtotal exact. Separate MP 100 is excluded."
+2025-08-04,400.00,Lun,04 Lun,400,19,high,adjudicated,"Primary read initially proposed 1,100, but direct glyph review and exact section subtotal establish 400."
+2025-08-05,369.00,Mart,05 Mart,369,19,high,verified,
+2025-08-06,163.00,Mie,06 Mie,163,19,high,verified,
+2025-08-07,450.00,Jue,07 Jue,450,19,high,verified,
+2025-08-08,834.00,Vie,08 Vie,834,19,high,verified,
+2025-08-09,125.00,Sab,09 Sab,125,19,high,verified,
+2025-08-11,611.00,Lo,11 Lo,611,19,medium,verified,Irregular weekday abbreviation; amount reads 611.
+2025-08-12,565.00,Mar,12 Mar,565,19,high,verified,
+2025-08-13,663.00,Mier,13 Mier,663,19,high,verified,
+2025-08-14,441.00,Jue,14 Jue,441,19,high,verified,
+2025-08-15,573.00,Vie,15 Vie,573,19,high,verified,
+2025-08-16,750.00,Sab,16 Sab,72 + 678,20,high,adjudicated,Explicit row arithmetic evaluates to 750.
+2025-08-18,617.00,Lun,18 Lun,617 (overwritten),20,low,adjudicated,Final surviving reading is 617; earlier strokes are obscured.
+2025-08-19,835.00,Mar,19 Mar,835,20,high,verified,
+2025-08-20,450.00,Mie,20 Mie,450,20,high,verified,
+2025-08-21,518.00,Jue,21 Jue,518,20,high,verified,
+2025-08-22,260.00,Vier,22 Vier,260,20,high,verified,
+2025-08-23,362.00,Sab,23 Sab,362,20,medium,adjudicated,Agents split between 362 and 368; direct high-resolution crop favors 362.
+2025-08-25,1025.00,Lun,25 Lun,1025,20,high,verified,
+2025-08-26,1820.00,Mar,26 Mar,725 + 1095 = 1820,20,high,adjudicated,"Explicit row arithmetic evaluates to 1,820."
+2025-08-27,970.00,Mier,27 Mier,970,20,high,verified,
+2025-08-28,1033.00,Jue,28 Jue,1033,20,high,verified,
+2025-08-29,1667.00,Vie,29 Vie,1667,20,high,verified,
+2025-08-30,1668.00,Sab,30 Sab,1668,20,high,verified,
+2025-09-01,3320.00,Lun,01 Lun,3320 + 100 MP,20,high,verified,Separate MP 100 is excluded from daily sales.
+2025-09-02,3831.00,Ma,02 Ma,3831,20,high,verified,
+2025-09-03,1205.00,Mie,03 Mie,1205,20,high,verified,
+2025-09-04,1980.00,Jue,04 Jue,1980,20,high,verified,
+2025-09-05,653.00,Vie,05 Vie,653,20,medium,adjudicated,"Direct glyph reads 653. Reading 643 would reconcile separate arithmetic, but is not visually supported."
+2025-09-06,1902.00,Sab,06 Sab,1902,20,high,verified,
+2025-09-08,1971.00,Lun,08 Lun,1971,20,high,verified,
+2025-09-09,1822.00,Mar,09 Mar,1822,20,high,verified,
+2025-09-10,1360.00,Mie,10 Mie,1360,20,high,verified,
+2025-09-11,748.00,Jue,11 Jue,748,20,high,verified,
+2025-09-12,950.00,Vie,12 Vie,950,20,high,verified,
+2025-09-13,557.00,Sab,13 Sab,557,20,high,verified,
+2025-09-15,740.00,Lun,15 Lun,740,20,high,verified,
+2025-09-17,1515.00,Mier,17 Mier,1515,20,high,verified,
+2025-09-18,1020.00,Jue,18 Jue,1020,20,high,verified,
+2025-09-19,685.00,Vie,19 Vie,685,20,high,verified,
+2025-09-20,130.00,Sa,20 Sa,130,20,high,verified,
+2025-09-22,1106.00,Lune,21 Lune,1106,20,medium,adjudicated,Literal date is one day early; normalized by Monday/calendar sequence.
+2025-09-23,690.00,Mar,22 Mar,690,20,medium,adjudicated,Literal date is one day early; normalized by weekday/calendar sequence.
+2025-09-24,570.00,Mie,23 Mie,570,20,medium,adjudicated,Literal date is one day early; normalized by weekday/calendar sequence.
+2025-09-25,470.00,Jue,24 Jue,470,20,medium,adjudicated,Literal date is one day early; normalized by weekday/calendar sequence.
+2025-09-26,861.00,Vie,25 Vie,861,20,medium,adjudicated,Literal date is one day early; normalized by weekday/calendar sequence.
+2025-09-27,240.00,Sab,26 Sab,240,20,medium,adjudicated,Literal date is one day early; normalized by weekday/calendar sequence.
+2025-09-29,867.00,Lun,27 Lun,867,20,medium,adjudicated,Literal date is two days early; normalized to Monday September 29 by calendar sequence.
+2025-09-30,1142.00,Mar,30 Mar,1142,20,high,verified,
+2025-10-01,950.00,Mier,01 Mier,950,21,high,verified,
+2025-10-02,900.00,Jue,02 Jue,900,21,high,verified,
+2025-10-03,1273.00,Vier,03 Vier,1273,21,high,verified,
+2025-10-06,720.00,Lun,06 Lun,720,21,high,verified,
+2025-10-07,906.00,Mar,07 Mar,906,21,medium,adjudicated,High-resolution glyph review favors 906 over 986.
+2025-10-08,830.00,Mier,08 Mier,830,21,high,verified,
+2025-10-09,432.00,Vie,09 Vie,432,21,medium,verified,Written weekday conflicts with the 2025 calendar; explicit date is preserved.
+2025-10-10,185.00,Sab,10 Sab,185 + 300,21,high,verified,Explicit +300 side amount is excluded from the daily sale base.
+2025-10-13,1268.00,Lun,13 Lun,1268,21,high,verified,
+2025-10-14,850.00,Mar,14 Mar,850,21,high,verified,
+2025-10-15,1394.00,,1394,1394,21,medium,adjudicated,Standalone underlined amount after October 14 is treated as an inferred October 15 daily row; no date is written.
+2025-10-16,866.00,Oct,16 Oct,866,21,high,verified,
+2025-10-17,748.00,Oct,17 Oct,748,21,high,verified,
+2025-10-18,250.00,Oct,18 Oct,250,21,high,verified,
+2025-10-20,1480.00,Oct,20 Oct,1480,21,high,verified,
+2025-10-21,1550.00,Oct,21 Oct,1550,21,high,verified,
+2025-10-22,106.00,Oct,22 Oct,106,21,high,verified,
+2025-10-23,1711.00,Jue,23 Jue,1711,21,high,verified,
+2025-10-24,1031.00,Vier,24 Vier,1031,21,high,verified,
+2025-10-25,253.00,Sab,25 Sab,253,21,high,verified,
+2025-10-27,2162.00,Lun,27 Lun,2162,21,high,verified,
+2025-10-28,1080.00,Mar,28 Mar,1080,21,high,verified,
+2025-10-29,1597.00,Mier,29 Mier,1597,21,high,verified,
+2025-10-30,868.00,Jue,Jue,868,21,medium,verified,Date numeral omitted; inferred from sequence.
+2025-10-31,1016.00,Vier,Vier,1016,21,medium,verified,Date numeral omitted; inferred from sequence.
+2025-11-03,1233.00,Nov,03 Nov,1233,21,high,verified,
+2025-11-04,290.00,Nov,04 Nov,290,21,high,verified,
+2025-11-05,920.00,Nov,05 Nov,920,21,high,verified,
+2025-11-06,718.00,Nov,06 Nov,718,21,high,verified,
+2025-11-07,604.00,Nov,07 Nov,604,21,high,verified,
+2025-11-08,120.00,Nov,08 Nov,120,21,high,verified,
+2025-11-10,830.00,Nov,10 Nov,830,21,high,verified,
+2025-11-11,820.00,Nov,11 Nov,820,21,high,verified,
+2025-11-12,660.00,Nov,12 Nov,660,21,high,verified,
+2025-11-13,310.00,Nov,13 Nov,310,21,high,verified,
+2025-11-14,544.00,Nov,14 Nov,544,21,high,verified,
+2025-11-15,220.00,Nov,15 Nov,220,21,high,verified,
+2025-11-17,990.00,Nov,17 Nov,990,22,high,verified,
+2025-11-18,750.00,Nov,18 Nov,750,22,high,verified,
+2025-11-19,1007.00,Nov,19 Nov,1007,22,high,verified,
+2025-11-20,990.00,Nov,20 Nov,990 (overwritten),22,low,adjudicated,Overwritten amount most likely reads 990; alternatives 920/995 are less likely and no written subtotal reconciles.
+2025-11-21,750.00,Nov,21 Nov,750,22,high,verified,
+2025-11-22,570.00,Nov,22 Nov,570,22,high,verified,
+2025-11-24,980.00,Nov,24 Nov,980,22,high,verified,
+2025-11-25,871.00,Nov,25 Nov,871,22,high,verified,
+2025-11-26,1062.00,Nov,26 Nov,1062,22,high,verified,
+2025-11-27,565.00,Nov,27 Nov,565,22,high,verified,Nearby bola 54 is a side note and is excluded.
+2025-11-28,521.00,Nov,28 Nov,521,22,high,verified,
+2025-11-29,530.00,Nov,29 Nov,530,22,high,verified,
+2025-12-01,1050.00,Dic,Dic 1,1050,22,high,verified,
+2025-12-02,1116.00,Dic,Dic 2,1116,22,high,verified,
+2025-12-03,912.00,Dic,Dic 03,912,22,high,verified,
+2025-12-04,1235.00,Dic,Dic 04,1235,22,high,verified,
+2025-12-05,761.00,Dic,Dic 05,761,22,high,verified,
+2025-12-08,1389.00,Dic,Dic 08,1389,22,high,verified,
+2025-12-09,1257.00,Dic,Dic 9,1257,22,high,verified,
+2025-12-10,1183.00,Dic,Dic 10,1183,22,high,verified,
+2025-12-11,1460.00,Dic,Dic 11,1460,22,high,verified,
+2025-12-12,689.00,Dic,Dic 12,689,22,high,verified,
+2025-12-13,320.00,Dic,Dic 13,320,22,high,verified,
+2025-12-16,539.00,Dic,Dic 16,539,22,high,verified,
+2025-12-17,442.00,Dic,Dic 17,442,22,high,verified,
+2025-12-18,576.00,Dic,Dic 18,576,22,high,verified,
+2025-12-19,350.00,Dic,Dic 19,350,22,high,verified,
+2025-12-20,400.00,Dic,Dic 20,400,22,high,verified,
+2025-12-22,683.00,Dic,Dic 22,683,22,high,verified,
+2025-12-23,637.00,Dic,Dic 23,637,22,high,verified,
+2025-12-24,180.00,Dic,Dic 24,180,22,high,verified,
+2025-12-29,390.00,Dic,Dic 29,390,22,high,verified,
+2025-12-30,50.00,Dic,Dic 30,50,22,high,verified,
+2025-12-31,235.00,Dic,Dic 31,235,22,high,verified,
+2026-01-05,750.00,Enero,05 Enero,750,23,high,verified,
+2026-01-06,584.00,Enero,06 Enero,584,23,high,verified,
+2026-01-07,710.00,Enero,07 Enero,710 + 287 MP,23,high,verified,Separate MP 287 is excluded from daily sales.
+2026-01-08,673.00,Enero,08 Enero,673,23,high,verified,
+2026-01-09,600.00,Enero,09 Enero,600,23,high,verified,
+2026-01-12,1099.00,Ene,12 Ene,1099,23,high,verified,
+2026-01-13,1166.00,Ene,13 Ene,1166,23,high,verified,
+2026-01-14,688.00,Ene,14 Ene,688,23,high,verified,
+2026-01-15,650.00,Ene,15 Ene,650,23,high,verified,
+2026-01-16,228.00,Ene,16 Ene,228,23,high,verified,
+2026-01-17,270.00,Ene,17 Ene,270,23,high,verified,
+2026-01-19,760.00,Ene,19 Ene,760,23,high,verified,
+2026-01-20,849.00,Ene,20 Ene,849,23,high,verified,
+2026-01-21,1058.00,Ene,21 Ene,1058,23,high,verified,
+2026-01-22,786.00,Ene,22 Ene,786,23,high,verified,
+2026-01-23,580.00,Ene,23 Ene,580,23,high,verified,
+2026-01-24,150.00,Ene,24 Ene,150,23,high,verified,
+2026-01-26,834.00,Ene,26 Ene,834,23,high,verified,
+2026-01-27,858.00,Ene,27 Ene,858,23,high,verified,
+2026-01-28,932.00,Ene,28 Ene,932,23,high,verified,
+2026-01-29,402.00,Ene,29 Ene,402,23,high,verified,
+2026-01-30,600.00,Ene,30 Ene,600,23,high,verified,
+2026-01-31,377.00,Ene,31 Ene,377,23,high,verified,
+2026-02-02,410.00,Feb,02 Feb,410,23,high,verified,
+2026-02-03,1022.00,Feb,03 Feb,1022,23,high,verified,
+2026-02-04,1257.00,Feb,04 Feb,1257,23,high,verified,
+2026-02-05,1168.00,Feb,05 Feb,1168,23,high,verified,
+2026-02-06,810.00,Feb,06 Feb,810,23,high,verified,
+2026-02-07,210.00,Feb,07 Feb,210,23,high,verified,
+2026-02-09,1200.00,Feb,09 Feb,1200 (685 Mercado),23,high,verified,Mercado 685 is a separate annotation and is excluded.
+2026-02-10,1130.00,Feb,10 Feb,1130,23,high,verified,
+2026-02-11,1075.00,Feb,11 Feb,1075,23,high,verified,
+2026-02-12,1339.00,Feb,12 Feb,1339,23,high,verified,
+2026-02-13,1200.00,Feb,13 Feb,1200,23,high,verified,
+2026-02-14,525.00,Feb,14 Feb,525,23,high,verified,
+2026-02-16,580.00,Feb,16 Feb,580,24,high,verified,
+2026-02-17,888.00,Feb,17 Feb,888,24,high,verified,
+2026-02-18,777.00,Feb,18 Feb,777,24,high,verified,
+2026-02-19,1179.00,Feb,19 Feb,1179,24,high,verified,
+2026-02-20,870.00,Feb,20 Feb,870 (overwritten),24,medium,adjudicated,Direct glyph review favors 870. This does not force the written section total.
+2026-02-21,290.00,Feb,21 Feb,290,24,high,verified,
