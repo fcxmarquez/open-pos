@@ -1,7 +1,7 @@
 import { and, count, eq, gte, lte, sql } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 import { db } from "@/db";
-import { salesSessions } from "@/db/schema";
+import { historicalDailySales, salesSessions } from "@/db/schema";
 import {
   buildCorteHistoryData,
   type CorteHistoryBucketRow,
@@ -23,16 +23,14 @@ export async function getCorteHistoryData({
 }: CorteHistoryQueryParams): Promise<CorteHistoryData> {
   const locale = (await getLocale()) as Locale;
   const window = getCorteHistoryWindow(range, offset, getTodayDateString(), locale);
-  const bucketExpression =
-    window.granularity === "month"
-      ? sql<string>`to_char(${salesSessions.sessionDate}, 'YYYY-MM')`
-      : sql<string>`to_char(${salesSessions.sessionDate}::date, 'YYYY-MM-DD')`;
+  const liveDateExpression = sql<string>`to_char(${salesSessions.sessionDate}::date, 'YYYY-MM-DD')`;
 
-  const rows = await db
+  const liveRowsQuery = db
     .select({
-      bucket: bucketExpression,
+      bucket: liveDateExpression,
       closedSessions: count(salesSessions.id),
       revenue: sql<number>`COALESCE(SUM(${salesSessions.systemTotal}::numeric), 0)::float`,
+      source: sql<"live">`'live'`,
     })
     .from(salesSessions)
     .where(
@@ -42,8 +40,33 @@ export async function getCorteHistoryData({
         lte(salesSessions.sessionDate, window.endDate)
       )
     )
-    .groupBy(bucketExpression)
-    .orderBy(bucketExpression);
+    .groupBy(liveDateExpression)
+    .orderBy(liveDateExpression);
 
-  return buildCorteHistoryData(window, rows as CorteHistoryBucketRow[], locale);
+  const historicalRowsQuery = db
+    .select({
+      bucket: historicalDailySales.businessDate,
+      closedSessions: sql<number>`0`,
+      revenue: sql<number | null>`${historicalDailySales.amountMxn}::float`,
+      source: sql<"historical">`'historical'`,
+    })
+    .from(historicalDailySales)
+    .where(
+      and(
+        gte(historicalDailySales.businessDate, window.startDate),
+        lte(historicalDailySales.businessDate, window.endDate)
+      )
+    )
+    .orderBy(historicalDailySales.businessDate);
+
+  const [liveRows, historicalRows] = await Promise.all([
+    liveRowsQuery,
+    historicalRowsQuery,
+  ]);
+
+  return buildCorteHistoryData(
+    window,
+    [...historicalRows, ...liveRows] as CorteHistoryBucketRow[],
+    locale
+  );
 }

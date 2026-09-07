@@ -45,7 +45,8 @@ export interface CorteHistoryBucket {
 export interface CorteHistoryBucketRow {
   bucket: string;
   closedSessions: number;
-  revenue: number;
+  revenue: number | null;
+  source?: "historical" | "live";
 }
 
 export interface CorteHistoryData extends CorteHistoryWindow {
@@ -251,18 +252,47 @@ export function buildCorteHistoryData(
   rows: CorteHistoryBucketRow[],
   locale: Locale = defaultLocale
 ): CorteHistoryData {
-  const rowByBucket = new Map(rows.map((row) => [row.bucket, row]));
+  // Both database queries return daily rows. Resolve overlap at that level before
+  // rolling data into month buckets so one live date does not hide a whole month
+  // of historical records.
+  const rowByDay = new Map<string, Required<CorteHistoryBucketRow>>();
+
+  for (const row of rows) {
+    const source = row.source ?? "live";
+    const current = rowByDay.get(row.bucket);
+
+    if (!current || source === "live") {
+      rowByDay.set(row.bucket, { ...row, source });
+    }
+  }
+
+  const rowsByBucket = new Map<string, Required<CorteHistoryBucketRow>[]>();
+
+  for (const row of rowByDay.values()) {
+    const key =
+      window.granularity === "month" ? getMonthBucketKey(row.bucket) : row.bucket;
+    const bucketRows = rowsByBucket.get(key) ?? [];
+    bucketRows.push(row);
+    rowsByBucket.set(key, bucketRows);
+  }
 
   const buckets = getWindowBucketKeys(window).map((key) => {
-    const row = rowByBucket.get(key);
+    const bucketRows = rowsByBucket.get(key) ?? [];
     const labels = getBucketLabels(window, key, locale);
+    const knownRevenueRows = bucketRows.filter((row) => row.revenue !== null);
 
     return {
-      closedSessions: row?.closedSessions ?? 0,
-      hasData: Boolean(row && row.closedSessions > 0),
+      closedSessions: bucketRows.reduce(
+        (total, row) => total + (row.source === "live" ? row.closedSessions : 0),
+        0
+      ),
+      hasData: knownRevenueRows.length > 0,
       key,
       label: labels.label,
-      revenue: row?.revenue ?? 0,
+      revenue:
+        knownRevenueRows.length > 0
+          ? knownRevenueRows.reduce((total, row) => total + (row.revenue ?? 0), 0)
+          : 0,
       tooltipLabel: labels.tooltipLabel,
     };
   });
