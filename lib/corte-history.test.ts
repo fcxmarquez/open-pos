@@ -134,8 +134,13 @@ describe("buildCorteHistoryData", () => {
   test("keeps every day in a weekly period and fills missing days with zero revenue", () => {
     const window = getCorteHistoryWindow("1S", 0, "2026-07-04");
     const result = buildCorteHistoryData(window, [
-      { bucket: "2026-06-30", closedSessions: 2, revenue: 150.5 },
-      { bucket: "2026-07-04", closedSessions: 1, revenue: 75 },
+      {
+        bucket: "2026-06-30",
+        closedSessions: 2,
+        revenue: 150.5,
+        source: "live",
+      },
+      { bucket: "2026-07-04", closedSessions: 1, revenue: 75, source: "live" },
     ]);
 
     expect(result.buckets).toHaveLength(7);
@@ -188,8 +193,8 @@ describe("buildCorteHistoryData", () => {
   test("keeps every month in yearly periods", () => {
     const window = getCorteHistoryWindow("1A", 0, "2026-07-04");
     const result = buildCorteHistoryData(window, [
-      { bucket: "2026-03", closedSessions: 1, revenue: 300 },
-      { bucket: "2026-06", closedSessions: 1, revenue: 686 },
+      { bucket: "2026-03-10", closedSessions: 1, revenue: 300, source: "live" },
+      { bucket: "2026-06-15", closedSessions: 1, revenue: 686, source: "live" },
     ]);
 
     expect(result.buckets).toHaveLength(12);
@@ -207,8 +212,114 @@ describe("buildCorteHistoryData", () => {
       "2026-11",
       "2026-12",
     ]);
-    expect(result.buckets[2]).toMatchObject({ hasData: true, revenue: 300 });
-    expect(result.buckets[6]).toMatchObject({ hasData: false, revenue: 0 });
+    expect(result.buckets[2]).toMatchObject({
+      hasData: true,
+      revenue: 300,
+    });
+    expect(result.buckets[6]).toMatchObject({
+      hasData: false,
+      revenue: 0,
+    });
     expect(result.totalRevenue).toBe(986);
+  });
+
+  test("shows known historical revenue through the original graph data shape", () => {
+    const window = getCorteHistoryWindow("1S", 0, "2026-07-04");
+    const result = buildCorteHistoryData(window, [
+      {
+        bucket: "2026-06-29",
+        closedSessions: 0,
+        revenue: 250,
+        source: "historical",
+      },
+    ]);
+
+    expect(result.buckets[0]).toEqual({
+      closedSessions: 0,
+      hasData: true,
+      key: "2026-06-29",
+      label: "lun 29",
+      revenue: 250,
+      tooltipLabel: "29 jun 2026",
+    });
+    expect(result.closedSessionsCount).toBe(0);
+    expect(result.hasData).toBe(true);
+    expect(result.totalRevenue).toBe(250);
+    expect(Object.keys(result).sort()).toEqual(
+      [
+        "buckets",
+        "closedSessionsCount",
+        "endDate",
+        "granularity",
+        "hasData",
+        "label",
+        "offset",
+        "range",
+        "startDate",
+        "totalRevenue",
+      ].sort()
+    );
+    expect(
+      result.buckets.every(
+        (bucket) =>
+          Object.keys(bucket).sort().join(",") ===
+          ["closedSessions", "hasData", "key", "label", "revenue", "tooltipLabel"]
+            .sort()
+            .join(",")
+      )
+    ).toBe(true);
+  });
+
+  test("merges historical and live rows by day with live revenue winning overlaps", () => {
+    const window = getCorteHistoryWindow("1S", 0, "2026-07-04");
+    const result = buildCorteHistoryData(window, [
+      {
+        bucket: "2026-06-30",
+        closedSessions: 0,
+        revenue: 400,
+        source: "historical",
+      },
+      {
+        bucket: "2026-06-30",
+        closedSessions: 2,
+        revenue: 175,
+        source: "live",
+      },
+    ]);
+
+    expect(result.buckets[1]).toEqual({
+      closedSessions: 2,
+      hasData: true,
+      key: "2026-06-30",
+      label: "mar 30",
+      revenue: 175,
+      tooltipLabel: "30 jun 2026",
+    });
+    expect(result.closedSessionsCount).toBe(2);
+    expect(result.totalRevenue).toBe(175);
+  });
+
+  test("ignores a null historical amount without fabricating revenue or UI metadata", () => {
+    const window = getCorteHistoryWindow("1S", 0, "2026-07-04");
+    const result = buildCorteHistoryData(window, [
+      {
+        bucket: "2026-07-01",
+        closedSessions: 0,
+        revenue: null,
+        source: "historical",
+      },
+    ]);
+
+    expect(result.buckets[2]).toEqual({
+      closedSessions: 0,
+      hasData: false,
+      key: "2026-07-01",
+      label: "mié 1",
+      revenue: 0,
+      tooltipLabel: "1 jul 2026",
+    });
+    expect(result.closedSessionsCount).toBe(0);
+    expect(result.hasData).toBe(false);
+    expect(result.totalRevenue).toBe(0);
   });
 });
