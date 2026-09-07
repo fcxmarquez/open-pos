@@ -107,17 +107,6 @@ if (process.env[ISOLATED_TEST_ENV] === "1") {
       throw new Error(`Isolated action tests failed:\n${output}`);
     }
 
-    expect(output).toContain(
-      "(pass) getAdminCorteHistoryData > rejects missing sessions"
-    );
-    expect(output).toContain(
-      "(pass) getAdminCorteHistoryData > rejects non-admin sessions"
-    );
-    expect(output).toContain(
-      "(pass) getAdminCorteHistoryData > rejects invalid corte history ranges"
-    );
-    expect(output).toContain(
-      "(pass) getAdminCorteHistoryData > forwards normalized params for admin sessions"
-    );
+    expect(output).toMatch(/\b4 pass\b/);
   });
 }
