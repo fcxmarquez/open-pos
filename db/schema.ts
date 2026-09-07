@@ -1,10 +1,12 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   date,
   decimal,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -53,6 +55,100 @@ export const salesSessions = pgTable(
     uniqueIndex("idx_sales_sessions_date_number").on(
       table.sessionDate,
       table.sessionNumber
+    ),
+  ]
+);
+
+export const historicalSalesImportBatches = pgTable(
+  "historical_sales_import_batches",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sourceFileName: text("source_file_name").notNull(),
+    sourceFilePath: text("source_file_path").notNull(),
+    sourceFileSha256: text("source_file_sha256").notNull(),
+    selectionPolicy: text("selection_policy").notNull(),
+    expectedRowCount: integer("expected_row_count").notNull(),
+    expectedKnownAmountCount: integer("expected_known_amount_count").notNull(),
+    expectedNullAmountCount: integer("expected_null_amount_count").notNull(),
+    expectedStartDate: date("expected_start_date").notNull(),
+    expectedEndDate: date("expected_end_date").notNull(),
+    expectedTotalAmountMxn: decimal("expected_total_amount_mxn", {
+      precision: 14,
+      scale: 2,
+    }).notNull(),
+    repositoryCommit: text("repository_commit"),
+    importedAt: timestamp("imported_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("uq_historical_import_batches_sha256").on(table.sourceFileSha256),
+    check(
+      "ck_historical_import_batches_sha256",
+      sql`${table.sourceFileSha256} ~ '^[0-9a-f]{64}$'`
+    ),
+    check(
+      "ck_historical_import_batches_counts",
+      sql`${table.expectedRowCount} > 0
+        AND ${table.expectedKnownAmountCount} >= 0
+        AND ${table.expectedNullAmountCount} >= 0
+        AND ${table.expectedKnownAmountCount} + ${table.expectedNullAmountCount} = ${table.expectedRowCount}`
+    ),
+    check(
+      "ck_historical_import_batches_date_range",
+      sql`${table.expectedStartDate} <= ${table.expectedEndDate}`
+    ),
+    check(
+      "ck_historical_import_batches_total",
+      sql`${table.expectedTotalAmountMxn} >= 0`
+    ),
+  ]
+);
+
+export const historicalDailySales = pgTable(
+  "historical_daily_sales",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    importBatchId: uuid("import_batch_id")
+      .references(() => historicalSalesImportBatches.id)
+      .notNull(),
+    businessDate: date("business_date").notNull(),
+    amountMxn: decimal("amount_mxn", { precision: 12, scale: 2 }),
+    selectedSource: text("selected_source").notNull(),
+    selectionBasis: text("selection_basis").notNull(),
+    mergeStatus: text("merge_status").notNull(),
+    sourceRowNumber: integer("source_row_number").notNull(),
+    provenance: jsonb("provenance").$type<Record<string, string | null>>().notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("uq_historical_daily_sales_business_date").on(table.businessDate),
+    uniqueIndex("uq_historical_daily_sales_batch_row").on(
+      table.importBatchId,
+      table.sourceRowNumber
+    ),
+    index("idx_historical_daily_sales_batch").on(table.importBatchId),
+    check(
+      "ck_historical_daily_sales_amount",
+      sql`${table.amountMxn} IS NULL OR ${table.amountMxn} >= 0`
+    ),
+    check("ck_historical_daily_sales_source_row", sql`${table.sourceRowNumber} >= 2`),
+    check(
+      "ck_historical_daily_sales_source_status",
+      sql`(
+          ${table.selectedSource} = 'notebook'
+          AND ${table.selectionBasis} = 'notebook_authoritative'
+          AND (
+            (${table.amountMxn} IS NOT NULL AND ${table.mergeStatus} = 'ready_notebook_authoritative')
+            OR (${table.amountMxn} IS NULL AND ${table.mergeStatus} = 'unresolved_notebook_blank')
+          )
+        ) OR (
+          ${table.selectedSource} = 'managementpro'
+          AND ${table.selectionBasis} = 'managementpro_nonoverlap_gap_fill'
+          AND (
+            (${table.amountMxn} IS NOT NULL AND ${table.mergeStatus} = 'ready_managementpro_gap_fill')
+            OR (${table.amountMxn} IS NULL AND ${table.mergeStatus} = 'unresolved_managementpro_blank')
+          )
+        )`
     ),
   ]
 );
