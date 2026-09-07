@@ -32,3 +32,12 @@ langgraph/.env
 
 # Misc
 scratchpad.md
+
+# Private historical-sales source data and one-time import tooling
+/export/
+/handoff.md
+/lib/server/historical-sales-import-repository.ts
+/lib/server/historical-sales-import.test.ts
+/lib/server/historical-sales-import.ts
+/scripts/historical-sales-import-safety.test.ts
+/scripts/import-historical-sales.ts
