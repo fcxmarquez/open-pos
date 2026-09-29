@@ -19,6 +19,9 @@ function createSelectBuilder() {
       appliedLimit = value;
       return builder;
     },
+    // Drizzle builders are thenable. Recording the limit here is what the
+    // assertions observe, so this mock has to be awaitable too.
+    // biome-ignore lint/suspicious/noThenProperty: matches the query builder
     then<TResult1 = unknown[], TResult2 = never>(
       onFulfilled?: ((value: unknown[]) => TResult1 | PromiseLike<TResult1>) | null,
       onRejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
