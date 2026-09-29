@@ -25,6 +25,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { CATEGORY_COLOR_MAP } from "@/lib/category-colors";
+import { PRODUCT_SEARCH_RESULT_LIMIT } from "@/lib/constants/products";
 import { getProductDisplayName } from "@/lib/mappers";
 import { type Product, useStore } from "@/lib/store";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -206,39 +207,46 @@ export function VentasScreen() {
                 </p>
               </div>
             ) : (
-              searchResults.map((p) => (
-                <button
-                  type="button"
-                  key={p.id}
-                  onClick={() => {
-                    addToCart(p);
-                    toast.success(
-                      tToast("added", {
-                        name: getProductDisplayName(p, tCommon("unnamedProduct")),
-                      })
-                    );
-                    clearSearchAndFocus();
-                  }}
-                  // biome-ignore lint/security/noSecrets: translation message key, not a secret
-                  aria-label={t("addToCartAria", {
-                    name: getProductDisplayName(p, tCommon("unnamedProduct")),
-                    price: formatCurrency(p.price, locale),
-                  })}
-                  className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
-                >
-                  <div>
-                    <span className="font-medium text-foreground">
-                      {getProductDisplayName(p, tCommon("unnamedProduct"))}
+              <>
+                {searchResults.map((p) => (
+                  <button
+                    type="button"
+                    key={p.id}
+                    onClick={() => {
+                      addToCart(p);
+                      toast.success(
+                        tToast("added", {
+                          name: getProductDisplayName(p, tCommon("unnamedProduct")),
+                        })
+                      );
+                      clearSearchAndFocus();
+                    }}
+                    // biome-ignore lint/security/noSecrets: translation message key, not a secret
+                    aria-label={t("addToCartAria", {
+                      name: getProductDisplayName(p, tCommon("unnamedProduct")),
+                      price: formatCurrency(p.price, locale),
+                    })}
+                    className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted"
+                  >
+                    <div>
+                      <span className="font-medium text-foreground">
+                        {getProductDisplayName(p, tCommon("unnamedProduct"))}
+                      </span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {p.barcode}
+                      </span>
+                    </div>
+                    <span className="font-semibold text-foreground">
+                      {formatCurrency(p.price, locale)}
                     </span>
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      {p.barcode}
-                    </span>
-                  </div>
-                  <span className="font-semibold text-foreground">
-                    {formatCurrency(p.price, locale)}
-                  </span>
-                </button>
-              ))
+                  </button>
+                ))}
+                {searchResults.length >= PRODUCT_SEARCH_RESULT_LIMIT && (
+                  <p className="sticky bottom-0 border-t bg-card px-4 py-2 text-xs text-muted-foreground">
+                    {t("searchResultsCapped", { count: PRODUCT_SEARCH_RESULT_LIMIT })}
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}

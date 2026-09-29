@@ -184,6 +184,7 @@
     "quickSaleButton": "Quick sale (F4)",
     "noProductsFound": "No products found",
     "pressEnterToRegister": "Press Enter to register it",
+    "searchResultsCapped": "Showing the first {count}. Type more to narrow the search.",
     "frequentProducts": "Frequent products",
     "addToCartAria": "Add {name} to cart for {price}",
     "viewCartAria": "View cart with {count} items, total {total}",
