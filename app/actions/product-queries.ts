@@ -3,6 +3,7 @@
 // turn every export (e.g. getProducts, getPendingProducts) into a public endpoint.
 "use server";
 
+import { PRODUCT_SEARCH_RESULT_LIMIT } from "@/lib/constants/products";
 import {
   getFrequentProducts as queryFrequentProducts,
   getProducts as queryGetProducts,
@@ -21,7 +22,9 @@ export async function getProductByPluCode(pluCode: string) {
 }
 
 export async function searchProducts(query: string) {
-  return querySearchProducts(query);
+  // Cap the interactive search. The catalog agent calls the query directly
+  // and still receives every match.
+  return querySearchProducts(query, PRODUCT_SEARCH_RESULT_LIMIT);
 }
 
 export async function getFrequentProducts(limit?: number) {
