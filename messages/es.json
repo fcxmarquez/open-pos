@@ -130,6 +130,7 @@
     "noFieldsToUpdate": "No se enviaron campos para actualizar",
     "selectAtLeastOne": "Selecciona al menos un producto",
     "bulkMax500": "No se pueden actualizar más de 500 productos a la vez",
+    "bulkDeleteMax500": "No se pueden eliminar más de 500 productos a la vez",
     "sessionIdInvalid": "ID de sesión inválido",
     "countedTotalNonNegative": "El total contado debe ser mayor o igual a 0"
   },
@@ -143,6 +144,7 @@
     "productNotFound": "Producto no encontrado",
     "deleteProductFailed": "No se pudo eliminar el producto",
     "bulkUpdateFailed": "No se pudieron actualizar los productos",
+    "bulkDeleteFailed": "No se pudieron eliminar los productos",
     "sessionNotFound": "Sesión no encontrada",
     "sessionAlreadyClosed": "La sesión ya fue cerrada",
     "closeSessionFailed": "No se pudo cerrar la sesión"
@@ -271,6 +273,10 @@
     "deselectPage": "Quitar selección",
     "editSelected": "Editar seleccionados",
     "editSelectedAria": "Editar seleccionados ({count} producto(s))",
+    "deleteSelected": "Eliminar seleccionados",
+    "deleteSelectedAria": "Eliminar seleccionados ({count} producto(s))",
+    "deleteSelectedTitle": "{count, plural, one {¿Eliminar este producto?} other {¿Eliminar # productos seleccionados?}}",
+    "deleteSelectedDescription": "{count, plural, one {Este producto desaparecerá del catálogo y de ventas.} other {Estos # productos desaparecerán del catálogo y de ventas.}}",
     "clearSelection": "Limpiar selección",
     "clearSelectionAria": "Limpiar selección de productos",
     "emptyTitle": "No se encontraron productos",
@@ -283,6 +289,8 @@
       "updatedOne": "1 producto actualizado",
       "updatedMany": "{count} productos actualizados",
       "deleted": "Producto eliminado",
+      "deletedOne": "1 producto eliminado",
+      "deletedMany": "{count} productos eliminados",
       "updated": "Producto actualizado",
       "added": "Producto agregado"
     },

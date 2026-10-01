@@ -114,7 +114,10 @@
       }
     },
     {
-      "includes": ["lib/server/queries/corte-history.test.ts"],
+      "includes": [
+        "lib/server/queries/corte-history.test.ts",
+        "lib/server/queries/products.test.ts"
+      ],
       "linter": {
         "rules": {
           "suspicious": { "noThenProperty": "off" }

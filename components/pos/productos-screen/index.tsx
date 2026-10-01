@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
+  bulkDeleteProducts as bulkDeleteProductsAction,
   bulkUpdateProducts as bulkUpdateProductsAction,
   deleteProduct as deleteProductAction,
 } from "@/app/actions/products";
@@ -67,6 +68,8 @@ export function ProductosScreen() {
   const isMobile = useIsMobile();
   const [showForm, setShowForm] = useState(false);
   const [showBulkEditDialog, setShowBulkEditDialog] = useState(false);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [bulkDeleteCount, setBulkDeleteCount] = useState(0);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [addInitialValues, setAddInitialValues] = useState<
     Partial<{ barcode: string; pluCode: string; name: string }> | undefined
@@ -74,6 +77,7 @@ export function ProductosScreen() {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
+  const [isBulkDeletePending, startBulkDeleteTransition] = useTransition();
   const { filtersForm, categoryFilter, normalizedSearch, page, setPage } =
     useProductosRouteFilters();
   const queryClient = useQueryClient();
@@ -236,6 +240,32 @@ export function ProductosScreen() {
     return true;
   };
 
+  const handleBulkDelete = () => {
+    if (selectedCount === 0) {
+      toast.error(tToast("selectAtLeastOne"));
+      return;
+    }
+
+    const ids = Array.from(selectedProductIds);
+    startBulkDeleteTransition(async () => {
+      const result = await bulkDeleteProductsAction({ ids });
+
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+
+      setShowBulkDeleteDialog(false);
+      toast.success(
+        result.data.deletedCount === 1
+          ? tToast("deletedOne")
+          : tToast("deletedMany", { count: result.data.deletedCount })
+      );
+      invalidateQueries();
+      clearSelection();
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -348,22 +378,22 @@ export function ProductosScreen() {
         className={cn(
           "overflow-hidden transition-[max-height,opacity,transform,margin] duration-200 ease-out",
           hasSelection
-            ? "mb-4 max-h-40 translate-y-0 opacity-100"
+            ? "mb-4 max-h-56 translate-y-0 opacity-100"
             : "pointer-events-none mb-0 max-h-0 -translate-y-2 opacity-0"
         )}
         aria-hidden={!hasSelection}
       >
-        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
               {tCommon("selectedProducts", { count: selectedCount })}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end">
             <Button
               type="button"
               size="sm"
-              disabled={!hasSelection}
+              disabled={!hasSelection || isBulkDeletePending}
               onClick={() => setShowBulkEditDialog(true)}
               aria-label={t("editSelectedAria", { count: selectedCount })}
             >
@@ -372,8 +402,21 @@ export function ProductosScreen() {
             <Button
               type="button"
               size="sm"
+              variant="destructive"
+              disabled={!hasSelection || isBulkDeletePending}
+              onClick={() => {
+                setBulkDeleteCount(selectedCount);
+                setShowBulkDeleteDialog(true);
+              }}
+              aria-label={t("deleteSelectedAria", { count: selectedCount })}
+            >
+              {t("deleteSelected")}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
               variant="outline"
-              disabled={!hasSelection}
+              disabled={!hasSelection || isBulkDeletePending}
               onClick={clearSelection}
               aria-label={t("clearSelectionAria")}
             >
@@ -452,6 +495,44 @@ export function ProductosScreen() {
         selectedCount={selectedCount}
         onApply={handleBulkApply}
       />
+
+      <AlertDialog
+        open={showBulkDeleteDialog}
+        onOpenChange={(open) => {
+          if (!open && !isBulkDeletePending) {
+            setShowBulkDeleteDialog(false);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("deleteSelectedTitle", { count: bulkDeleteCount })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteSelectedDescription", { count: bulkDeleteCount })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isBulkDeletePending}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isBulkDeletePending}
+              onClick={(event) => {
+                event.preventDefault();
+                handleBulkDelete();
+              }}
+            >
+              {isBulkDeletePending && (
+                <Spinner className="mr-2 text-destructive-foreground" />
+              )}
+              {tCommon("delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={!!productToDelete}
