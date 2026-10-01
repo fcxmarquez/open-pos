@@ -162,6 +162,17 @@ describe("ProductosScreen bulk delete", () => {
 
     const productCalls = getProducts.mock.calls.length;
     const pendingCalls = getPendingProducts.mock.calls.length;
+    let sawZeroProductDialog = false;
+    const observer = new MutationObserver(() => {
+      if (document.body.textContent?.includes("¿Eliminar 0 productos")) {
+        sawZeroProductDialog = true;
+      }
+    });
+    observer.observe(document.body, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
     const dialog = await openDeleteDialog(user);
     await user.click(within(dialog).getByRole("button", { name: "Eliminar" }));
 
@@ -186,6 +197,8 @@ describe("ProductosScreen bulk delete", () => {
       expect(getProducts.mock.calls.length).toBeGreaterThan(productCalls);
       expect(getPendingProducts.mock.calls.length).toBeGreaterThan(pendingCalls);
     });
+    observer.disconnect();
+    expect(sawZeroProductDialog).toBe(false);
   });
 
   test("cancel closes the dialog and keeps the selection", async () => {

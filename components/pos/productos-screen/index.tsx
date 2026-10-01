@@ -69,6 +69,7 @@ export function ProductosScreen() {
   const [showForm, setShowForm] = useState(false);
   const [showBulkEditDialog, setShowBulkEditDialog] = useState(false);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [bulkDeleteCount, setBulkDeleteCount] = useState(0);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [addInitialValues, setAddInitialValues] = useState<
     Partial<{ barcode: string; pluCode: string; name: string }> | undefined
@@ -254,6 +255,7 @@ export function ProductosScreen() {
         return;
       }
 
+      setShowBulkDeleteDialog(false);
       toast.success(
         result.data.deletedCount === 1
           ? tToast("deletedOne")
@@ -261,7 +263,6 @@ export function ProductosScreen() {
       );
       invalidateQueries();
       clearSelection();
-      setShowBulkDeleteDialog(false);
     });
   };
 
@@ -382,13 +383,13 @@ export function ProductosScreen() {
         )}
         aria-hidden={!hasSelection}
       >
-        <div className="flex flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 flex-col gap-2 rounded-md border border-primary/30 bg-primary/5 p-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
               {tCommon("selectedProducts", { count: selectedCount })}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end">
             <Button
               type="button"
               size="sm"
@@ -403,7 +404,10 @@ export function ProductosScreen() {
               size="sm"
               variant="destructive"
               disabled={!hasSelection || isBulkDeletePending}
-              onClick={() => setShowBulkDeleteDialog(true)}
+              onClick={() => {
+                setBulkDeleteCount(selectedCount);
+                setShowBulkDeleteDialog(true);
+              }}
               aria-label={t("deleteSelectedAria", { count: selectedCount })}
             >
               {t("deleteSelected")}
@@ -503,10 +507,10 @@ export function ProductosScreen() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("deleteSelectedTitle", { count: selectedCount })}
+              {t("deleteSelectedTitle", { count: bulkDeleteCount })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("deleteSelectedDescription", { count: selectedCount })}
+              {t("deleteSelectedDescription", { count: bulkDeleteCount })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
