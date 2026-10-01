@@ -257,3 +257,20 @@ export async function bulkUpdateProducts(ids: string[], updates: BulkProductUpda
 
   return updated.length;
 }
+
+export async function bulkDeleteProducts(ids: string[]): Promise<number> {
+  if (ids.length === 0) {
+    return 0;
+  }
+
+  const deleted = await db
+    .update(products)
+    .set({
+      isActive: false,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(products.isActive, true), inArray(products.id, ids)))
+    .returning({ id: products.id });
+
+  return deleted.length;
+}

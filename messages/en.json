@@ -130,6 +130,7 @@
     "noFieldsToUpdate": "No fields were sent to update",
     "selectAtLeastOne": "Select at least one product",
     "bulkMax500": "Cannot update more than 500 products at once",
+    "bulkDeleteMax500": "Cannot delete more than 500 products at once",
     "sessionIdInvalid": "Invalid session ID",
     "countedTotalNonNegative": "Counted total must be greater than or equal to 0"
   },
@@ -143,6 +144,7 @@
     "productNotFound": "Product not found",
     "deleteProductFailed": "Could not delete the product",
     "bulkUpdateFailed": "Could not update the products",
+    "bulkDeleteFailed": "Could not delete the products",
     "sessionNotFound": "Session not found",
     "sessionAlreadyClosed": "Session is already closed",
     "closeSessionFailed": "Could not close the session"
@@ -271,6 +273,10 @@
     "deselectPage": "Deselect page",
     "editSelected": "Edit selected",
     "editSelectedAria": "Edit selected ({count} product(s))",
+    "deleteSelected": "Delete selected",
+    "deleteSelectedAria": "Delete selected ({count} product(s))",
+    "deleteSelectedTitle": "{count, plural, one {Delete this product?} other {Delete # selected products?}}",
+    "deleteSelectedDescription": "{count, plural, one {This product will disappear from the catalog and from sales.} other {These # products will disappear from the catalog and from sales.}}",
     "clearSelection": "Clear selection",
     "clearSelectionAria": "Clear product selection",
     "emptyTitle": "No products found",
@@ -283,6 +289,8 @@
       "updatedOne": "1 product updated",
       "updatedMany": "{count} products updated",
       "deleted": "Product deleted",
+      "deletedOne": "1 product deleted",
+      "deletedMany": "{count} products deleted",
       "updated": "Product updated",
       "added": "Product added"
     },
