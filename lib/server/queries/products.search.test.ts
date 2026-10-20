@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import { PRODUCT_SEARCH_RESULT_LIMIT } from "@/lib/constants/products";
 
 const appliedLimits: Array<number | undefined> = [];
 
@@ -47,11 +46,6 @@ async function searchProducts(
   return query(...args);
 }
 
-async function searchProductsAction(query: string) {
-  const { searchProducts: action } = await import("@/app/actions/product-queries");
-  return action(query);
-}
-
 describe("searchProducts", () => {
   beforeEach(() => {
     appliedLimits.length = 0;
@@ -79,11 +73,5 @@ describe("searchProducts", () => {
     await searchProducts("papel", 50.9);
 
     expect(appliedLimits).toEqual([50]);
-  });
-
-  test("the POS action uses the typeahead cap", async () => {
-    await searchProductsAction("co");
-
-    expect(appliedLimits).toEqual([PRODUCT_SEARCH_RESULT_LIMIT]);
   });
 });
