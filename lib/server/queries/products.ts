@@ -127,10 +127,15 @@ export async function getProductByPluCode(pluCode: string) {
   return product ?? null;
 }
 
-export async function searchProducts(query: string) {
+export async function searchProducts(query: string, limit?: number) {
   const term = buildContainsPattern(query);
 
-  return db
+  // Leading-wildcard ILIKE cannot use the btree indexes, so short queries
+  // match most of the catalog. Measured on the development branch: "co"
+  // returns 2,629 active products (~39KB of tuples) in ~3ms of SQL, then the
+  // POS typeahead renders every row. Pass a limit to keep that response to
+  // the first N names. Omit it when a caller needs the full match set.
+  const statement = db
     .select()
     .from(products)
     .where(
@@ -143,7 +148,13 @@ export async function searchProducts(query: string) {
         )
       )
     )
-    .orderBy(products.name);
+    .orderBy(asc(products.name), asc(products.id));
+
+  if (limit === undefined || !Number.isFinite(limit) || limit < 1) {
+    return statement;
+  }
+
+  return statement.limit(Math.trunc(limit));
 }
 
 export async function getFrequentProducts(limit = 12) {
