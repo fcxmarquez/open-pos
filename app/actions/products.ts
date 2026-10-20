@@ -14,6 +14,7 @@ import type {
 import { CATEGORY_OPTIONS } from "@/lib/pos-form-schemas";
 import {
   barcodeExists,
+  bulkDeleteProducts as bulkDeleteProductsQuery,
   bulkUpdateProducts as bulkUpdateProductsQuery,
   pluCodeExists,
 } from "@/lib/server/queries/products";
@@ -100,6 +101,15 @@ function createBulkUpdateProductsSchema(t: ValidationTranslator) {
       .min(1, t("selectAtLeastOne"))
       .max(500, t("bulkMax500")),
     updates: bulkProductUpdatesSchema,
+  });
+}
+
+function createBulkDeleteProductsSchema(t: ValidationTranslator) {
+  return z.object({
+    ids: z
+      .array(z.string().uuid(t("productIdInvalid")))
+      .min(1, t("selectAtLeastOne"))
+      .max(500, t("bulkDeleteMax500")),
   });
 }
 
@@ -433,6 +443,42 @@ export async function bulkUpdateProducts(
       success: false,
       data: null,
       error: tErrors("bulkUpdateFailed"),
+    };
+  }
+}
+
+export async function bulkDeleteProducts(
+  input: z.input<ReturnType<typeof createBulkDeleteProductsSchema>>
+): Promise<ActionResult<{ deletedCount: number }>> {
+  const t = await getTranslations("validation");
+  const tErrors = await getTranslations("errors");
+  const bulkDeleteProductsSchema = createBulkDeleteProductsSchema(t);
+  const parsed = bulkDeleteProductsSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      data: null,
+      error: formatZodError(parsed.error, t("invalidInput")),
+    };
+  }
+
+  try {
+    const deletedCount = await bulkDeleteProductsQuery(parsed.data.ids);
+
+    revalidateProducts();
+
+    return {
+      success: true,
+      data: { deletedCount },
+      error: null,
+    };
+  } catch (error) {
+    console.error("bulkDeleteProducts failed:", error);
+    return {
+      success: false,
+      data: null,
+      error: tErrors("bulkDeleteFailed"),
     };
   }
 }
