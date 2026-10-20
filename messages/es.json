@@ -291,6 +291,7 @@
       "deleted": "Producto eliminado",
       "deletedOne": "1 producto eliminado",
       "deletedMany": "{count} productos eliminados",
+      "alreadyDeleted": "Los productos seleccionados ya estaban eliminados",
       "updated": "Producto actualizado",
       "added": "Producto agregado"
     },

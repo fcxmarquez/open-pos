@@ -291,6 +291,7 @@
       "deleted": "Product deleted",
       "deletedOne": "1 product deleted",
       "deletedMany": "{count} products deleted",
+      "alreadyDeleted": "The selected products were already deleted",
       "updated": "Product updated",
       "added": "Product added"
     },

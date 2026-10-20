@@ -1,8 +1,18 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type Mock,
+  mock,
+  spyOn,
+  test,
+} from "bun:test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
+import { toast } from "sonner";
 import type { ActionResult } from "@/lib/types";
 import messages from "@/messages/es.json";
 
@@ -145,7 +155,12 @@ async function openDeleteDialog(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("ProductosScreen bulk delete", () => {
+  let infoToast: Mock<typeof toast.info>;
+  let successToast: Mock<typeof toast.success>;
+
   beforeEach(() => {
+    infoToast = spyOn(toast, "info");
+    successToast = spyOn(toast, "success");
     bulkDeleteProducts.mockClear();
     getProducts.mockClear();
     getPendingProducts.mockClear();
@@ -153,6 +168,11 @@ describe("ProductosScreen bulk delete", () => {
       configurable: true,
       value: 1280,
     });
+  });
+
+  afterEach(() => {
+    infoToast.mockRestore();
+    successToast.mockRestore();
   });
 
   test("confirms the selected products, deletes those ids, and clears the selection", async () => {
@@ -199,6 +219,36 @@ describe("ProductosScreen bulk delete", () => {
     });
     observer.disconnect();
     expect(sawZeroProductDialog).toBe(false);
+  });
+
+  test("says the products were already deleted when none were still active", async () => {
+    bulkDeleteProducts.mockImplementationOnce(async () => ({
+      success: true,
+      data: { deletedCount: 0 },
+      error: null,
+    }));
+    const user = userEvent.setup();
+    await renderProductosScreen();
+    await selectBothProducts(user);
+
+    const productCalls = getProducts.mock.calls.length;
+    const dialog = await openDeleteDialog(user);
+    await user.click(within(dialog).getByRole("button", { name: "Eliminar" }));
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("alertdialog", { name: DELETE_TITLE })
+      ).not.toBeInTheDocument();
+    });
+    expect(infoToast).toHaveBeenCalledWith(
+      "Los productos seleccionados ya estaban eliminados"
+    );
+    expect(successToast).not.toHaveBeenCalled();
+    expect(screen.getByRole("checkbox", { name: "Seleccionar Lápiz" })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Seleccionar Goma" })).not.toBeChecked();
+    await waitFor(() => {
+      expect(getProducts.mock.calls.length).toBeGreaterThan(productCalls);
+    });
   });
 
   test("cancel closes the dialog and keeps the selection", async () => {

@@ -256,11 +256,17 @@ export function ProductosScreen() {
       }
 
       setShowBulkDeleteDialog(false);
-      toast.success(
-        result.data.deletedCount === 1
-          ? tToast("deletedOne")
-          : tToast("deletedMany", { count: result.data.deletedCount })
-      );
+      const { deletedCount } = result.data;
+      if (deletedCount === 0) {
+        // Every selected row was already inactive, e.g. deleted from another tab.
+        toast.info(tToast("alreadyDeleted"));
+      } else {
+        toast.success(
+          deletedCount === 1
+            ? tToast("deletedOne")
+            : tToast("deletedMany", { count: deletedCount })
+        );
+      }
       invalidateQueries();
       clearSelection();
     });
